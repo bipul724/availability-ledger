@@ -52,12 +52,14 @@ class ConditionIntervals(unittest.TestCase):
     """EVAL-09: every slot of a reference condition's interval must hold the expected final status."""
 
     def errors(self, expected, ref_status, time_text, status):
-        messages = parse_messages("2026-11-03 09:00 | Ana Example | Tuesday afternoon if the bus runs\n")
+        # The message contains the proposed time words, so the claim is supported (otherwise COR-10 would hold it).
+        text = f"Tuesday {time_text} if the bus runs" if time_text else "Tuesday afternoon if the bus runs"
+        messages = parse_messages(f"2026-11-03 09:00 | Ana Example | {text}\n")
         ref = {"messages": {"m01": {"category": ["conditional"], "claims": [ref_claim("14:00", "16:00", ref_status)]}},
                "withdrawals": [], "ambiguities": [],
                "conditions": [{"msg": "m01", "person": "Ana Example", "date": "2026-11-10", "start": "14:00", "end": "16:00",
                                "expected_final": expected}]}
-        claims = [said("m01", 1, "Tuesday", time_text, "Tuesday afternoon if the bus runs", status)] if time_text else []
+        claims = [said("m01", 1, "Tuesday", time_text, text, status)] if time_text else []
         resolved = resolve_all(messages, claims, ROSTER, CAL)
         _, checks = run.ledger_checks(messages, ROSTER, CAL, ref, resolved)
         return checks["incorrectly_resolved_conditions"], checks["condition_error_list"]

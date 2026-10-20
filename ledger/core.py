@@ -11,6 +11,7 @@ from __future__ import annotations
 import difflib
 import re
 from collections import Counter
+from datetime import date
 
 from .messages import Message
 from .names import SELF_WORDS, match_person, norm_name
@@ -22,6 +23,14 @@ N_SLOTS = (SLOT_END - SLOT_START) // SLOT
 COUNT_START, COUNT_END, COUNT_STEP = 8 * 60, 22 * 60, 30
 STATUSES = ("available", "conditional", "unavailable")
 _CAUTION = {"available": 0, "conditional": 1, "unavailable": 2}
+
+# COR-07a (D-25): general-English words that can signal a change to an earlier answer, written from everyday usage,
+# not from any fixture. "scratch" and "skip" also occur in set B, so any effect on sets A/B is post-hoc; only the
+# frozen set C tests this list independently. A match only raises a warning; it never edits the sheet or the export.
+CHANGE_WORDS = re.compile(
+    r"\b(?:cancel(?:s|led|ed|ling|ing)?|drop(?:s|ped|ping)?|skip(?:s|ped|ping)?|scratch|off|can'?t|cannot|can not"
+    r"|won'?t|no longer|not any ?more|pull(?:ing)? out|back(?:ing)? out|bail(?:s|ed|ing)?|count me out"
+    r"|withdraw(?:s|n|ing)?|unable|not able|miss(?:ing)?|rain ?check|change of plans?)\b")
 
 _PUNCT = {"’": "'", "‘": "'", "“": '"', "”": '"', "–": "-", "—": "-"}
 
@@ -299,8 +308,34 @@ def build_ledger(messages: list[Message], claims: list[dict], roster: list[str],
                     history[key].append({"msg": dup.id, "sent": sent[dup.id], "claim": oc["id"], "status": oc["status"],
                                          "what": "repeated", "span": span, "duplicate_of": dup.duplicate_of})
 
+    # COR-07a: a later message from the same person with a change word that names a day on which they still have open
+    # time, while none of that message's live claims touches the day. Checked just before that message's claims apply.
+    change_msgs = [m for m in messages if not m.duplicate_of and CHANGE_WORDS.search(_norm(m.text))]
+    claims_of: dict[str, list] = {}
+    for c in live:
+        claims_of.setdefault(c["msg"], []).append(c)
+
+    def check_changes_until(pos):
+        while change_msgs and order[change_msgs[0].id] <= pos:
+            m = change_msgs.pop(0)
+            pm = match_person("SENDER", m.sender, roster)
+            if pm.state != "resolved":
+                continue
+            dr = resolve_day(m.text, m.sent, cal)
+            touched = {d for c in claims_of.get(m.id, [])
+                       if pm.name in ([c["person"]] if c["person_state"] == "resolved" else c.get("person_candidates") or [])
+                       for d in list(c.get("dates") or []) + list(c.get("date_candidates") or [])}
+            for d in sorted({x.isoformat() for x in dr.dates + dr.candidates if cal.in_week(x)}):
+                slots = state.get((pm.name, d))
+                if d in touched or not slots or not any(s and s[0] != "unavailable" for s in slots):
+                    continue
+                issues.append({"kind": "unanswered_change", "msg": m.id, "claim": None, "person": pm.name, "date": d,
+                               "text": f"Possible change not applied ({m.id} mentions {date.fromisoformat(d):%a %d %b}): "
+                                       f"{pm.name} still has open time that day and nothing from {m.id} changes it"})
+
     for c in live:
         echo_until(order[c["msg"]])
+        check_changes_until(order[c["msg"]])
         who = c["person"] or "/".join(c.get("person_candidates") or []) or "unknown sender"
         if c["person_state"] != "resolved":
             issue("who", c, f"Who is this about? Candidates: {', '.join(c['person_candidates']) or 'none on the roster'}")
@@ -369,6 +404,13 @@ def build_ledger(messages: list[Message], claims: list[dict], roster: list[str],
             hist.append({**event, "what": ", ".join(changes) or "no change", "span": f"{_hhmm(span[0])}-{_hhmm(span[1])}"})
             applied.setdefault(c["id"], []).append((key, hist[-1]["span"]))
     echo_until(len(order))
+    check_changes_until(len(order))
+    # COR-10 per D-30: a pending suggestion whose day or time words are not in the message still counts provisionally
+    # (holding it removed correct, reworded suggestions), but is listed for a wording check. Not a blocking kind.
+    for c in live:
+        if c.get("review") == "pending" and "phrase_not_in_message" in (c.get("flags") or []):
+            who = c["person"] or "/".join(c.get("person_candidates") or []) or "unknown sender"
+            issue("check_wording", c, f"{who}: some day or time words are not in this message; check the wording before accepting")
 
     sheet: dict[str, dict] = {p: {} for p in roster}
     for (person, d), slots in sorted(state.items()):

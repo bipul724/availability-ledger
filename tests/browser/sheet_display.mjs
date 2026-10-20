@@ -65,6 +65,30 @@ const split = await js(`(() => { const c = chartSplit(state.ledger, state.resolv
 check(split.bad === 0 && split.acc > 0 && split.pen > 0, `chart split sums to server counts in every slot (accepted ${split.acc}, pending ${split.pen} person-slots)`);
 check(split.layers.every((n) => n > 0), `chart draws all four layers: ${split.layers}`);
 
+// UI-07: both conditional layers must stay visible (WCAG non-text contrast >= 3:1 for the effective stripe colour
+// against the panel) in light and dark mode, and pending must use a different pattern from accepted.
+for (const scheme of ["light", "dark"]) {
+  await app.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: scheme }] });
+  await sleep(200);
+  const vis = await js(`(() => {
+    const rgb = (s) => s.match(/[\\d.]+/g).map(Number);
+    const lum = ([r, g, b]) => [r, g, b].map((c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; })
+      .reduce((sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i], 0);
+    const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+    const bg = rgb(getComputedStyle(document.getElementById("chart").closest(".panel")).backgroundColor);
+    const layer = (cls) => {
+      const r = document.querySelector("#chart rect." + cls), cs = getComputedStyle(r);
+      const pat = document.querySelector(cs.fill.match(/#[\\w-]+/)[0]), line = getComputedStyle(pat.querySelector("line"));
+      const op = Number(cs.opacity) * Number(line.strokeOpacity || 1), stroke = rgb(line.stroke).slice(0, 3);
+      const eff = stroke.map((c, i) => c * op + bg[i] * (1 - op));
+      return { pattern: pat.id, contrast: Math.round(contrast(eff, bg) * 100) / 100 };
+    };
+    return { pending: layer("pen-c"), accepted: layer("acc-c") }; })()`);
+  check(vis.pending.contrast >= 3 && vis.accepted.contrast >= 3 && vis.pending.pattern !== vis.accepted.pattern,
+    `${scheme}: pending-conditional layer visible and distinct (pending ${vis.pending.pattern} ${vis.pending.contrast}:1, accepted ${vis.accepted.pattern} ${vis.accepted.contrast}:1)`);
+}
+await app.send("Emulation.setEmulatedMedia", { features: [] });
+
 // Decide everything and mark all messages reviewed: the titles switch to Complete and nothing is pending.
 await click(`.card[data-id="m02.1"] button[data-act="accept"]`);
 await click(`.card[data-id="m04.1"] button[data-act="reject"]`);

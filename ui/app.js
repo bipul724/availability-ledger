@@ -416,9 +416,11 @@ function acceptClean() {
 
 function renderSummary() {
   const L = state.ledger;
-  const order = { conflict: 0, who: 1, date: 2, time: 3, condition: 4, outside: 5 };
+  const order = { conflict: 0, unanswered_change: 1, who: 2, date: 3, time: 4, check_wording: 5, condition: 6, outside: 7 };
+  const kindLabel = { unanswered_change: "Possible missed change", check_wording: "Check the wording" };  // COR-07a, COR-10 (D-30)
   const issues = [...L.issues].sort((a, b) => (order[a.kind] ?? 9) - (order[b.kind] ?? 9));
-  $("issues").innerHTML = issues.map((i) => `<li><a href="#row-${esc(i.msg)}">${esc(i.msg)}</a> ${esc(i.text)}</li>`).join("")
+  $("issues").innerHTML = issues.map((i) => `<li><a href="#row-${esc(i.msg)}">${esc(i.msg)}</a> ` +
+    `${kindLabel[i.kind] ? `<strong class="issue-kind">${kindLabel[i.kind]}:</strong> ` : ""}${esc(i.text)}</li>`).join("")
     || "<li>Nothing open.</li>";
 
   const dates = weekDates();
@@ -492,9 +494,11 @@ function renderChart(L, resolved) {
     ["acc-c", "conditional", "accepted", "conditional (accepted)"], ["pen-c", "conditional", "pending", "conditional (pending review)"]];
   let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="People available per half hour, accepted and pending shown separately"><defs>
     <pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-    <rect width="4" height="4" fill="none"/><line x1="0" y1="0" x2="0" y2="4" stroke="var(--chart-maybe)" stroke-width="2"/></pattern></defs>`;
+    <rect width="4" height="4" fill="none"/><line x1="0" y1="0" x2="0" y2="4" style="stroke: var(--chart-maybe)" stroke-width="2"/></pattern>
+    <pattern id="hatch-pending" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="4" height="4" style="fill: var(--chart-maybe); fill-opacity: 0.3"/><line x1="0" y1="0" x2="0" y2="4" style="stroke: var(--chart-maybe)" stroke-width="1"/></pattern></defs>`;
   for (let v = 0; v <= max; v += Math.max(1, Math.ceil(max / 4))) {
-    svg += `<line x1="${left}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text class="axis" x="0" y="${y(v) + 3}">${v}</text>`;
+    svg += `<line class="grid" x1="${left}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text class="axis" x="0" y="${y(v) + 3}">${v}</text>`;
   }
   counts.days.forEach((d, di) => {
     const x0 = left + di * (gw + gap);
