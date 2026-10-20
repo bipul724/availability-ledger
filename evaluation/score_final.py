@@ -22,6 +22,7 @@ from ledger.core import _mins, _slot_range, build_ledger, final_slots
 from ledger.export import FinalSheetError, parse_final_csv, unresolved_slots
 
 from .fixture import load, reference_claims
+from .run import condition_error
 
 
 def score(final: dict, ref_slots: dict, withdrawals: list[dict], conditions: list[dict]) -> dict:
@@ -42,26 +43,8 @@ def score(final: dict, ref_slots: dict, withdrawals: list[dict], conditions: lis
             w_errors.append({**w, "error": "still available"})
     c_errors = []
     for c in conditions:  # one verdict per reference condition, from every slot of its interval
-        got, exp = states(c["person"], c["date"], c["start"], c["end"]), c["expected_final"]
-        error = None
-        if (c["person"], c["date"]) in unresolved:
-            error = "unresolved"
-        elif exp == "conditional":
-            if "available" in got:
-                error = "treated as firm"
-            elif got == {None}:
-                error = "offer lost"
-            elif None in got:
-                error = "offer partly lost"
-        elif exp == "available":
-            if "conditional" in got:
-                error = "resolution missed"
-            elif got == {None}:
-                error = "availability lost"
-            elif None in got:
-                error = "availability partly lost"
-        elif exp == "none" and got & {"available", "conditional"}:
-            error = "decline missed"
+        error = "unresolved" if (c["person"], c["date"]) in unresolved else \
+            condition_error(states(c["person"], c["date"], c["start"], c["end"]), c["expected_final"])
         if error:
             c_errors.append({**c, "error": error})
     return {

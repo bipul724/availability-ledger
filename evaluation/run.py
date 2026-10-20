@@ -170,6 +170,27 @@ def _manual_cost(key, u, had_prior) -> int:
     return 2 if (u["unavailable"] and had_prior) else 0  # cancelling means editing a row
 
 
+def condition_error(got: set, expected: str) -> str | None:
+    """Final-state verdict for one reference condition from the statuses found in every slot of its interval."""
+    if expected == "conditional":
+        if "available" in got:
+            return "treated as firm"
+        if got == {None}:
+            return "offer lost"
+        if None in got:
+            return "offer partly lost"
+    elif expected == "available":
+        if "conditional" in got:
+            return "resolution missed"
+        if got == {None}:
+            return "availability lost"
+        if None in got:
+            return "availability partly lost"
+    elif expected == "none" and got & {"available", "conditional"}:
+        return "decline missed"
+    return None
+
+
 def score(messages, roster, cal, ref, raw, ids):
     resolved = resolve_all(messages, raw, roster, cal)
     refc = reference_claims(ref, include_optional=True)
@@ -177,7 +198,13 @@ def score(messages, roster, cal, ref, raw, ids):
     cats = {mid: m["category"] for mid, m in ref["messages"].items()}
     errors, per_msg = [], {}
     manual = assisted = assisted_bulk = silent = correct = total_ref = flagged_units = false_alarms = 0
+    # A duplicate is never extracted (D-14), so its reference units are excluded from both sides (D-26, EVAL-10).
+    duplicates = {m.id for m in messages if m.duplicate_of}
+    dup_ids = [mid for mid in ids if mid in duplicates]
+    dup_units = sum(len(effective_units([c for c in refc if c["msg"] == mid and not c["optional"]])) for mid in dup_ids)
     for mid in ids:
+        if mid in duplicates:
+            continue
         r_units = effective_units([c for c in refc if c["msg"] == mid and not c["optional"]])
         o_units = effective_units([c for c in refc if c["msg"] == mid and c["optional"]])
         pred = [c for c in resolved if c["msg"] == mid and c["review"] not in ("rejected", "dropped")]
@@ -232,7 +259,8 @@ def score(messages, roster, cal, ref, raw, ids):
         per_msg[mid] = len(msg_errors)
     assisted_bulk = 1 + sum(1 + 2 for e in errors if not e["silent"])  # one bulk accept, then fix flagged errors only
     return resolved, {
-        "messages": len(ids), "reference_units": total_ref, "correct_units": correct,
+        "messages": len(ids), "duplicate_messages_excluded": len(dup_ids), "duplicate_units_excluded": dup_units,
+        "reference_units": total_ref, "correct_units": correct,
         "extraction_errors": len(errors), "error_kinds": dict(Counter(e["kind"] for e in errors)),
         "silent_errors": silent,
         "flagged_units": flagged_units, "flagged_but_correct": false_alarms,
@@ -256,20 +284,11 @@ def ledger_checks(messages, roster, cal, ref, resolved):
 
     missed_withdrawals = [w for w in ref["withdrawals"]
                           if interval_states(ps, w["person"], w["date"], w["start"], w["end"]) & {"available", "conditional"}]
-    cond_errors = []
+    cond_errors = []  # every slot of the interval counts (EVAL-09); one verdict per reference condition
     for c in ref["conditions"]:
-        got = interval_states(ps, c["person"], c["date"], c["start"], c["end"])
-        exp = c["expected_final"]
-        if exp == "conditional" and "available" in got:
-            cond_errors.append({**c, "error": "treated as firm"})
-        elif exp == "conditional" and got == {None}:
-            cond_errors.append({**c, "error": "offer lost"})
-        elif exp == "available" and "conditional" in got:
-            cond_errors.append({**c, "error": "resolution missed"})
-        elif exp == "available" and got == {None}:
-            cond_errors.append({**c, "error": "availability lost"})
-        elif exp == "none" and got & {"available", "conditional"}:
-            cond_errors.append({**c, "error": "decline missed"})
+        error = condition_error(interval_states(ps, c["person"], c["date"], c["start"], c["end"]), c["expected_final"])
+        if error:
+            cond_errors.append({**c, "error": error})
     issues = {(i["msg"], i["kind"]) for i in pred_ledger["issues"]}
     amb = {a["msg"]: ((a["msg"], {"person": "who", "date": "date", "outside_week": "outside"}[a["kind"]]) in issues)
            for a in ref["ambiguities"]}
