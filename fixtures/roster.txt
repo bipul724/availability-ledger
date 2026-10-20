@@ -1,0 +1,19 @@
+# FICTIONAL roster (18 volunteers). One name per line.
+Maria Lopez
+Marta Lopes
+Priya Nair
+Sam Okafor
+Samira Haddad
+Jon Bauer
+Grace Kim
+Tomás Ruiz
+Lena Fischer
+Lina Fisher
+Dev Mehta
+Olu Adeyemi
+Beth Carter
+Ben Carter
+Kofi Mensah
+Hannah Wright
+Rui Costa
+Zoe Martin

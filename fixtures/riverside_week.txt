@@ -1,0 +1,53 @@
+# FICTIONAL TEST FIXTURE. Riverside Community Pantry does not exist; every name, message and event is invented.
+# Selected week: Monday 2026-11-09 to Sunday 2026-11-15, timezone America/New_York.
+# Format: YYYY-MM-DD HH:MM | Sender | Message
+2026-11-02 09:00 | Alex (coordinator) | Hi all! Planning the week of Nov 9–15 at the pantry. Reply with the days and times you can help. Shifts are mornings 9–12, afternoons 1–5, evenings 5–8.
+2026-11-02 09:41 | Maria Lopez | I can do Tuesday and Thursday mornings.
+2026-11-02 10:15 | Priya Nair | Monday after 3 works, and Wednesday afternoon.
+2026-11-02 11:02 | Sam Okafor | Count me in for Saturday, all day.
+2026-11-02 12:30 | Jon Bauer | Can't do Monday or Tuesday, work is crazy. Friday evening is fine though.
+2026-11-02 13:47 | Grace Kim | Happy to help! Thursday 10:30 to 1 is what I can manage.
+2026-11-02 15:05 | Tomas Ruiz | Weds morning + Fri morning for me
+2026-11-02 16:20 | Lena Fischer | I'm free all week except Friday.
+2026-11-02 18:12 | Dev Mehta | Wednesday 9-12 works for me.
+2026-11-02 19:30 | Olu Adeyemi | Thanks for organising this, Alex! Where do we park on Saturdays?
+2026-11-03 08:05 | Beth Carter | Tuesday evening and Sunday morning.
+2026-11-03 08:06 | Beth Carter | Tuesday evening and Sunday morning.
+2026-11-03 09:30 | Kofi Mensah | I might be able to do Thursday afternoon if my work shift gets moved. Will know by Tuesday.
+2026-11-03 11:11 | Hannah Wright | No reason I can’t do Sunday morning!
+2026-11-03 12:40 | Rui Costa | Next Tuesday from 2 until 6.
+2026-11-03 14:02 | Zoe Martin | Can do 11/12, mornings only.
+2026-11-03 15:30 | Marta Lopes | Monday morning I'm in. Not Tuesday.
+2026-11-03 17:45 | Samira Haddad | Friday afternoon or Saturday morning — one or the other, not both.
+2026-11-03 19:02 | Lina Fisher | Hi, it's Lina (not Lena!). I can do Monday afternoon.
+2026-11-04 08:30 | Alex (coordinator) | Forwarding from Kofi's email: "Also happy to do Sunday 9-11."
+2026-11-04 09:15 | Ben Carter | Saturday morning works. (Ben, not Beth 🙂)
+2026-11-04 10:40 | Grace Kim | Sam and I could both do Saturday afternoon.
+2026-11-04 12:00 | Priya Nair | Also, I'm around Friday evening if you're short-handed.
+2026-11-04 13:25 | Olu Adeyemi | Sorry, forgot to answer: Thursday evening and Saturday all day.
+2026-11-04 15:50 | Hannah Wright | Did anyone find a blue water bottle after last Saturday's shift?
+2026-11-04 18:10 | Kofi Mensah | Can't do this Saturday, I'm at a wedding.
+2026-11-05 08:20 | Jon Bauer | Correction: I CAN do Tuesday after all, but only after 4.
+2026-11-05 09:10 | Maria Lopez | Change of plans — Thursday doesn't work anymore, sorry! Tuesday morning still good. I can add Friday 2-5.
+2026-11-05 10:30 | Kofi Mensah | Good news, my shift got moved, so Thursday afternoon is a yes.
+2026-11-05 11:45 | Rui Costa | Can I also do Wednesday evening? Just let me know.
+2026-11-05 13:00 | Zoe Martin | Sorry Alex, the 12th is off — family thing came up.
+2026-11-05 14:20 | Dev Mehta | Actually can I do Wed 10-12 instead? Dentist at 9.
+2026-11-05 16:00 | Samira Haddad | Decided: Saturday morning it is. Friday's off.
+2026-11-06 09:00 | Alex (coordinator) | Thanks everyone! Still need people Wednesday evening and Sunday afternoon.
+2026-11-06 09:45 | Lena Fischer | I can do Wednesday evening!
+2026-11-06 10:05 | Beth Carter | Sunday afternoon too if needed.
+2026-11-06 14:15 | Grace Kim | Update: Thursday I have to leave at 12, so 10:30-12 now.
+2026-11-06 16:40 | Olu Adeyemi | Thursday evening still on for me. Saturday I can only do the morning now.
+2026-11-07 10:10 | Sam Okafor | Still on for Saturday! Can also stay late Friday, like 6-9?
+2026-11-08 20:30 | Hannah Wright | Next Sunday I'm away after all, sorry — cancel my morning.
+2026-11-09 07:50 | Rui Costa | Next Tuesday I'm busy, but I'll still do Wednesday evening.
+2026-11-09 08:15 | Lina Fisher | Monday's fine but can we make it 2-5 instead of the full afternoon?
+2026-11-09 09:00 | Alex (coordinator) | Reminder: bring closed-toe shoes for warehouse shifts.
+2026-11-09 12:30 | Dev Mehta | Actually can I do Wed 10-12 instead? Dentist at 9.
+2026-11-10 08:05 | Beth Carter | Can't make it tonight, sorry. Sunday still good.
+2026-11-10 09:20 | Kofi Mensah | Tomorrow morning I could pop in for an hour, maybe 10-11, if you're short.
+2026-11-10 11:00 | Zoe Martin | I can cover one day this weekend, not sure which yet.
+2026-11-10 15:30 | Marta Lopes | Is Maria still doing Tuesday morning? If not I can take it.
+2026-11-11 08:40 | Olu Adeyemi | Something's come up and I have to drop out for the rest of this week. Really sorry.
+2026-11-11 10:02 | Priya Nair | Can't do this afternoon after all — car trouble. Friday evening offer still stands.

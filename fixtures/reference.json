@@ -1,0 +1,185 @@
+{
+  "about": "Manually written reference for the FICTIONAL fixture riverside_week.txt. Authored message by message by the assistant before any model run; not independently reviewed by a human.",
+  "week_start": "2026-11-09",
+  "timezone": "America/New_York",
+  "conventions": {
+    "periods": {"morning": ["09:00", "12:00"], "afternoon": ["13:00", "17:00"], "evening": ["17:00", "20:00"], "all day": ["09:00", "20:00"]},
+    "open_ended": "'after 3' runs to 20:00; 'until 12' starts at 09:00",
+    "unstated_time": "available with no time and no earlier answer for that day = 09:00-20:00 (flagged); with an earlier answer = confirmation, no change; unavailable with no time = whole day",
+    "bare_weekday": "the selected week's day, unless sent during that week after the day has passed",
+    "next_weekday": "resolved only when 'the next one to occur' and 'the one in next week' are the same date"
+  },
+  "split": {
+    "heldout": ["m03", "m07", "m12", "m14", "m16", "m18", "m22", "m25", "m26", "m28", "m31", "m33", "m38", "m41", "m42", "m43", "m45", "m46", "m47", "m50"],
+    "note": "Every other message is dev. Prompt few-shot examples are invented separately and use none of these messages."
+  },
+  "messages": {
+    "m01": {"category": ["unrelated"], "claims": []},
+    "m02": {"category": ["basic"], "claims": [
+      {"person": "Maria Lopez", "dates": ["2026-11-10"], "start": "09:00", "end": "12:00", "status": "available"},
+      {"person": "Maria Lopez", "dates": ["2026-11-12"], "start": "09:00", "end": "12:00", "status": "available"}]},
+    "m03": {"category": ["partial"], "claims": [
+      {"person": "Priya Nair", "dates": ["2026-11-09"], "start": "15:00", "end": "20:00", "status": "available"},
+      {"person": "Priya Nair", "dates": ["2026-11-11"], "start": "13:00", "end": "17:00", "status": "available"}]},
+    "m04": {"category": ["basic"], "claims": [
+      {"person": "Sam Okafor", "dates": ["2026-11-14"], "start": "09:00", "end": "20:00", "status": "available"}]},
+    "m05": {"category": ["negation", "partial"], "claims": [
+      {"person": "Jon Bauer", "dates": ["2026-11-09"], "start": null, "end": null, "status": "unavailable"},
+      {"person": "Jon Bauer", "dates": ["2026-11-10"], "start": null, "end": null, "status": "unavailable"},
+      {"person": "Jon Bauer", "dates": ["2026-11-13"], "start": "17:00", "end": "20:00", "status": "available"}]},
+    "m06": {"category": ["partial"], "claims": [
+      {"person": "Grace Kim", "dates": ["2026-11-12"], "start": "10:30", "end": "13:00", "status": "available"}]},
+    "m07": {"category": ["similar_names"], "claims": [
+      {"person": "Tomás Ruiz", "dates": ["2026-11-11"], "start": "09:00", "end": "12:00", "status": "available"},
+      {"person": "Tomás Ruiz", "dates": ["2026-11-13"], "start": "09:00", "end": "12:00", "status": "available"}]},
+    "m08": {"category": ["partial", "negation"], "claims": [
+      {"person": "Lena Fischer", "dates": ["2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15"], "start": null, "end": null, "status": "available"},
+      {"person": "Lena Fischer", "dates": ["2026-11-13"], "start": null, "end": null, "status": "unavailable"}]},
+    "m09": {"category": ["basic"], "claims": [
+      {"person": "Dev Mehta", "dates": ["2026-11-11"], "start": "09:00", "end": "12:00", "status": "available"}]},
+    "m10": {"category": ["unrelated"], "claims": []},
+    "m11": {"category": ["basic"], "claims": [
+      {"person": "Beth Carter", "dates": ["2026-11-10"], "start": "17:00", "end": "20:00", "status": "available"},
+      {"person": "Beth Carter", "dates": ["2026-11-15"], "start": "09:00", "end": "12:00", "status": "available"}]},
+    "m12": {"category": ["duplicate"], "claims": [
+      {"person": "Beth Carter", "dates": ["2026-11-10"], "start": "17:00", "end": "20:00", "status": "available"},
+      {"person": "Beth Carter", "dates": ["2026-11-15"], "start": "09:00", "end": "12:00", "status": "available"}]},
+    "m13": {"category": ["conditional"], "claims": [
+      {"person": "Kofi Mensah", "dates": ["2026-11-12"], "start": "13:00", "end": "17:00", "status": "conditional", "note": "'Will know by Tuesday' is not availability"}]},
+    "m14": {"category": ["negation"], "claims": [
+      {"person": "Hannah Wright", "dates": ["2026-11-15"], "start": "09:00", "end": "12:00", "status": "available", "note": "double negative"}]},
+    "m15": {"category": ["relative_date"], "claims": [
+      {"person": "Rui Costa", "dates": ["2026-11-10"], "start": "14:00", "end": "18:00", "status": "available", "note": "sent Tue 3 Nov: both readings of 'next Tuesday' give 10 Nov"}]},
+    "m16": {"category": ["ambiguous_date"], "claims": [
+      {"person": "Zoe Martin", "dates": ["2026-11-12"], "start": "09:00", "end": "12:00", "status": "available", "note": "11/12 is 12 Nov (M/D) or 11 Dec (D/M); only 12 Nov is in the selected week"}]},
+    "m17": {"category": ["similar_names", "negation"], "claims": [
+      {"person": "Marta Lopes", "dates": ["2026-11-09"], "start": "09:00", "end": "12:00", "status": "available"},
+      {"person": "Marta Lopes", "dates": ["2026-11-10"], "start": null, "end": null, "status": "unavailable"}]},
+    "m18": {"category": ["conditional"], "claims": [
+      {"person": "Samira Haddad", "dates": ["2026-11-13"], "start": "13:00", "end": "17:00", "status": "conditional"},
+      {"person": "Samira Haddad", "dates": ["2026-11-14"], "start": "09:00", "end": "12:00", "status": "conditional"}]},
+    "m19": {"category": ["similar_names"], "claims": [
+      {"person": "Lina Fisher", "dates": ["2026-11-09"], "start": "13:00", "end": "17:00", "status": "available"}]},
+    "m20": {"category": ["third_party"], "claims": [
+      {"person": "Kofi Mensah", "dates": ["2026-11-15"], "start": "09:00", "end": "11:00", "status": "available", "note": "forwarded by the coordinator"}]},
+    "m21": {"category": ["similar_names"], "claims": [
+      {"person": "Ben Carter", "dates": ["2026-11-14"], "start": "09:00", "end": "12:00", "status": "available"}]},
+    "m22": {"category": ["similar_names", "third_party"], "claims": [
+      {"person": "Grace Kim", "dates": ["2026-11-14"], "start": "13:00", "end": "17:00", "status": "available"},
+      {"person": null, "person_candidates": ["Sam Okafor", "Samira Haddad"], "dates": ["2026-11-14"], "start": "13:00", "end": "17:00", "status": "available", "note": "'Sam' could be either volunteer"}]},
+    "m23": {"category": ["conditional"], "claims": [
+      {"person": "Priya Nair", "dates": ["2026-11-13"], "start": "17:00", "end": "20:00", "status": "conditional"}]},
+    "m24": {"category": ["basic"], "claims": [
+      {"person": "Olu Adeyemi", "dates": ["2026-11-12"], "start": "17:00", "end": "20:00", "status": "available"},
+      {"person": "Olu Adeyemi", "dates": ["2026-11-14"], "start": "09:00", "end": "20:00", "status": "available"}]},
+    "m25": {"category": ["unrelated"], "claims": []},
+    "m26": {"category": ["ambiguous_date", "negation"], "claims": [
+      {"person": "Kofi Mensah", "dates": null, "date_state": "outside_week", "date_candidates": ["2026-11-07"], "start": null, "end": null, "status": "unavailable", "note": "sent Wed 4 Nov: 'this Saturday' is 7 Nov, outside the selected week"}]},
+    "m27": {"category": ["correction"], "claims": [
+      {"person": "Jon Bauer", "dates": ["2026-11-10"], "start": "16:00", "end": "20:00", "status": "available", "replaces_earlier": "either"}]},
+    "m28": {"category": ["correction", "cancellation"], "claims": [
+      {"person": "Maria Lopez", "dates": ["2026-11-12"], "start": null, "end": null, "status": "unavailable"},
+      {"person": "Maria Lopez", "dates": ["2026-11-10"], "start": "09:00", "end": "12:00", "status": "available"},
+      {"person": "Maria Lopez", "dates": ["2026-11-13"], "start": "14:00", "end": "17:00", "status": "available"}]},
+    "m29": {"category": ["condition_resolved"], "claims": [
+      {"person": "Kofi Mensah", "dates": ["2026-11-12"], "start": "13:00", "end": "17:00", "status": "available"}]},
+    "m30": {"category": ["basic"], "claims": [
+      {"person": "Rui Costa", "dates": ["2026-11-11"], "start": "17:00", "end": "20:00", "status": "available"}]},
+    "m31": {"category": ["cancellation"], "claims": [
+      {"person": "Zoe Martin", "dates": ["2026-11-12"], "start": null, "end": null, "status": "unavailable"}]},
+    "m32": {"category": ["correction"], "claims": [
+      {"person": "Dev Mehta", "dates": ["2026-11-11"], "start": "10:00", "end": "12:00", "status": "available", "replaces_earlier": true},
+      {"person": "Dev Mehta", "dates": ["2026-11-11"], "start": "09:00", "end": "10:00", "status": "unavailable", "optional": true}]},
+    "m33": {"category": ["condition_resolved", "cancellation"], "claims": [
+      {"person": "Samira Haddad", "dates": ["2026-11-14"], "start": "09:00", "end": "12:00", "status": "available"},
+      {"person": "Samira Haddad", "dates": ["2026-11-13"], "start": null, "end": null, "status": "unavailable"}]},
+    "m34": {"category": ["unrelated"], "claims": []},
+    "m35": {"category": ["basic"], "claims": [
+      {"person": "Lena Fischer", "dates": ["2026-11-11"], "start": "17:00", "end": "20:00", "status": "available"}]},
+    "m36": {"category": ["conditional"], "claims": [
+      {"person": "Beth Carter", "dates": ["2026-11-15"], "start": "13:00", "end": "17:00", "status": "conditional"}]},
+    "m37": {"category": ["correction"], "claims": [
+      {"person": "Grace Kim", "dates": ["2026-11-12"], "start": "10:30", "end": "12:00", "status": "available", "replaces_earlier": true}]},
+    "m38": {"category": ["correction"], "claims": [
+      {"person": "Olu Adeyemi", "dates": ["2026-11-12"], "start": "17:00", "end": "20:00", "status": "available"},
+      {"person": "Olu Adeyemi", "dates": ["2026-11-14"], "start": "09:00", "end": "12:00", "status": "available", "replaces_earlier": true}]},
+    "m39": {"category": ["partial", "confirmation"], "claims": [
+      {"person": "Sam Okafor", "dates": ["2026-11-14"], "start": null, "end": null, "status": "available", "note": "confirmation of an earlier answer"},
+      {"person": "Sam Okafor", "dates": ["2026-11-13"], "start": "18:00", "end": "21:00", "status": "available"}]},
+    "m40": {"category": ["cancellation", "relative_date"], "claims": [
+      {"person": "Hannah Wright", "dates": ["2026-11-15"], "start": null, "end": null, "status": "unavailable", "note": "sent Sun 8 Nov: both readings of 'next Sunday' give 15 Nov"}]},
+    "m41": {"category": ["ambiguous_date"], "claims": [
+      {"person": "Rui Costa", "dates": null, "date_state": "ambiguous", "date_candidates": ["2026-11-10", "2026-11-17"], "start": null, "end": null, "status": "unavailable", "note": "sent Mon 9 Nov: 'next Tuesday' is 10 Nov or 17 Nov"},
+      {"person": "Rui Costa", "dates": ["2026-11-11"], "start": "17:00", "end": "20:00", "status": "available"}]},
+    "m42": {"category": ["correction", "partial"], "claims": [
+      {"person": "Lina Fisher", "dates": ["2026-11-09"], "start": "14:00", "end": "17:00", "status": "available", "replaces_earlier": true}]},
+    "m43": {"category": ["unrelated"], "claims": []},
+    "m44": {"category": ["duplicate", "correction"], "claims": [
+      {"person": "Dev Mehta", "dates": ["2026-11-11"], "start": "10:00", "end": "12:00", "status": "available", "replaces_earlier": true},
+      {"person": "Dev Mehta", "dates": ["2026-11-11"], "start": "09:00", "end": "10:00", "status": "unavailable", "optional": true}]},
+    "m45": {"category": ["cancellation", "relative_date", "confirmation"], "claims": [
+      {"person": "Beth Carter", "dates": ["2026-11-10"], "start": "17:00", "end": "20:00", "status": "unavailable"},
+      {"person": "Beth Carter", "dates": ["2026-11-15"], "start": null, "end": null, "status": "available", "note": "confirmation of an earlier answer"}]},
+    "m46": {"category": ["conditional", "relative_date"], "claims": [
+      {"person": "Kofi Mensah", "dates": ["2026-11-11"], "start": "10:00", "end": "11:00", "status": "conditional"}]},
+    "m47": {"category": ["ambiguous_date"], "claims": [
+      {"person": "Zoe Martin", "dates": null, "date_state": "ambiguous", "date_candidates": ["2026-11-14", "2026-11-15"], "start": null, "end": null, "status": "available", "note": "one of the two weekend days, undecided"}]},
+    "m48": {"category": ["similar_names", "conditional"], "claims": [
+      {"person": "Marta Lopes", "dates": ["2026-11-10"], "start": "09:00", "end": "12:00", "status": "conditional", "note": "must not create a claim for Maria"}]},
+    "m49": {"category": ["cancellation"], "claims": [
+      {"person": "Olu Adeyemi", "dates": ["2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15"], "start": null, "end": null, "status": "unavailable"},
+      {"person": "Olu Adeyemi", "dates": ["2026-11-09", "2026-11-10"], "start": null, "end": null, "status": "unavailable", "optional": true}]},
+    "m50": {"category": ["cancellation", "conditional", "relative_date"], "claims": [
+      {"person": "Priya Nair", "dates": ["2026-11-11"], "start": "13:00", "end": "17:00", "status": "unavailable"},
+      {"person": "Priya Nair", "dates": ["2026-11-13"], "start": "17:00", "end": "20:00", "status": "conditional", "note": "reaffirming a conditional offer does not resolve it"}]}
+  },
+  "withdrawals": [
+    {"msg": "m28", "person": "Maria Lopez", "date": "2026-11-12", "start": "09:00", "end": "12:00", "kind": "cancel"},
+    {"msg": "m31", "person": "Zoe Martin", "date": "2026-11-12", "start": "09:00", "end": "12:00", "kind": "cancel"},
+    {"msg": "m33", "person": "Samira Haddad", "date": "2026-11-13", "start": "13:00", "end": "17:00", "kind": "cancel"},
+    {"msg": "m40", "person": "Hannah Wright", "date": "2026-11-15", "start": "09:00", "end": "12:00", "kind": "cancel"},
+    {"msg": "m45", "person": "Beth Carter", "date": "2026-11-10", "start": "17:00", "end": "20:00", "kind": "cancel"},
+    {"msg": "m49", "person": "Olu Adeyemi", "date": "2026-11-12", "start": "17:00", "end": "20:00", "kind": "cancel"},
+    {"msg": "m49", "person": "Olu Adeyemi", "date": "2026-11-14", "start": "09:00", "end": "12:00", "kind": "cancel"},
+    {"msg": "m50", "person": "Priya Nair", "date": "2026-11-11", "start": "13:00", "end": "17:00", "kind": "cancel"},
+    {"msg": "m32", "person": "Dev Mehta", "date": "2026-11-11", "start": "09:00", "end": "10:00", "kind": "narrow"},
+    {"msg": "m37", "person": "Grace Kim", "date": "2026-11-12", "start": "12:00", "end": "13:00", "kind": "narrow"},
+    {"msg": "m38", "person": "Olu Adeyemi", "date": "2026-11-14", "start": "12:00", "end": "20:00", "kind": "narrow"},
+    {"msg": "m42", "person": "Lina Fisher", "date": "2026-11-09", "start": "13:00", "end": "14:00", "kind": "narrow"}
+  ],
+  "conditions": [
+    {"msgs": ["m13", "m29"], "person": "Kofi Mensah", "date": "2026-11-12", "start": "13:00", "end": "17:00", "expected_final": "available"},
+    {"msgs": ["m18", "m33"], "person": "Samira Haddad", "date": "2026-11-13", "start": "13:00", "end": "17:00", "expected_final": "none"},
+    {"msgs": ["m18", "m33"], "person": "Samira Haddad", "date": "2026-11-14", "start": "09:00", "end": "12:00", "expected_final": "available"},
+    {"msgs": ["m23", "m50"], "person": "Priya Nair", "date": "2026-11-13", "start": "17:00", "end": "20:00", "expected_final": "conditional"},
+    {"msgs": ["m36"], "person": "Beth Carter", "date": "2026-11-15", "start": "13:00", "end": "17:00", "expected_final": "conditional"},
+    {"msgs": ["m46"], "person": "Kofi Mensah", "date": "2026-11-11", "start": "10:00", "end": "11:00", "expected_final": "conditional"},
+    {"msgs": ["m48"], "person": "Marta Lopes", "date": "2026-11-10", "start": "09:00", "end": "12:00", "expected_final": "conditional"}
+  ],
+  "ambiguities": [
+    {"msg": "m22", "kind": "person", "expect": "unresolved person 'Sam' (Sam Okafor or Samira Haddad)"},
+    {"msg": "m26", "kind": "outside_week", "expect": "7 Nov, not applied to the selected week"},
+    {"msg": "m41", "kind": "date", "expect": "10 or 17 Nov unresolved; Rui's 10 Nov availability flagged for review"},
+    {"msg": "m47", "kind": "date", "expect": "14 or 15 Nov unresolved; not counted"}
+  ],
+  "expected_sheet": {
+    "Maria Lopez": {"2026-11-10": [["09:00", "12:00", "available"]], "2026-11-13": [["14:00", "17:00", "available"]]},
+    "Marta Lopes": {"2026-11-09": [["09:00", "12:00", "available"]], "2026-11-10": [["09:00", "12:00", "conditional"]]},
+    "Priya Nair": {"2026-11-09": [["15:00", "20:00", "available"]], "2026-11-13": [["17:00", "20:00", "conditional"]]},
+    "Sam Okafor": {"2026-11-13": [["18:00", "21:00", "available"]], "2026-11-14": [["09:00", "20:00", "available"]]},
+    "Samira Haddad": {"2026-11-14": [["09:00", "12:00", "available"]]},
+    "Jon Bauer": {"2026-11-10": [["16:00", "20:00", "available"]], "2026-11-13": [["17:00", "20:00", "available"]]},
+    "Grace Kim": {"2026-11-12": [["10:30", "12:00", "available"]], "2026-11-14": [["13:00", "17:00", "available"]]},
+    "Tomás Ruiz": {"2026-11-11": [["09:00", "12:00", "available"]], "2026-11-13": [["09:00", "12:00", "available"]]},
+    "Lena Fischer": {"2026-11-09": [["09:00", "20:00", "available"]], "2026-11-10": [["09:00", "20:00", "available"]], "2026-11-11": [["09:00", "20:00", "available"]], "2026-11-12": [["09:00", "20:00", "available"]], "2026-11-14": [["09:00", "20:00", "available"]], "2026-11-15": [["09:00", "20:00", "available"]]},
+    "Lina Fisher": {"2026-11-09": [["14:00", "17:00", "available"]]},
+    "Dev Mehta": {"2026-11-11": [["10:00", "12:00", "available"]]},
+    "Olu Adeyemi": {},
+    "Beth Carter": {"2026-11-15": [["09:00", "12:00", "available"], ["13:00", "17:00", "conditional"]]},
+    "Ben Carter": {"2026-11-14": [["09:00", "12:00", "available"]]},
+    "Kofi Mensah": {"2026-11-11": [["10:00", "11:00", "conditional"]], "2026-11-12": [["13:00", "17:00", "available"]], "2026-11-15": [["09:00", "11:00", "available"]]},
+    "Hannah Wright": {},
+    "Rui Costa": {"2026-11-10": [["14:00", "18:00", "available"]], "2026-11-11": [["17:00", "20:00", "available"]]},
+    "Zoe Martin": {}
+  }
+}
