@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local settings (the app reads no .env, but never commit one by accident)
+.env
+.env.*
+!.env.example
+
+# Exported sheets and timing-study files from real people (may hold personal data)
+availability-*.csv
+timing/
+
+# macOS and editors
+.DS_Store
+.vscode/
+.idea/
+*.swp
