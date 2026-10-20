@@ -1,0 +1,32 @@
+# Offline unit tests on every push and pull request to main (TASKS INT-10, D-23).
+# No secrets, no deployment, no model or Ollama: the suite uses fictional fixtures and invented messages only.
+# The browser checks in tests/browser/ are not run here; see the INT-10 row in TASKS.md for why.
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Unit tests (Python 3.12, offline)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Run unit tests
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python3 -m unittest discover -s tests
