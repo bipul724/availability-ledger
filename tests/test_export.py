@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from evaluation.fixture import load, reference_claims  # noqa: E402
 from evaluation.score_final import score, score_text  # noqa: E402
 from ledger.core import N_SLOTS, build_ledger, final_slots, resolve_all  # noqa: E402
-from ledger.export import FinalSheetError, confirmed_export, final_csv, parse_final_csv  # noqa: E402
+from ledger.export import FinalSheetError, _cell, confirmed_export, final_csv, parse_final_csv  # noqa: E402
 from ledger.messages import Message  # noqa: E402
 from ledger.resolve import Calendar  # noqa: E402
 
@@ -295,6 +295,33 @@ class DuplicateMetadata(unittest.TestCase):
                 self.assertIn("repeats", r.stderr)
         finally:
             os.unlink(f.name)
+
+
+class CsvFormulaSafety(unittest.TestCase):
+    """Cells a spreadsheet would run as formulas are written with a leading apostrophe (COR-02)."""
+
+    def test_cells_starting_with_formula_characters_are_neutralised(self):
+        for raw in ("=1+1", "+44 7700", "-if dry", "@SUM(A1)", "\tTab", "\rReturn"):
+            with self.subTest(raw=raw):
+                self.assertEqual(_cell(raw), "'" + raw)
+        for raw in ("Ana Example", "2026-11-10", "14:00", "", "a=b", "'quoted"):
+            with self.subTest(raw=raw):
+                self.assertEqual(_cell(raw), raw)
+        self.assertEqual(_cell(None), "")
+
+    def test_round_trip_keeps_formula_like_names_and_conditions(self):
+        roster = ["=Eve Example", "Ben Example"]
+        msgs = [msg("m1", 2, 9, "Tuesday 10-12 if =SUM(A1) is dry", sender="=Eve Example")]
+        claims = [claim("m1", 1, "Tuesday", "10-12", "Tuesday 10-12 if =SUM(A1) is dry", status="conditional",
+                        condition="=SUM(A1) is dry")]
+        resolved = resolve_all(msgs, claims, roster, CAL)
+        exp = confirmed_export(msgs, resolved, roster, CAL, ["m1"])
+        _, text = final_csv(exp)
+        self.assertIn("'=Eve Example,2026-11-10,10:00,12:00,conditional,'=SUM(A1) is dry,confirmed,m1.1", text)
+        parsed = parse_final_csv(text, roster, CAL)
+        self.assertEqual(parsed["slots"], final_slots(build_ledger(msgs, resolved, roster, CAL), CAL))
+        typed = text.replace("'=Eve Example", "=Eve Example")  # a typist who does not add the apostrophe
+        self.assertEqual(parse_final_csv(typed, roster, CAL)["slots"], parsed["slots"])
 
 
 class ServerRoutes(unittest.TestCase):

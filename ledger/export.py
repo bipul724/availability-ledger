@@ -27,9 +27,18 @@ class FinalSheetError(ValueError):
     """A final-sheet CSV that is malformed or contradicts itself."""
 
 
+FORMULA_START = ("=", "+", "-", "@", "\t", "\r")  # a spreadsheet would run a cell starting with these
+
+
 def _cell(value) -> str:
-    """Every exported cell passes through here, so spreadsheet-formula protection (COR-02) has one home."""
-    return "" if value is None else str(value)
+    """Every exported cell passes through here: formula-like text gets a leading apostrophe (COR-02)."""
+    text = "" if value is None else str(value)
+    return "'" + text if text.startswith(FORMULA_START) else text
+
+
+def _uncell(text: str) -> str:
+    """Undo _cell when reading: "'=Eve" is the name "=Eve". A typed value without the apostrophe reads as is."""
+    return text[1:] if text[:1] == "'" and text[1:2] in FORMULA_START else text
 
 
 # ---------------------------------------------------------------- export
@@ -188,7 +197,7 @@ def parse_final_csv(text: str, roster: list[str], cal: Calendar) -> dict:
             continue
         if any(x.strip() for x in r[len(header):]):
             raise FinalSheetError(f"{where}: values beyond the last column")
-        get = lambda k: (r[idx[k]] if idx[k] < len(r) else "").strip()  # noqa: E731
+        get = lambda k: _uncell((r[idx[k]] if idx[k] < len(r) else "").strip())  # noqa: E731
         person, d, state, status = get("volunteer"), get("date"), get("cell_state"), get("status")
         start, end = get("start"), get("end")
         if person not in on_roster:
