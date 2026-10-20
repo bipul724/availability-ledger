@@ -57,12 +57,23 @@
       <ul id="issues"></ul>
     </section>
     <section class="panel">
-      <h2>People available</h2>
-      <p class="hint">Solid: available. Striped: conditional (not counted as available). From all suggestions you have not rejected.</p>
+      <h2 id="chart-title">People available</h2>
+      <p class="hint">From all suggestions you have not rejected. Pending ones are drawn lighter and stacked above accepted ones. Conditional offers are not counted as available.</p>
+      <div id="chart-legend" class="legend">
+        <span><i class="sw acc-a"></i>Available, accepted</span><span><i class="sw pen-a"></i>Available, pending review</span>
+        <span><i class="sw acc-c"></i>Conditional, accepted</span><span><i class="sw pen-c"></i>Conditional, pending review</span>
+      </div>
       <div id="chart"></div>
     </section>
     <section class="panel">
-      <h2>Availability sheet</h2>
+      <h2 id="sheet-title">Availability sheet</h2>
+      <p class="hint">Provisional until every message is marked reviewed and nothing is pending. The final-sheet export uses accepted records only.</p>
+      <div id="sheet-legend" class="legend">
+        <span><span class="seg available">10:00–12:00</span> accepted</span>
+        <span><span class="seg available pending">10:00–12:00<small>pending</small></span> not yet accepted</span>
+        <span><span class="seg conditional">09:00–12:00 ?</span> conditional</span>
+        <span><span class="pending-change">pending change</span> a suggestion not yet accepted cancels or replaces availability on this day</span>
+      </div>
       <div id="sheet"></div>
     </section>
     <section class="panel">

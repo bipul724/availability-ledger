@@ -75,6 +75,14 @@ export async function openApp(port, dbg) {
     for (let i = 0; i < 30 && (await js(`window.__dl.length`)) === n; i++) await sleep(100);
     return js(`({ name: window.__names.at(-1), text: window.__dl.at(-1), progress: document.getElementById("progress").textContent })`);
   };
-  return { js, send, check, problems, done, setInputs, suggest, exportFinal: () => exportVia("export-final"),
+  const viewport = async (width, height = 900) => {
+    await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false });  // mobile emulation would widen the layout to fit overflowing content
+    await sleep(400);
+  };
+  const shot = async (file) => {  // optional screenshot, e.g. for a review; nothing is written unless asked
+    const r = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true });
+    (await import("node:fs")).writeFileSync(file, Buffer.from(r.result.data, "base64"));
+  };
+  return { js, send, check, problems, done, setInputs, suggest, viewport, shot, exportFinal: () => exportVia("export-final"),
     exportLog: () => exportVia("export"), failures: () => failures };
 }

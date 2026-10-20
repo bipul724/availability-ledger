@@ -2,12 +2,14 @@
   --bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1b; --muted: #66665f; --line: #dcdcd6;
   --ok: #1f7a4d; --ok-bg: #e3f3ea; --maybe: #9a6400; --maybe-bg: #fdf0d8;
   --no: #a1312a; --no-bg: #f9e3e1; --warn-bg: #fff4c2; --accent: #2d5bd7; --mark: #fff1a8;
+  --chart-ok: #1f7a4d; --chart-maybe: #c26a00;  /* chart-only pair, validated for colour-blind separation */
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #161615; --panel: #20201e; --text: #ececea; --muted: #a3a39c; --line: #3a3a36;
     --ok: #6cd39c; --ok-bg: #1d3a2b; --maybe: #f0b44c; --maybe-bg: #3d2f12;
     --no: #f08a82; --no-bg: #3d1d1a; --warn-bg: #3d3712; --accent: #8aa8ff; --mark: #5a4e10;
+    --chart-ok: #2f9a63; --chart-maybe: #c98420;
   }
 }
 * { box-sizing: border-box; }
@@ -63,14 +65,43 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 420px)
 #issues li, #changes li { margin-bottom: 4px; }
 #issues a { color: var(--accent); }
 .hint { color: var(--muted); font-size: 12px; margin: 0 0 6px; }
-table.sheet { border-collapse: collapse; width: 100%; font-size: 12px; }
-table.sheet th, table.sheet td { border: 1px solid var(--line); padding: 3px 4px; vertical-align: top; text-align: left; }
-.seg { display: block; border-radius: 4px; padding: 0 3px; margin-bottom: 2px; white-space: nowrap; }
+#sheet { container-type: inline-size; }
+table.sheet { border-collapse: collapse; width: 100%; table-layout: fixed; font-size: 11px; }
+table.sheet th, table.sheet td { border: 1px solid var(--line); padding: 2px; vertical-align: top; text-align: left; overflow-wrap: anywhere; }
+table.sheet th:first-child { width: 17%; }
+table.sheet .seg small, table.sheet .pending-change { overflow-wrap: normal; }  /* labels wrap between words only */
+.seg { display: block; border-radius: 4px; padding: 0 2px; margin-bottom: 2px; border: 1px solid transparent; }
+.seg .t { white-space: nowrap; }  /* a time never splits; the range may wrap before the dash */
+.seg.pending { background: transparent; border: 1px dashed currentColor; }
+.seg small { display: block; font-size: 9px; }
+/* Narrow sheet (phones): one card per volunteer, listing only the days that have something. */
+@container (max-width: 360px) {
+  table.sheet, table.sheet tbody, table.sheet tr, table.sheet td { display: block; width: auto; }
+  table.sheet tr:first-child { display: none; }
+  table.sheet tr { border: 1px solid var(--line); border-radius: 6px; margin-bottom: 6px; padding: 4px 6px; }
+  table.sheet td { border: 0; padding: 1px 0; font-size: 12px; }
+  table.sheet td:first-child { font-weight: 600; width: auto; }
+  table.sheet td.empty { display: none; }
+  table.sheet td[data-day]::before { content: attr(data-day); color: var(--muted); display: inline-block; width: 4.5em; vertical-align: top; }
+  table.sheet td .seg, table.sheet td .pending-change { display: inline-block; margin: 0 4px 2px 0; }
+  table.sheet .seg small { display: inline; margin-left: 4px; }
+}
+.pending-change { display: block; font-size: 10px; color: var(--muted); border: 1px dashed var(--muted); border-radius: 4px; padding: 0 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.legend > span { display: inline-flex; align-items: center; gap: 4px; }
+.legend .seg, .legend .pending-change { display: inline-block; margin: 0; }
+.sw { display: inline-block; width: 12px; height: 10px; border-radius: 2px; }
+.sw.acc-a { background: var(--chart-ok); }
+.sw.pen-a { background: var(--chart-ok); opacity: 0.4; }
+.sw.acc-c, .sw.pen-c { background: repeating-linear-gradient(45deg, var(--chart-maybe) 0 2px, transparent 2px 4px); }
+.sw.pen-c { opacity: 0.4; }
 .seg.available { background: var(--ok-bg); color: var(--ok); }
 .seg.conditional { background: var(--maybe-bg); color: var(--maybe); }
 .seg.review { outline: 2px dashed var(--maybe); }
 #chart svg { width: 100%; height: auto; display: block; }
-#chart .a { fill: var(--ok); }
-#chart .c { fill: url(#hatch); }
+#chart .acc-a { fill: var(--chart-ok); }
+#chart .pen-a { fill: var(--chart-ok); opacity: 0.4; }
+#chart .acc-c { fill: url(#hatch); }
+#chart .pen-c { fill: url(#hatch); opacity: 0.4; }
 #chart .axis { fill: var(--muted); font-size: 9px; }
 #chart line { stroke: var(--line); }

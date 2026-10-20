@@ -423,11 +423,27 @@ function renderSummary() {
 
   const dates = weekDates();
   const notes = L.review_notes || {};
-  $("sheet").innerHTML = `<table class="sheet"><tr><th>Volunteer</th>${dates.map((d) => `<th>${dayLabel(d)}</th>`).join("")}</tr>` +
+  // UI-05: a segment counts as accepted only if every claim behind it is accepted; a cell is flagged when a pending
+  // suggestion removed availability that day (cancelled, condition declined, replaced), which no segment can show.
+  const accepted = new Set(state.resolved.filter((c) => c.review === "accepted").map((c) => c.id));
+  const pendingIds = new Set(state.resolved.filter((c) => c.review === "pending").map((c) => c.id));
+  const removal = /cancelled|condition declined|replaced earlier answer/;
+  const label = state.confirmed?.status === "complete" ? "Complete" : "Provisional";
+  $("sheet-title").textContent = `Availability sheet · ${label}`;
+  $("chart-title").textContent = `People available · ${label}`;
+  $("sheet").innerHTML = `<table class="sheet"><tr><th>Volunteer</th>${dates.map((d) => `<th data-date="${d}">${dayLabel(d)}</th>`).join("")}</tr>` +
     state.roster.map((p) => `<tr><td>${esc(p)}</td>${dates.map((d) => {
       const segs = (L.sheet[p] || {})[d] || [];
       const note = notes[`${p}|${d}`];
-      return `<td>${segs.map((s) => `<span class="seg ${s.status} ${note ? "review" : ""}" title="${esc((note || []).join("\n"))}">${s.start}–${s.end}${s.status === "conditional" ? " ?" : ""}</span>`).join("")}${!segs.length && note ? `<span title="${esc(note.join("\n"))}">⚠</span>` : ""}</td>`;
+      const shown = new Set(segs.flatMap((s) => s.claims));
+      const hidden = [...new Set((L.history[`${p}|${d}`] || []).filter((e) => removal.test(e.what)).map((e) => e.claim))]
+        .filter((id) => pendingIds.has(id) && !shown.has(id));
+      const empty = !segs.length && !hidden.length && !note;
+      return `<td data-day="${dayLabel(d)}"${empty ? ' class="empty"' : ""}>${segs.map((s) => {
+        const pending = !s.claims.every((id) => accepted.has(id));
+        const tip = [pending ? "Includes suggestions not yet accepted" : "Accepted", ...(note || [])].join("\n");
+        return `<span class="seg ${s.status}${pending ? " pending" : ""}${note ? " review" : ""}" data-review="${pending ? "pending" : "accepted"}" title="${esc(tip)}"><span class="t">${s.start}</span><wbr><span class="t">–${s.end}</span>${s.status === "conditional" ? " ?" : ""}${pending ? "<small>pending</small>" : ""}</span>`;
+      }).join("")}${hidden.length ? `<span class="pending-change" title="${esc(`Not yet accepted: ${hidden.join(", ")} removes availability on this day`)}">pending change</span>` : ""}${!segs.length && note ? `<span title="${esc(note.join("\n"))}">⚠</span>` : ""}</td>`;
     }).join("")}</tr>`).join("") + "</table>";
 
   const interesting = /cancelled|condition|replaced|now /;
@@ -440,32 +456,59 @@ function renderSummary() {
   $("changes").innerHTML = changes.map((c) => `<li><a href="#row-${esc(c.msg)}">${esc(c.msg)}</a> ${esc(c.sent)}: ${esc(c.person)}, ${dayLabel(c.d)} ${esc(c.span)} ${esc(c.what)}</li>`).join("")
     || "<li>No cancellations or corrections yet.</li>";
 
-  renderChart(L.counts);
+  renderChart(L, state.resolved);
 }
 
-function renderChart(counts) {
+const toMinutes = (hhmm) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+
+// Display only (UI-05): the server's half-hour counts split into accepted and pending, recomputed from the sheet with
+// the server's rule (every 15-minute slot available -> available; every slot available or conditional -> conditional).
+// A person counts as pending when any claim behind those slots is not accepted. The parts add up to L.counts.
+function chartSplit(L, resolved) {
+  const accepted = new Set(resolved.filter((c) => c.review === "accepted").map((c) => c.id));
+  const start = toMinutes(L.counts.start), step = L.counts.step;
+  return L.counts.days.map((d) => d.available.map((_, i) => {
+    const out = { available: { accepted: 0, pending: 0 }, conditional: { accepted: 0, pending: 0 } };
+    for (const p of state.roster) {
+      const segs = (L.sheet[p] || {})[d.date] || [], covering = [];
+      for (let t = start + i * step; t < start + (i + 1) * step; t += 15) covering.push(segs.find((s) => toMinutes(s.start) <= t && t < toMinutes(s.end)));
+      if (covering.some((s) => !s)) continue;
+      const kind = covering.every((s) => s.status === "available") ? "available" : "conditional";
+      out[kind][covering.some((s) => !s.claims.every((id) => accepted.has(id))) ? "pending" : "accepted"]++;
+    }
+    return out;
+  }));
+}
+
+function renderChart(L, resolved) {
+  const counts = L.counts, split = chartSplit(L, resolved);
   const W = 700, H = 170, top = 10, bottom = 26, left = 18, gap = 6;
   const slots = counts.days[0].available.length;
   const max = Math.max(1, ...counts.days.flatMap((d) => d.available.map((a, i) => a + d.conditional[i])));
   const gw = (W - left - gap * 6) / 7, bw = gw / slots, ph = H - top - bottom;
   const y = (v) => top + ph - (v / max) * ph;
-  const startMin = Number(counts.start.slice(0, 2)) * 60;
-  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="People available per half hour"><defs>
+  const hhmm = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+  const layers = [["acc-a", "available", "accepted", "available (accepted)"], ["pen-a", "available", "pending", "available (pending review)"],
+    ["acc-c", "conditional", "accepted", "conditional (accepted)"], ["pen-c", "conditional", "pending", "conditional (pending review)"]];
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="People available per half hour, accepted and pending shown separately"><defs>
     <pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-    <rect width="4" height="4" fill="none"/><line x1="0" y1="0" x2="0" y2="4" stroke="var(--maybe)" stroke-width="2"/></pattern></defs>`;
+    <rect width="4" height="4" fill="none"/><line x1="0" y1="0" x2="0" y2="4" stroke="var(--chart-maybe)" stroke-width="2"/></pattern></defs>`;
   for (let v = 0; v <= max; v += Math.max(1, Math.ceil(max / 4))) {
     svg += `<line x1="${left}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text class="axis" x="0" y="${y(v) + 3}">${v}</text>`;
   }
   counts.days.forEach((d, di) => {
     const x0 = left + di * (gw + gap);
-    d.available.forEach((a, i) => {
-      const c = d.conditional[i], x = x0 + i * bw;
-      const t0 = startMin + i * counts.step, t1 = t0 + counts.step;
-      const hhmm = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-      const tip = `<title>${dayLabel(d.date)} ${hhmm(t0)}–${hhmm(t1)}: ${a} available${c ? `, ${c} conditional` : ""}</title>`;
-      if (a) svg += `<rect class="a" x="${x}" y="${y(a)}" width="${bw - 0.5}" height="${y(0) - y(a)}">${tip}</rect>`;
-      if (c) svg += `<rect class="c" x="${x}" y="${y(a + c)}" width="${bw - 0.5}" height="${y(a) - y(a + c)}">${tip}</rect>`;
-      if (!a && !c) svg += `<rect x="${x}" y="${top}" width="${bw}" height="${ph}" fill="transparent">${tip}</rect>`;
+    d.available.forEach((_, i) => {
+      const s = split[di][i], x = x0 + i * bw, t0 = toMinutes(counts.start) + i * counts.step;
+      const parts = layers.filter(([, k, r]) => s[k][r]).map(([, k, r, name]) => `${s[k][r]} ${name}`);
+      const tip = `<title>${dayLabel(d.date)} ${hhmm(t0)}–${hhmm(t0 + counts.step)}: ${parts.join(", ") || "nobody"}</title>`;
+      let base = 0;
+      for (const [cls, k, r] of layers) {
+        const v = s[k][r];
+        if (v) svg += `<rect class="${cls}" x="${x}" y="${y(base + v)}" width="${bw - 0.5}" height="${y(base) - y(base + v)}">${tip}</rect>`;
+        base += v;
+      }
+      if (!base) svg += `<rect x="${x}" y="${top}" width="${bw}" height="${ph}" fill="transparent">${tip}</rect>`;
     });
     svg += `<text class="axis" x="${x0 + gw / 2}" y="${H - 12}" text-anchor="middle">${dayLabel(d.date)}</text>`;
     svg += `<text class="axis" x="${x0}" y="${H - 2}">${counts.start}</text>`;
