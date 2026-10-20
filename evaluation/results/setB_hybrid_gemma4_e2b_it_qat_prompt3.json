@@ -16,10 +16,10 @@
  },
  "memory": {
   "samples": 1,
-  "ollama_rss_peak_mb": 9,
-  "swap_used_start_mb": 5000.38,
-  "swap_used_peak_mb": 5000.38,
-  "free_pct_min": 34,
+  "ollama_rss_peak_mb": 10,
+  "swap_used_start_mb": 4980.38,
+  "swap_used_peak_mb": 4980.38,
+  "free_pct_min": 36,
   "pressure_level_share": {
    "warn": 1.0
   },
