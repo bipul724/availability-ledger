@@ -16,10 +16,10 @@
  },
  "memory": {
   "samples": 1,
-  "ollama_rss_peak_mb": 10,
-  "swap_used_start_mb": 4980.38,
-  "swap_used_peak_mb": 4980.38,
-  "free_pct_min": 37,
+  "ollama_rss_peak_mb": 11,
+  "swap_used_start_mb": 9967.12,
+  "swap_used_peak_mb": 9967.12,
+  "free_pct_min": 31,
   "pressure_level_share": {
    "warn": 1.0
   },
@@ -28,6 +28,8 @@
  },
  "dev": {
   "messages": 30,
+  "duplicate_messages_excluded": 0,
+  "duplicate_units_excluded": 0,
   "reference_units": 44,
   "correct_units": 44,
   "extraction_errors": 0,
@@ -78,69 +80,26 @@
  },
  "heldout": {
   "messages": 20,
-  "reference_units": 30,
+  "duplicate_messages_excluded": 1,
+  "duplicate_units_excluded": 2,
+  "reference_units": 28,
   "correct_units": 27,
-  "extraction_errors": 7,
+  "extraction_errors": 5,
   "error_kinds": {
-   "missed_availability": 2,
    "extra_unavailable": 4,
    "false_condition": 1
   },
-  "silent_errors": 2,
+  "silent_errors": 0,
   "flagged_units": 19,
   "flagged_but_correct": 14,
   "effort_proxy": {
-   "manual_actions": 101,
-   "assisted_actions_full_review": 40,
-   "ratio_full_review": 0.4,
+   "manual_actions": 97,
+   "assisted_actions_full_review": 34,
+   "ratio_full_review": 0.35,
    "assisted_actions_bulk_accept": 16,
    "ratio_bulk_accept": 0.16
   },
   "errors": [
-   {
-    "msg": "m12",
-    "key": [
-     "Beth Carter",
-     "2026-11-10"
-    ],
-    "kind": "missed_availability",
-    "silent": true,
-    "expected": {
-     "open": [
-      [
-       "available",
-       "17:00",
-       "20:00"
-      ]
-     ],
-     "unavailable": false,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": null
-   },
-   {
-    "msg": "m12",
-    "key": [
-     "Beth Carter",
-     "2026-11-15"
-    ],
-    "kind": "missed_availability",
-    "silent": true,
-    "expected": {
-     "open": [
-      [
-       "available",
-       "09:00",
-       "12:00"
-      ]
-     ],
-     "unavailable": false,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": null
-   },
    {
     "msg": "m31",
     "key": [
@@ -234,7 +193,6 @@
   "errors_per_message": {
    "m03": 0,
    "m07": 0,
-   "m12": 2,
    "m14": 0,
    "m16": 0,
    "m18": 0,
@@ -256,69 +214,26 @@
  },
  "all": {
   "messages": 50,
-  "reference_units": 74,
+  "duplicate_messages_excluded": 1,
+  "duplicate_units_excluded": 2,
+  "reference_units": 72,
   "correct_units": 71,
-  "extraction_errors": 7,
+  "extraction_errors": 5,
   "error_kinds": {
-   "missed_availability": 2,
    "extra_unavailable": 4,
    "false_condition": 1
   },
-  "silent_errors": 2,
+  "silent_errors": 0,
   "flagged_units": 32,
   "flagged_but_correct": 27,
   "effort_proxy": {
-   "manual_actions": 290,
-   "assisted_actions_full_review": 84,
-   "ratio_full_review": 0.29,
+   "manual_actions": 286,
+   "assisted_actions_full_review": 78,
+   "ratio_full_review": 0.27,
    "assisted_actions_bulk_accept": 16,
    "ratio_bulk_accept": 0.06
   },
   "errors": [
-   {
-    "msg": "m12",
-    "key": [
-     "Beth Carter",
-     "2026-11-10"
-    ],
-    "kind": "missed_availability",
-    "silent": true,
-    "expected": {
-     "open": [
-      [
-       "available",
-       "17:00",
-       "20:00"
-      ]
-     ],
-     "unavailable": false,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": null
-   },
-   {
-    "msg": "m12",
-    "key": [
-     "Beth Carter",
-     "2026-11-15"
-    ],
-    "kind": "missed_availability",
-    "silent": true,
-    "expected": {
-     "open": [
-      [
-       "available",
-       "09:00",
-       "12:00"
-      ]
-     ],
-     "unavailable": false,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": null
-   },
    {
     "msg": "m31",
     "key": [
@@ -421,7 +336,6 @@
    "m09": 0,
    "m10": 0,
    "m11": 0,
-   "m12": 2,
    "m13": 0,
    "m14": 0,
    "m15": 0,

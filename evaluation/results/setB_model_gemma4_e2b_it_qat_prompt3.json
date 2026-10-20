@@ -16,10 +16,10 @@
  },
  "memory": {
   "samples": 1,
-  "ollama_rss_peak_mb": 10,
-  "swap_used_start_mb": 4980.38,
-  "swap_used_peak_mb": 4980.38,
-  "free_pct_min": 37,
+  "ollama_rss_peak_mb": 11,
+  "swap_used_start_mb": 9967.12,
+  "swap_used_peak_mb": 9967.12,
+  "free_pct_min": 30,
   "pressure_level_share": {
    "warn": 1.0
   },
@@ -28,21 +28,23 @@
  },
  "heldout": {
   "messages": 20,
-  "reference_units": 35,
+  "duplicate_messages_excluded": 1,
+  "duplicate_units_excluded": 1,
+  "reference_units": 34,
   "correct_units": 30,
-  "extraction_errors": 5,
+  "extraction_errors": 4,
   "error_kinds": {
    "time_error": 1,
-   "missed_availability": 2,
-   "missed_cancellation": 2
+   "missed_cancellation": 2,
+   "missed_availability": 1
   },
-  "silent_errors": 5,
+  "silent_errors": 4,
   "flagged_units": 9,
   "flagged_but_correct": 9,
   "effort_proxy": {
-   "manual_actions": 107,
-   "assisted_actions_full_review": 42,
-   "ratio_full_review": 0.39,
+   "manual_actions": 105,
+   "assisted_actions_full_review": 39,
+   "ratio_full_review": 0.37,
    "assisted_actions_bulk_accept": 1,
    "ratio_bulk_accept": 0.01
   },
@@ -75,28 +77,6 @@
      ],
      "unreadable": []
     }
-   },
-   {
-    "msg": "m13",
-    "key": [
-     "Tariq Aziz",
-     "2026-11-19"
-    ],
-    "kind": "missed_availability",
-    "silent": true,
-    "expected": {
-     "open": [
-      [
-       "available",
-       "09:00",
-       "12:00"
-      ]
-     ],
-     "unavailable": false,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": null
    },
    {
     "msg": "m14",
@@ -162,7 +142,6 @@
    "m10": 0,
    "m11": 0,
    "m12": 0,
-   "m13": 1,
    "m14": 1,
    "m15": 0,
    "m16": 1,
@@ -174,21 +153,23 @@
  },
  "all": {
   "messages": 20,
-  "reference_units": 35,
+  "duplicate_messages_excluded": 1,
+  "duplicate_units_excluded": 1,
+  "reference_units": 34,
   "correct_units": 30,
-  "extraction_errors": 5,
+  "extraction_errors": 4,
   "error_kinds": {
    "time_error": 1,
-   "missed_availability": 2,
-   "missed_cancellation": 2
+   "missed_cancellation": 2,
+   "missed_availability": 1
   },
-  "silent_errors": 5,
+  "silent_errors": 4,
   "flagged_units": 9,
   "flagged_but_correct": 9,
   "effort_proxy": {
-   "manual_actions": 107,
-   "assisted_actions_full_review": 42,
-   "ratio_full_review": 0.39,
+   "manual_actions": 105,
+   "assisted_actions_full_review": 39,
+   "ratio_full_review": 0.37,
    "assisted_actions_bulk_accept": 1,
    "ratio_bulk_accept": 0.01
   },
@@ -221,28 +202,6 @@
      ],
      "unreadable": []
     }
-   },
-   {
-    "msg": "m13",
-    "key": [
-     "Tariq Aziz",
-     "2026-11-19"
-    ],
-    "kind": "missed_availability",
-    "silent": true,
-    "expected": {
-     "open": [
-      [
-       "available",
-       "09:00",
-       "12:00"
-      ]
-     ],
-     "unavailable": false,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": null
    },
    {
     "msg": "m14",
@@ -308,7 +267,6 @@
    "m10": 0,
    "m11": 0,
    "m12": 0,
-   "m13": 1,
    "m14": 1,
    "m15": 0,
    "m16": 1,

@@ -7,25 +7,27 @@
  "wall_s": 0.0,
  "heldout": {
   "messages": 20,
-  "reference_units": 35,
+  "duplicate_messages_excluded": 1,
+  "duplicate_units_excluded": 1,
+  "reference_units": 34,
   "correct_units": 16,
-  "extraction_errors": 19,
+  "extraction_errors": 18,
   "error_kinds": {
    "false_negation": 1,
    "condition_treated_as_firm": 1,
    "time_error": 4,
-   "missed_availability": 3,
+   "missed_availability": 2,
    "missed_unavailability": 7,
    "missed_negation": 2,
    "missed_cancellation": 1
   },
-  "silent_errors": 19,
+  "silent_errors": 18,
   "flagged_units": 1,
   "flagged_but_correct": 1,
   "effort_proxy": {
-   "manual_actions": 107,
-   "assisted_actions_full_review": 53,
-   "ratio_full_review": 0.5,
+   "manual_actions": 105,
+   "assisted_actions_full_review": 50,
+   "ratio_full_review": 0.48,
    "assisted_actions_bulk_accept": 1,
    "ratio_bulk_accept": 0.01
   },
@@ -354,28 +356,6 @@
     }
    },
    {
-    "msg": "m13",
-    "key": [
-     "Tariq Aziz",
-     "2026-11-19"
-    ],
-    "kind": "missed_availability",
-    "silent": true,
-    "expected": {
-     "open": [
-      [
-       "available",
-       "09:00",
-       "12:00"
-      ]
-     ],
-     "unavailable": false,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": null
-   },
-   {
     "msg": "m14",
     "key": [
      "Ada Brooks",
@@ -469,7 +449,6 @@
    "m10": 7,
    "m11": 1,
    "m12": 0,
-   "m13": 1,
    "m14": 1,
    "m15": 0,
    "m16": 2,
@@ -481,25 +460,27 @@
  },
  "all": {
   "messages": 20,
-  "reference_units": 35,
+  "duplicate_messages_excluded": 1,
+  "duplicate_units_excluded": 1,
+  "reference_units": 34,
   "correct_units": 16,
-  "extraction_errors": 19,
+  "extraction_errors": 18,
   "error_kinds": {
    "false_negation": 1,
    "condition_treated_as_firm": 1,
    "time_error": 4,
-   "missed_availability": 3,
+   "missed_availability": 2,
    "missed_unavailability": 7,
    "missed_negation": 2,
    "missed_cancellation": 1
   },
-  "silent_errors": 19,
+  "silent_errors": 18,
   "flagged_units": 1,
   "flagged_but_correct": 1,
   "effort_proxy": {
-   "manual_actions": 107,
-   "assisted_actions_full_review": 53,
-   "ratio_full_review": 0.5,
+   "manual_actions": 105,
+   "assisted_actions_full_review": 50,
+   "ratio_full_review": 0.48,
    "assisted_actions_bulk_accept": 1,
    "ratio_bulk_accept": 0.01
   },
@@ -828,28 +809,6 @@
     }
    },
    {
-    "msg": "m13",
-    "key": [
-     "Tariq Aziz",
-     "2026-11-19"
-    ],
-    "kind": "missed_availability",
-    "silent": true,
-    "expected": {
-     "open": [
-      [
-       "available",
-       "09:00",
-       "12:00"
-      ]
-     ],
-     "unavailable": false,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": null
-   },
-   {
     "msg": "m14",
     "key": [
      "Ada Brooks",
@@ -943,7 +902,6 @@
    "m10": 7,
    "m11": 1,
    "m12": 0,
-   "m13": 1,
    "m14": 1,
    "m15": 0,
    "m16": 2,
