@@ -4,7 +4,7 @@ A local review tool for volunteer coordinators who collect availability through 
 
 It records **availability** (when people say they can or cannot help), not shift assignments.
 
-**A local open model proposes and ordinary code decides.** The model (Gemma 4 E2B through Ollama) only copies phrases such as "next Tuesday", "after 3" or "if needed". Python code turns them into dates and times, refuses suggestions whose words are not in the message, keeps each person's history per day, keeps conditional offers conditional, and does every count. In the core workflow nothing leaves your computer.
+**A local open model proposes and ordinary code decides.** The model (Gemma 4 E2B through Ollama) only copies phrases such as "next Tuesday", "after 3" or "if needed". Python code turns them into dates and times, checks each suggestion's words against the message and flags or drops unsupported ones (with one documented gap: a real quote with invented day or time words is only flagged and counts on the provisional sheet), keeps each person's history per day, keeps conditional offers conditional, and does every count. In the core workflow nothing leaves your computer.
 
 Status: validation prototype. Every message, name and organisation in `fixtures/` is **fictional**. It has not been used by a real coordinator.
 
