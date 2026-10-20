@@ -1,0 +1,85 @@
+{
+  "about": "Manual reference for FICTIONAL held-out set B, written and frozen before any extractor ran on it. Same conventions as reference.json.",
+  "week_start": "2026-11-16",
+  "timezone": "America/Chicago",
+  "split": {"heldout": ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "m15", "m16", "m17", "m18", "m19", "m20"]},
+  "messages": {
+    "m01": {"category": ["unrelated"], "claims": []},
+    "m02": {"category": ["partial"], "claims": [
+      {"person": "Ada Brooks", "dates": ["2026-11-16"], "start": "10:00", "end": "14:00", "status": "available"},
+      {"person": "Ada Brooks", "dates": ["2026-11-18"], "start": "10:00", "end": "14:00", "status": "available", "note": "'the same' hours"}]},
+    "m03": {"category": ["basic"], "claims": [
+      {"person": "Chen Wei", "dates": ["2026-11-21", "2026-11-22"], "start": null, "end": null, "status": "available"}]},
+    "m04": {"category": ["negation", "partial"], "claims": [
+      {"person": "Diego Alvarez", "dates": ["2026-11-17"], "start": null, "end": null, "status": "unavailable"},
+      {"person": "Diego Alvarez", "dates": ["2026-11-19"], "start": null, "end": null, "status": "unavailable"},
+      {"person": "Diego Alvarez", "dates": ["2026-11-20"], "start": "16:00", "end": "20:00", "status": "available"}]},
+    "m05": {"category": ["conditional"], "claims": [
+      {"person": "Nora Patel", "dates": ["2026-11-21"], "start": "13:00", "end": "17:00", "status": "conditional"}]},
+    "m06": {"category": ["similar_names"], "claims": [
+      {"person": "Norah Patil", "dates": ["2026-11-19"], "start": "17:00", "end": "20:00", "status": "available"}]},
+    "m07": {"category": ["unrelated"], "claims": []},
+    "m08": {"category": ["partial"], "claims": [
+      {"person": "Imani Okoro", "dates": ["2026-11-17"], "start": "13:00", "end": "15:00", "status": "available"},
+      {"person": "Imani Okoro", "dates": ["2026-11-20"], "start": "09:00", "end": "20:00", "status": "available"}]},
+    "m09": {"category": ["third_party", "similar_names"], "claims": [
+      {"person": "Jo Whitfield", "dates": ["2026-11-16"], "start": "09:00", "end": "12:00", "status": "available"},
+      {"person": "Jonah Whitfield", "dates": ["2026-11-16"], "start": "13:00", "end": "17:00", "status": "available"}]},
+    "m10": {"category": ["negation"], "claims": [
+      {"person": "Leo Marsh", "dates": ["2026-11-16", "2026-11-17", "2026-11-18", "2026-11-19", "2026-11-20", "2026-11-21", "2026-11-22"], "start": null, "end": null, "status": "unavailable"}]},
+    "m11": {"category": ["conditional", "partial"], "claims": [
+      {"person": "Rosa Nguyen", "dates": ["2026-11-18"], "start": "12:00", "end": "14:00", "status": "available"},
+      {"person": "Rosa Nguyen", "dates": ["2026-11-21"], "start": "09:00", "end": "12:00", "status": "conditional"}]},
+    "m12": {"category": ["basic"], "claims": [
+      {"person": "Tariq Aziz", "dates": ["2026-11-19"], "start": "09:00", "end": "12:00", "status": "available"}]},
+    "m13": {"category": ["duplicate"], "claims": [
+      {"person": "Tariq Aziz", "dates": ["2026-11-19"], "start": "09:00", "end": "12:00", "status": "available"}]},
+    "m14": {"category": ["cancellation", "confirmation"], "claims": [
+      {"person": "Ada Brooks", "dates": ["2026-11-18"], "start": null, "end": null, "status": "unavailable"},
+      {"person": "Ada Brooks", "dates": ["2026-11-16"], "start": null, "end": null, "status": "available", "note": "confirmation"}]},
+    "m15": {"category": ["condition_resolved"], "claims": [
+      {"person": "Nora Patel", "dates": ["2026-11-21"], "start": "13:00", "end": "17:00", "status": "available"}]},
+    "m16": {"category": ["third_party", "cancellation", "confirmation"], "claims": [
+      {"person": "Chen Wei", "dates": ["2026-11-22"], "start": null, "end": null, "status": "unavailable"},
+      {"person": "Chen Wei", "dates": ["2026-11-21"], "start": null, "end": null, "status": "available", "note": "confirmation"}]},
+    "m17": {"category": ["correction"], "claims": [
+      {"person": "Diego Alvarez", "dates": ["2026-11-20"], "start": "16:00", "end": "18:00", "status": "available", "replaces_earlier": true}]},
+    "m18": {"category": ["ambiguous_date"], "claims": [
+      {"person": "Imani Okoro", "dates": null, "date_state": "ambiguous", "date_candidates": ["2026-11-20", "2026-11-27"], "start": null, "end": null, "status": "unavailable"}]},
+    "m19": {"category": ["cancellation", "relative_date"], "claims": [
+      {"person": "Jo Whitfield", "dates": ["2026-11-16"], "start": null, "end": null, "status": "unavailable"},
+      {"person": "Jo Whitfield", "dates": ["2026-11-19"], "start": "09:00", "end": "12:00", "status": "available"}]},
+    "m20": {"category": ["cancellation", "conditional", "confirmation"], "claims": [
+      {"person": "Rosa Nguyen", "dates": ["2026-11-21"], "start": null, "end": null, "status": "unavailable"},
+      {"person": "Rosa Nguyen", "dates": ["2026-11-18"], "start": null, "end": null, "status": "available", "note": "confirmation"}]}
+  },
+  "withdrawals": [
+    {"msg": "m14", "person": "Ada Brooks", "date": "2026-11-18", "start": "10:00", "end": "14:00", "kind": "cancel"},
+    {"msg": "m16", "person": "Chen Wei", "date": "2026-11-22", "start": "09:00", "end": "20:00", "kind": "cancel"},
+    {"msg": "m17", "person": "Diego Alvarez", "date": "2026-11-20", "start": "18:00", "end": "20:00", "kind": "narrow"},
+    {"msg": "m19", "person": "Jo Whitfield", "date": "2026-11-16", "start": "09:00", "end": "12:00", "kind": "cancel"},
+    {"msg": "m20", "person": "Rosa Nguyen", "date": "2026-11-21", "start": "09:00", "end": "12:00", "kind": "cancel"}
+  ],
+  "conditions": [
+    {"msgs": ["m05", "m15"], "person": "Nora Patel", "date": "2026-11-21", "start": "13:00", "end": "17:00", "expected_final": "available"},
+    {"msgs": ["m11", "m20"], "person": "Rosa Nguyen", "date": "2026-11-21", "start": "09:00", "end": "12:00", "expected_final": "none"}
+  ],
+  "ambiguities": [
+    {"msg": "m18", "kind": "date", "expect": "20 or 27 Nov unresolved; Imani's 20 Nov availability flagged for review"}
+  ],
+  "expected_sheet": {
+    "Ada Brooks": {"2026-11-16": [["10:00", "14:00", "available"]]},
+    "Aidan Brooks": {},
+    "Chen Wei": {"2026-11-21": [["09:00", "20:00", "available"]]},
+    "Diego Alvarez": {"2026-11-20": [["16:00", "18:00", "available"]]},
+    "Nora Patel": {"2026-11-21": [["13:00", "17:00", "available"]]},
+    "Norah Patil": {"2026-11-19": [["17:00", "20:00", "available"]]},
+    "Gus Lindqvist": {},
+    "Imani Okoro": {"2026-11-17": [["13:00", "15:00", "available"]], "2026-11-20": [["09:00", "20:00", "available"]]},
+    "Jo Whitfield": {"2026-11-19": [["09:00", "12:00", "available"]]},
+    "Jonah Whitfield": {"2026-11-16": [["13:00", "17:00", "available"]]},
+    "Leo Marsh": {},
+    "Rosa Nguyen": {"2026-11-18": [["12:00", "14:00", "available"]]},
+    "Tariq Aziz": {"2026-11-19": [["09:00", "12:00", "available"]]}
+  }
+}

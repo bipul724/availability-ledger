@@ -1,0 +1,24 @@
+# FICTIONAL HELD-OUT SET B. Northside Tool Library does not exist; every name, message and event is invented.
+# Written after the first held-out run and before the hybrid design was evaluated; frozen before any extractor ran on it.
+# Selected week: Monday 2026-11-16 to Sunday 2026-11-22, timezone America/Chicago.
+# Format: YYYY-MM-DD HH:MM | Sender | Message
+2026-11-09 10:00 | Pat (coordinator) | Morning all! Sign-ups for the week of 16–22 Nov are open. Same shifts as always: mornings 9–12, afternoons 1–5, evenings 5–8.
+2026-11-09 10:20 | Ada Brooks | Pencil me in for Monday 10 till 2, and Wednesday the same.
+2026-11-09 11:05 | Chen Wei | Whole weekend works for me.
+2026-11-09 12:40 | Diego Alvarez | I won't be around Tuesday or Thursday, but Friday from 4 onwards is good.
+2026-11-09 14:15 | Nora Patel | Tentatively Saturday afternoon — depends on whether my car is fixed by then.
+2026-11-09 15:30 | Norah Patil | Hey it's Norah P. Thursday evening for sure.
+2026-11-09 17:00 | Gus Lindqvist | Did the drill press ever get fixed?
+2026-11-10 08:45 | Imani Okoro | Between 1 and 3 on Tuesday, and any time Friday.
+2026-11-10 09:30 | Jo Whitfield | Monday morning! Jonah says he can do Monday afternoon.
+2026-11-10 11:20 | Leo Marsh | Count me out for the whole of next week, sorry — exams.
+2026-11-10 13:00 | Rosa Nguyen | Wednesday noon till 2. Saturday morning too, but only if you're still short.
+2026-11-11 09:10 | Tariq Aziz | Thursday 9-12 works.
+2026-11-11 09:11 | Tariq Aziz | Thursday 9-12 works.
+2026-11-12 10:00 | Ada Brooks | Scratch Wednesday, something came up. Monday's still on.
+2026-11-12 16:45 | Nora Patel | Car's fixed! Saturday afternoon is a definite yes.
+2026-11-13 08:30 | Pat (coordinator) | Passing on a voicemail from Chen: he has to drop Sunday but Saturday's still fine.
+2026-11-14 12:00 | Diego Alvarez | Friday I'll actually only manage 4 to 6.
+2026-11-16 07:55 | Imani Okoro | Next Friday I'm away — sorry!
+2026-11-16 09:30 | Jo Whitfield | Can't come in today after all, kid is sick. I could do Thursday morning instead.
+2026-11-17 18:20 | Rosa Nguyen | Looks like you're covered Saturday, so I'll skip it. Wednesday still happening.
