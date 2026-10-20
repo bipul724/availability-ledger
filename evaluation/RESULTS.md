@@ -1,6 +1,8 @@
 # Results so far (measured 20 Oct 2026 on an Apple M2, 8 GB, macOS 26.6.2)
 
-All messages are **fictional**. The same author (the assistant) wrote the fixtures, the references and the rules baseline, and no independent person checked them. These numbers show how the system behaves technically; they say nothing about whether anyone wants it.
+All messages are **fictional**. The same author (the assistant) wrote the fixtures, the references and the rules baseline, and no independent person checked them. These numbers show how the system behaves technically; they say nothing about whether anyone wants it. This file preserves the first-scored historical figures and their provenance; current post-hoc A/B results are in [PROGRESS.md](../PROGRESS.md#evaluation-status).
+
+**Interpretation limits for the agreed sponsor portfolio:** saved-output hosting, narration, CI runs, development checkpoints and optional traces are demonstration/process evidence, not fresh model evaluation, independent validation or measured coordinator time savings. Gemma is the only implemented sponsor use; see [INTEGRATIONS.md](../docs/INTEGRATIONS.md) for the proposed roles and [COMPETITION.md](../docs/COMPETITION.md) for the verified category/history research. Do not present historical measurements as new results from an integration that has not been built.
 
 ## Extraction and ledger accuracy (frozen, as first scored)
 
@@ -11,7 +13,8 @@ A "unit" is one person and one day as a message states it. "Silent" means wrong 
 
 **Two different scopes in this table** (label corrected 2026-10-20; the numbers are unchanged):
 - *Extraction columns* (units right, silent errors) are computed on **held-out messages only**.
-- *Ledger columns* (missed cancellations, wrong conditions, ambiguities flagged, slot agreement) are computed on the **final ledger built from every message in the set**. For set A that means all 50 messages, including the 30 dev messages; for set B all 20 messages, which are all held-out. "Missed cancellations" here means withdrawals still showing on the final sheet, not cancellations missed in their own message.
+- *Ledger columns* (missed cancellations, wrong conditions, ambiguities flagged, slot agreement) are computed on the **final ledger built from every message in the set**. For set A that means all 50 messages, including the 30 dev messages; for set B all 20 messages, which are all held-out. "Missed cancellations" here means withdrawals still showing on the final sheet, not cancellations missed in their own message. This is the provisional ledger built from resolved suggestions, not the accepted-only final-sheet CSV produced after explicit review.
+- **Known metric gap (EVAL-09):** `evaluation/run.py` can miss a partly lost conditional/available interval when it is not wholly empty. Its historical "Wrong conditions" figures may therefore undercount that failure. `score_final.py` checks every slot and has been fixed, but it is a separate final-export scorer. Do not silently replace these frozen values with its numbers.
 
 | Reader | Units right A / B | Silent errors A / B | Missed cancellations A / B | Wrong conditions A / B | Ambiguities flagged A / B | Final-sheet slot agreement A / B |
 |---|---|---|---|---|---|---|
@@ -85,4 +88,6 @@ This reflects how I wrote the fixtures. It says nothing about whether real volun
 ## Post-hoc changes on 2026-10-20 (not independent evidence)
 
 Four code changes were made on 2026-10-20: duplicate messages are collapsed, day modifiers dropped by the model are restored from its quote, "4 onwards" is read, and "the same" copies times from earlier in the same message. The modifier and "the same" changes were motivated by held-out messages (set A m26, set B m18 and set B's "the same"), so every changed set B figure is **post-hoc (code changed after set B was seen)**. Frozen figures above are unchanged. Current figures, an ablation of each change, and the regressions they caused (fewer units right because duplicates no longer produce units; more cancellations left on the set B final sheet once previously unreadable offers were applied) are in [PROGRESS.md](../PROGRESS.md#evaluation-status).
+
+Before further behavior changes, EVAL-01 requires an unseen fictional set C and handwritten reference to be frozen, unscored and committed without implementation agents inspecting it. EVAL-07 scores it once after the planned changes, recording the exact code version. No set C results or real-user time-saving result exists today. A future fictional replay, sponsor trace or demonstration video cannot supply that missing evidence. [MEASUREMENT.md](MEASUREMENT.md) specifies the separate human study and its local-only pilot boundary.
 

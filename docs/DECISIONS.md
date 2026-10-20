@@ -4,11 +4,12 @@ Each entry records why the system is the way it is. Statuses:
 
 - **accepted**: in effect, and the code or evaluation notes show it was chosen deliberately.
 - **accepted (implicit)**: in effect in the code, but no discussion of it was recorded.
+- **accepted (planning direction)**: owner selected the direction; implementation remains gated and is not claimed complete.
 - **proposed**: not built; needs a decision.
 - **superseded**: tried and replaced or removed.
 - **deferred**: deliberately left out of the current release.
 
-No decision has a recorded date except where one is stated in the repository (evaluation notes dated 20 Oct 2026, and the 2026-10-20 code changes). Do not add dates from memory.
+Dates are supported by source/evaluation history or the owner conversation. D-22 records the 2026-10-20 planning direction, not an implementation date.
 
 ## Index
 
@@ -25,7 +26,7 @@ No decision has a recorded date except where one is stated in the repository (ev
 | D-09 | Record availability, not assignments | accepted (implicit) |
 | D-10 | Synthetic evaluation with frozen held-out sets | accepted |
 | D-11 | Python standard library and no external front-end libraries | accepted |
-| D-12 | Stateless server, state only in the browser | accepted (implicit) |
+| D-12 | Browser session with transient local server processing | accepted (implicit) |
 | D-13 | Hold back unreviewed flagged suggestions from the sheet | superseded |
 | D-14 | Collapse duplicate messages | accepted |
 | D-15 | Restore day modifiers from the quote | accepted |
@@ -34,6 +35,14 @@ No decision has a recorded date except where one is stated in the repository (ev
 | D-18 | ₹0 operating budget | accepted |
 | D-19 | Hosted demo replays saved outputs | proposed |
 | D-20 | Tune prompts on dev messages only | accepted |
+| D-21 | Confirmed final sheet requires explicit message review | accepted |
+| D-22 | Coherent multi-category direction with separate product/development/demo roles | accepted (planning direction); Week 3 scope narrowed by D-23 |
+| D-23 | Week 3 submission scope: Gemma core, optional Actions CI, other integrations deferred | accepted (project lead, 2026-10-20) |
+| D-24 | Set C is frozen outside the public repository | accepted (project lead, 2026-10-20) |
+| D-25 | Missed cancellations: warn first, no new extraction vocabulary before C is scored | accepted (project lead, 2026-10-20) |
+| D-26 | Duplicate-aware extraction scoring before set C is scored | accepted (project lead, 2026-10-20) |
+| D-27 | Documentation economy until submission | accepted (project lead, 2026-10-20) |
+| D-28 | Work that cannot bias set C may start before the C freeze | accepted (project lead, 2026-10-20) |
 
 ---
 
@@ -45,7 +54,7 @@ No decision has a recorded date except where one is stated in the repository (ev
 - **Alternatives:** hosted LLM APIs; a hosted open model.
 - **Rationale:** privacy ("Nothing leaves the machine", README) and zero cost.
 - **Tradeoffs:** needs Ollama and a 4 GB model download; slower than hosted models; limited by laptop memory.
-- **Revisit if:** coordinators cannot install Ollama, or a free private hosted option appears that keeps messages local.
+- **Revisit if:** coordinators cannot install Ollama, or a separately approved design changes the local privacy boundary. A hosted inference service does not keep inference local merely because access is free.
 - **References:** [ARCHITECTURE.md §5](ARCHITECTURE.md#5-model-integration), [RESULTS.md](../evaluation/RESULTS.md) speed and memory.
 
 ### D-02 Gemma 4 E2B as the default model
@@ -54,7 +63,7 @@ No decision has a recorded date except where one is stated in the repository (ev
 - **Context:** Target hardware is an 8 GB Mac with other apps open.
 - **Decision:** `DEFAULT_MODEL = "gemma4:e2b-it-qat"`.
 - **Alternatives:** Qwen3.5 4B (D-03).
-- **Rationale:** recorded ≈ 1.6 GB loaded (Ollama `/api/ps`), median 2.3–3.4 s per message, and usable with other apps open. Qwen used ≈ 2.95 GB and made the Mac swap heavily. Licence recorded as Apache 2.0 in RESULTS.md (not re-checked here).
+- **Rationale:** recorded ≈ 1.6 GB loaded (Ollama `/api/ps`), median 2.3–3.4 s per message, and usable with other apps open. Qwen used ≈ 2.95 GB and made the Mac swap heavily. The [official Ollama tag listing](https://ollama.com/library/gemma4:e2b-it-qat) identifies Apache 2.0 (checked 2026-10-20); this is separate from the application licence decision.
 - **Tradeoffs:** Gemma alone misses cancellations (7 of 12 still on the set A final sheet); it needs the rules cross-check (D-05).
 - **Revisit if:** the target hardware changes, or a fresh held-out set shows Gemma + rules missing cancellations that Qwen + rules catches.
 - **References:** [RESULTS.md](../evaluation/RESULTS.md).
@@ -138,10 +147,10 @@ No decision has a recorded date except where one is stated in the repository (ev
 - **Rationale:** nothing to install beyond Python and Ollama; nothing to leak data.
 - **Tradeoffs:** hand-written HTTP server and chart; SDK-based integrations (for example Sentry's SDK) would break this rule and need their own decision.
 
-### D-12 Stateless server, state only in the browser
+### D-12 Browser session with transient local server processing
 
 - **Status:** accepted (implicit)
-- **Decision:** The browser holds all state and sends it to `/api/resolve` each time; nothing is stored.
+- **Decision:** Session state lives in browser memory and is processed transiently by the local server for resolve/export. No application persistence is implemented.
 - **Tradeoffs:** reload loses work (COR-04). Simple and private.
 
 ### D-13 Hold back unreviewed flagged suggestions from the sheet
@@ -172,8 +181,8 @@ No decision has a recorded date except where one is stated in the repository (ev
 
 ### D-17 External services are optional, opt-in and content-free by default
 
-- **Status:** proposed (nothing external is implemented)
-- **Proposal:** Any integration (Sentry tracing, ElevenLabs, hosting) must be off by default, work on a free tier or existing credits only, and stop or degrade when the allowance ends. Telemetry must not contain message text, names, quotes or model replies; timings, token counts and error types only. Any feature that sends content off the device (for example voice-note transcription) must say so before each use.
+- **Status:** proposed implementation; safety constraints accepted in D-18/D-22 (nothing external is implemented)
+- **Proposal:** Optional runtime diagnostics must be opt-in/off by default, use verified free access and stop/degrade without blocking local review when allowance ends. Telemetry excludes message text, names, quotes, replies, private identifiers and raw sensitive errors. Start with fictional data and a metadata allowlist. Development evidence and demo assets have separate boundaries. Public replay/narration use fictional data; in-app voice/transcription is deferred. See [INTEGRATIONS.md](INTEGRATIONS.md).
 - **Revisit:** when the first integration is designed.
 
 ### D-18 ₹0 operating budget
@@ -184,12 +193,75 @@ No decision has a recorded date except where one is stated in the repository (ev
 
 ### D-19 Hosted demo replays saved outputs
 
-- **Status:** proposed
-- **Proposal:** If a public demo is needed, host a replay mode that serves the cached model outputs for the fictional fixtures, clearly labelled, on a free hosting plan (for example Render). The existing domain can point at that host; the domain itself does not host anything. Free hosting cannot run Gemma and cannot reach Ollama on a laptop.
-- **References:** [ARCHITECTURE.md §15](ARCHITECTURE.md#15-deployment), TASKS DEP-02.
+- **Status:** planning direction selected in D-22; replay implementation/deployment remains proposed.
+- **Proposal:** Host a useful interactive replay using fixed fictional saved outputs, clearly labelled, on a verified free host such as Render. The domain points at the host; it does not host the app. No hosted Gemma resources are provisioned, and a remote host cannot use the laptop localhost Ollama. A future replay spec must define permitted inputs/APIs and exclude private-data uploads. A truthful local video remains a valid alternative.
+- **References:** [ARCHITECTURE.md §15](ARCHITECTURE.md#15-deployment), [INTEGRATIONS.md](INTEGRATIONS.md), TASKS DEP-02.
 
 ### D-20 Tune prompts on dev messages only
 
 - **Status:** accepted
-- **Decision:** Prompt changes (v1 → v3) were motivated only by the 30 set A dev messages; held-out sets are scored once per prompt version. `SYSTEM`, `EXAMPLES` and `PROMPT_VERSION = 3` are frozen; any change bumps the version.
+- **Decision:** Prompt changes (v1 → v3) were motivated only by the 30 set A dev messages; first-scored held-out results are frozen, while later reruns after inspecting A/B errors are explicitly post-hoc. New C must stay unseen and be scored once after planned behavior changes. `SYSTEM`, `EXAMPLES` and `PROMPT_VERSION = 3` are frozen; any change bumps the version.
 - **References:** [TUNING.md](../evaluation/TUNING.md).
+
+### D-21 Confirmed final sheet requires explicit message review
+
+- **Status:** accepted (owner decisions recorded 2026-10-20; implemented the same day)
+- **Context:** The record log could not be replayed into the sheet, the in-app sheet includes pending suggestions, and a cancellation the readers missed can sit in a message that produced no suggestions.
+- **Decision:** The final-sheet export uses accepted records only and is `complete` only when every message is explicitly marked reviewed, nothing is pending and no `who`/`date`/`time`/`conflict` issue is open. Review is never inferred from extraction or from deciding suggestions. "Accept all and mark reviewed" is offered only for eligible pending suggestions with resolved identity/day, readable time and no blocking warning; approved informational flags are specified in the export contract/UI. Provisional exports are allowed and labelled. The timing study scores final-sheet files from both conditions with one strict scorer, counting unresolved cells as disagreement.
+- **Alternatives:** export `ledger.sheet` directly (would export pending suggestions as confirmed); add `replaces_earlier` to the record log and keep replaying it (two contracts, and still blind to unreviewed messages); infer review when all suggestions are decided (cannot see missed cancellations).
+- **Tradeoffs:** one more click per message; a message with no suggestions must be marked with its button (J/K move between cards).
+- **Revisit if:** the timing study shows marking costs significant time, or coordinators want per-day rather than per-message review.
+- **References:** [specs/final-export.md](specs/final-export.md), `ledger/export.py`, `evaluation/score_final.py`, `tests/test_export.py`.
+
+### D-22 Coherent multi-category direction with separate product/development/demo roles
+
+- **Date:** 2026-10-20 (owner direction and all-doc alignment).
+- **Status:** accepted (planning direction); optional uses remain unimplemented and conditional.
+- **Context:** The owner wants genuine winning opportunities beyond Gemma while retaining the useful local workflow, ₹0 additional spending and privacy. Historical research separates meaningful sponsor evidence from cheap eligibility; reliable category odds are unknown.
+- **Decision:** Gemma/Ollama stays local phrase extraction; Python and human review determine the final sheet. Pursue genuine Copilot development/review and Actions CI as distinct evidence routes; Entire captures real upcoming sessions. Consider narrowly scoped Sentry diagnostics only after privacy/dependency/free-budget gates. Plan a useful fictional saved-output Render replay, conditional domain routing and ElevenLabs demo narration. Backboard R-CLI is an optional bounded development trial if genuinely useful and locally compatible.
+- **Boundaries:** No in-app voice, cloud database, authentication, public-web retrieval, orchestration engine or fine-tuning is selected merely to add a category. Development/demo tools are not application dependencies. Only completed qualifying uses may be listed in the submission.
+- **Prerequisites:** Freeze unseen C before behavior changes; finish visible extraction failures/unsupported evidence and CSV protection; preserve frozen/post-hoc labels; validate usefulness and measure human time before claiming savings.
+- **Implementation scope:** This is not the specific D-11 SDK/network exception, service activation, install, download, credit claim, data sharing, deployment or publishing authorization. Follow the owner's actual scoped request and existing session authorization without asking twice.
+- **Tradeoffs:** Multiple categories cannot stack prizes and do not establish higher odds. Integrations consume time and may weaken the story if they displace correctness, independent evaluation, coordinator validation or the heavily weighted write-up.
+- **References:** [INTEGRATIONS.md](INTEGRATIONS.md) (roles/contracts/rollout), [COMPETITION.md](COMPETITION.md) (rules/history/strategy), [TASKS.md](../TASKS.md) (status/dependencies), [context.md](../context.md) (handoff).
+
+### D-23 Week 3 submission scope: Gemma core, optional Actions CI, other integrations deferred
+
+- **Date:** 2026-10-20, 20:45 IST (project-lead takeover). **Status:** accepted. It narrows D-22 for the Week 3 submission; D-22 stays as the longer-term direction. The owner can override.
+- **Context:** About 4.6 days remain before the earlier deadline reading (25 Oct, 12:29 IST). The listed effort estimates for optional work in [COMPETITION.md](COMPETITION.md#recommended-portfolio--revised-using-historical-evidence-still-proposed) add up to roughly 15–35 hours: Sentry 6–12 h, Render 4–8 h, narration 2–4 h, Entire 1–3 h, R-CLI 1–3 h, Actions 1–3 h. The core is unfinished: COR-03, COR-10, COR-02, unseen C, and a known silent missed-cancellation weakness. An entry can win at most one prize; writing quality is weighted most heavily; the inspected Week 1 winners showed deep, concrete use of their sponsor.
+- **Decision:** the Week 3 entry targets **overall + Gemma**. **GitHub Actions CI** (running the existing offline tests on push) is the only addition, and only if the core is finished by Thursday 22 Oct, 14:00 IST. **Deferred until after submission:** Sentry (it needs a network/SDK exception that weakens the local-privacy story), the Render replay and `.tech` routing (a new deployment surface; a local video is enough), ElevenLabs narration, Entire, Copilot agent work and the R-CLI trial.
+- **Evidence and uncertainty:** no per-category entrant data exists, so this is not a win-probability calculation. The judgement is that finished correctness, an independent evaluation and a candid write-up beat several thinly evidenced categories. Effort figures are hypotheses.
+- **Consequence:** INT-02, -03, -04, -07, -08 and -09 and DEP-02 are deferred; INT-06 (Copilot agent) is deferred; INT-10 (Actions) is optional with a deadline. Only completed qualifying uses may be named in the post.
+
+### D-24 Set C is frozen outside the public repository
+
+- **Date:** 2026-10-20. **Status:** accepted.
+- **Context:** The GitHub repository [bipul724/availability-ledger](https://github.com/bipul724/availability-ledger) is public (GitHub API, 2026-10-20). Implementation agents also work in the same folder. Committing C, as the earlier EVAL-01 wording required, would show it to those agents and to the public before it is scored.
+- **Decision:** C is written and stored in `~/Documents/availability-setC/`, outside every repository. Only a SHA-256 manifest (`fixtures/setC.manifest`) is committed at freeze time, which shows C has not changed since. The files enter `fixtures/` only at EVAL-07, after their hashes are verified. The project owner writes C; an optional fresh steward session converts the notes into the reference schema. The planning lead and implementation agents never see it. Brief: [specs/eval-01-setC-brief.md](specs/eval-01-setC-brief.md).
+- **Tradeoff:** the manifest proves C is unchanged but not that nobody read it, so the isolation rests on the stated rules.
+
+### D-25 Missed cancellations: warn first, no new extraction vocabulary before C is scored
+
+- **Date:** 2026-10-20. **Status:** accepted.
+- **Context:** On set B, Gemma + rules silently missed "scratch Wednesday" (PROGRESS known defect 6). Adding the missing words to the rules or the prompt would be tuned to set B wording.
+- **Decision:** COR-07 becomes **COR-07a**, a code-level warning. When a later message from a person mentions a day on which they still have open availability and contains a change word from a general-English list, but no live claim from that message touched that day, the app raises an `unanswered_change` issue. It never edits the sheet. Vocabulary changes to the rules or the prompt (COR-07b) are deferred until after C is scored.
+- **Why:** a warning keeps the human in the loop, reaches the reviewer even when extraction misses entirely, and generalises beyond set B's phrasing. Its false-alarm rate on C is part of EVAL-07.
+
+### D-26 Duplicate-aware extraction scoring before set C is scored
+
+- **Date:** 2026-10-20. **Status:** accepted.
+- **Context:** Duplicates are no longer extracted (D-14), but `evaluation/run.py` still counts a duplicate's reference units, which turns correct behaviour into apparent misses (context §8).
+- **Decision:** EVAL-10 excludes messages with `duplicate_of` from both reference and predicted unit counts, reports how many units were excluded, and leaves ledger-level metrics unchanged. This must land before EVAL-07; historical tables stay as they were, and changed current A/B numbers are labelled.
+
+### D-27 Documentation economy until submission
+
+- **Date:** 2026-10-20. **Status:** accepted.
+- **Context:** Project docs exceed 2,500 lines across 18 files, and each task has updated most of them. Documentation now competes with the core work and the write-up for the time left.
+- **Decision:** until submission, each task updates **its own TASKS row**, adds **one dated PROGRESS entry** (what changed, which checks were run, results), and updates the affected spec only if a contract changes. context.md changes only when the plan or a material state changes. No new research documents. The standing rule to record every task still holds; this limits how much is written, not whether it is recorded.
+
+### D-28 Work that cannot bias set C may start before the C freeze
+
+- **Date:** 2026-10-20, about 21:30 IST. **Status:** accepted.
+- **Context:** The implementation agent correctly stopped because the C manifest does not exist yet. An earlier brief named it `setC.sha256`; the canonical name is now `fixtures/setC.manifest` (D-24). Waiting for C would idle the agent for half a day.
+- **Decision:** the freeze protects C as an independent test of changes to **what is extracted and what reaches the sheet**. COR-10 and COR-07a change exactly that, so they still wait. COR-03 (visible extraction failures and continuing after them), COR-02 (CSV formula protection), EVAL-09 and EVAL-10 (metric definitions fixed from invented inputs) do not change any reader's claims or the ledger, so they may start now. Their acceptance tests use invented messages only, and they must not touch `ledger/model.py`, `ledger/rules.py`, `ledger/hybrid.py`, `ledger/resolve.py`, or claim and ledger logic in `ledger/core.py`.
+- **Check:** after these tasks, a cached re-run of A/B must leave every extraction and ledger number unchanged, except metrics EVAL-09 and EVAL-10 intentionally redefine, which are reported separately and labelled. Any other change means the work crossed the boundary and must be reverted or re-planned.

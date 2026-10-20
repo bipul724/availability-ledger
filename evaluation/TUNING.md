@@ -1,6 +1,10 @@
 # Prompt tuning log
 
-Rule: tune only on dev messages; held-out messages (listed in `fixtures/reference.json`) are scored once per prompt version and never inspected for tuning.
+Forward rule: tune only on development messages. Keep new held-out messages unseen by implementation agents and score them once after the planned changes. The historical tables below explicitly record departures: some code changes followed inspection of A/B errors and are **post-hoc**, so A/B no longer independently validates those changes.
+
+**Current gate:** before further behavior changes, freeze and commit at least 20 new fictional set C messages plus a handwritten reference, unscored (EVAL-01); implementation agents must not open them. Use new invented development examples, then score C once at an identified code version (EVAL-07). C does not exist today. See [TASKS.md](../TASKS.md#evaluation-and-validation).
+
+**Sponsor boundary:** the agreed [integration plan](../docs/INTEGRATIONS.md) preserves the local phrase-copying Gemma/Python boundary. No new provider, prompt change, hosted inference, fine-tuning or in-product voice capability is authorized merely by a category target. Any real prompt change needs the `PROMPT_VERSION` bump, separate cache identity and a log entry. Saved-output replay, CI results, development sessions and optional traces are not new accuracy results and must not be labelled as independent tests. Keep consented real pilot data local, outside git and all external development/demo/telemetry artifacts.
 
 ## v1 → v2 (from the 30 dev messages, gemma4:e2b-it-qat)
 
@@ -20,9 +24,9 @@ No few-shot examples changed. The rules baseline was not tuned after its first r
 | Dev error (v2) | Message | Change |
 |---|---|---|
 | Claims repeated from earlier-message context | m23 | Removed earlier messages from the prompt entirely (code handles "still"/confirmations) |
-| Coordinator "still need people" and shift list still extracted | m01, m34 | Invented example of a coordinator request with no claims; **code rule**: claims about a coordinator's own message are dropped |
+| Coordinator "still need people" and shift list still extracted | m01, m34 | Invented example of a coordinator request with no claims; **code rule**: a coordinator's self-claim is dropped when the coordinator does not resolve to a roster name (a coordinator on the roster is retained) |
 | "Just let me know" still read as a condition; Marta's offer still given to "Maria" | m30, m48 | One invented example combining "If not, I can do it" (SENDER, conditional) and "Could I also…? Let me know!" (available) |
-| Any proposal whose excerpt and phrases are absent from the message | (general) | **Code rule (evidence gate)**: dropped with a visible reason, never applied |
+| Any proposal whose excerpt and phrases are absent from the message | (general) | **Code rule (evidence gate)**: dropped with a visible reason, never applied. This does not cover an exact quote paired with invented day/time words: those may remain pending and affect the provisional sheet today (COR-10) |
 
 ## After held-out scoring (post-hoc; not independent evidence)
 

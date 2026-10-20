@@ -2,11 +2,11 @@
 
 This describes the system **as it exists in the source on 2026-10-20**. Proposed changes are in clearly marked sections at the end. Status words (Implemented, Verified, Partial, Planned, Unverified, Deferred) mean the same as in [PROGRESS.md](../PROGRESS.md#status-vocabulary).
 
-Related: [API.md](API.md) (interfaces), [DECISIONS.md](DECISIONS.md) (why it is built this way), [PRD.md](PRD.md) (intended behaviour).
+Related: [API.md](API.md) (interfaces), [DECISIONS.md](DECISIONS.md) (why it is built this way), [PRD.md](PRD.md) (intended behaviour), [INTEGRATIONS.md](INTEGRATIONS.md) (planned supporting services and gates), [COMPETITION.md](COMPETITION.md) (verified competition evidence). Start with [context.md](../context.md) and [CLAUDE.md](../CLAUDE.md).
 
 ## 1. System overview
 
-Availability Ledger is a single-user, local web tool. A coordinator pastes dated chat messages and a volunteer roster, picks a week, and gets **suggested availability records**. Each suggestion is shown beside the message it came from, and the coordinator accepts, edits or rejects it. The tool builds a per-person, per-day history, a sheet of who is available when, a half-hourly count chart and a CSV export.
+Availability Ledger is a single-user, local web tool. A coordinator pastes dated chat messages and a volunteer roster, picks a week, and gets **suggested availability records**. Each suggestion is shown beside the message it came from, and the coordinator accepts, edits or rejects it. The tool builds a per-person, per-day history, a sheet of who is available when, a half-hourly count chart and two CSV exports: the accepted-only reconciled final sheet and the separate review log.
 
 It records **availability** (when someone says they can or cannot help). It does not assign anyone to a shift. There is no shift, rota or assignment object anywhere in the code.
 
@@ -34,15 +34,16 @@ ledger/messages.py     Message type; parse pasted text / WhatsApp exports; roste
 ledger/names.py        roster matching; similar names flagged, never merged
 ledger/resolve.py      Calendar; day phrases -> dates; time phrases -> times (no model)
 ledger/core.py         claim resolution, evidence gate, ledger/history, counts, evaluation helpers
+ledger/export.py       confirmed final sheet (accepted records only), its CSV writer and strict reader
 ledger/model.py        Ollama /api/chat call with a JSON schema; prompt v3 (SYSTEM + EXAMPLES)
 ledger/rules.py        keyword/regex baseline extractor
 ledger/hybrid.py       model + rules merge and cross-check flags
-tests/test_ledger.py   21 unittest checks (stdlib only)
+tests/                 49 unittest checks (stdlib only): test_ledger.py, test_export.py; browser/session_rerun.mjs (optional, Node + Chrome)
 evaluation/            scoring scripts, results, cached model outputs, tuning and measurement notes
 fixtures/              FICTIONAL message sets A and B, rosters, hand-written references, manual-entry CSV template
 ```
 
-There is no package manifest, lock file, Dockerfile, deployment configuration, `.git` directory or licence file in the project folder. Everything runs on the Python standard library; the browser code uses no external libraries or CDNs.
+A local Git repository exists, on `main` tracking `origin/main` at the audited HEAD `4c1f700`. The working tree includes modified and untracked implementation/docs; a clone of committed HEAD does not reproduce all current features. Remote accessibility was not verified. There is no package manifest, lock file, Dockerfile, deployment configuration or licence file in the project folder. The application runs on the Python standard library; the browser code uses no external libraries or CDNs. The optional browser harness uses built-in Node APIs and local Chrome.
 
 ## 3. Runtime and startup
 
@@ -59,7 +60,7 @@ Ollama is a separate process the user starts (`ollama serve`). The server never 
 
 ## 4. Frontend / backend relationship
 
-The **server is stateless**. All working state is retained in the browser tab (`state` in `ui/app.js`) and sent to the local Python server with each request, which processes it transiently and keeps nothing. That state is: parsed messages, raw claims with review status and overrides, the last resolved claims and ledger, the roster, the week, the current keyboard card and review statistics. Nothing is written to disk, `localStorage` or a database. **Reloading the page loses all review work.**
+The **server is stateless**. All working state is retained in the browser tab (`state` in `ui/app.js`) and sent to the local Python server with each request, which processes it transiently and keeps nothing. That state is: parsed messages, raw claims with review status and overrides, the last resolved claims and ledger, the roster, the week, the explicit reviewed-message marks, confirmed-export summary, current keyboard card and review statistics. Nothing is written to disk, `localStorage` or a database. **Reloading the page loses all review work.**
 
 The browser sends the complete state on every recompute:
 
@@ -79,7 +80,9 @@ flowchart TD
     I --> J[build_ledger: per person/day 15-min slots, history, issues, sheet, counts]
     J --> K[Browser renders cards beside messages, Needs a decision, chart, sheet, Changes over time]
     K -->|accept / edit / reject / add / keyboard J K A R E| H
-    K -->|Export reviewed records| L[CSV built in the browser: accepted claims, one row per date]
+    K -->|Mark message reviewed / M| H
+    K -->|Export final sheet: POST /api/export| M[confirmed_export: accepted claims only, build_ledger, complete or provisional, needs_review cells]
+    K -->|Export review log| L[CSV built in the browser: accepted claims, one row per date]
 ```
 
 ## 5. Model integration
@@ -135,6 +138,8 @@ Adds: `person`, `person_state` (`resolved | ambiguous | unknown`), `person_candi
 | `review_notes` | `{"Person|date": [text]}` where an unresolved claim might affect that cell |
 | `counts` | 08:00–22:00 in 30-minute steps per day: `available` and `conditional` head-counts |
 
+`/api/resolve` also returns `confirmed`, the status of the final-sheet export for the current review marks (see §10).
+
 ## 7. Identity, dates, timezones and intervals
 
 - **Identity.** `names.match_person` normalises accents, case and punctuation. "SENDER", "me", "I" mean the sender. A first name shared by several roster entries is **ambiguous** and never guessed. A prefix of at least three letters resolves when exactly one roster first name matches ("Sam" with only Samira Haddad on the roster) and is ambiguous when several do ("Sam" with Sam Okafor and Samira Haddad). Names within edit distance 2 of another roster name get a `similar_name` flag ("Maria Lopez" vs "Marta Lopes"). Unknown people produce a "who" issue and are not applied. The roster is capped at 20 names; extras are silently dropped by the server.
@@ -167,15 +172,18 @@ Adds: `person`, `person_state` (`resolved | ambiguous | unknown`), `person_candi
 - New suggestions are `pending`. **Pending suggestions already count on the sheet and chart** (the hint says "From all suggestions you have not rejected"). An earlier experiment that held back flagged pending suggestions was removed (see [DECISIONS.md](DECISIONS.md) D-13).
 - Accept / Reject / Reset buttons, "Use it anyway" for dropped suggestions, "+ Add a record", field edits (any edit marks the suggestion accepted), and "Accept all suggestions without warnings" (only suggestions whose flags are all informational).
 - Keyboard: J/K move, A accept, R reject, E focus the first field, Esc leave a field. Shortcuts do not fire inside inputs, selects or textareas.
-- Statistics (`accepts`, `edits`, `rejects`, `adds`, `bulk`, review timer) are kept in memory and shown on export only.
-- **Export** is generated in the browser: one row per accepted suggestion per date (plus pending ones if "include records not yet reviewed" is ticked); rejected and dropped are excluded. It is a **record log, not the final sheet**: a cancelled offer and its cancellation both appear, in message order. The file cannot reliably reconstruct the sheet: it has no `replaces_earlier` column, and `evaluation/score_csv.py` replays every row as not replacing anything. Column details and an example: [API.md](API.md#csv-export).
+- **Message review marks.** "Mark message reviewed" (keyboard `M`) records an explicit decision per message in `state.reviewed`; nothing marks a message automatically. "Accept all and mark reviewed" is offered only when every undecided suggestion in the message is pending, has informational flags only, and has a resolved person, day and time. Duplicates are covered by their original. A re-run clears the marks.
+- Statistics (`accepts`, `edits`, `rejects`, `adds`, `bulk`, `marks`, review timer) are kept in memory and shown on export only.
+- **Final-sheet export** (`ledger/export.py`, `POST /api/export`): built from **accepted** claims only through the ordinary `build_ledger`, so corrections replay exactly as in the app. It is `complete` only when every non-duplicate message is marked reviewed, nothing is pending and no `who`/`date`/`time`/`conflict` issue is open; otherwise `provisional`. Cells touched by pending claims, blocking issues, or accepted/pending claims of unreviewed messages are `needs_review` (dropped and rejected claims never mark cells); when an unreviewed message's scope is unknown, only the whole-file status shows it. Canonical rules: [specs/final-export.md](specs/final-export.md).
+- **Review-log export** is generated in the browser: one row per accepted suggestion per date (plus pending ones if "include records not yet reviewed" is ticked); rejected and dropped are excluded. It is a **record log, not the final sheet**: a cancelled offer and its cancellation both appear, in message order. The file cannot reliably reconstruct the sheet: it has no `replaces_earlier` column, and `evaluation/score_csv.py` replays every row as not replacing anything. Column details and an example: [API.md](API.md#csv-export).
 
 ## 11. Errors, retries, interruption
 
 - Every exception inside a POST handler becomes HTTP **400** with `{"error": "<ExceptionType>: <message>"}`; there is no 500 path. Unknown POST paths: 404 JSON. Unknown GET paths: 404 `text/plain` "not found".
-- The browser processes messages one request at a time. On the first error it stops, shows "Error: …" in the status line, and keeps the claims received so far. Clicking **Suggest records** again restarts from scratch (clears claims). There is no retry, cancel button or resume.
+- The browser processes messages one request at a time. On the first error it stops, shows "Error: …" in the status line, and keeps the claims received so far. A successful re-run starts a fresh session; a validation/parse failure before that preserves the old session, as described below. There is no retry, cancel button or resume.
 - Model calls time out after 300 s. If Ollama is down, `/api/suggest` with the model or hybrid reader fails with a 400 (`URLError…`).
-- A failed request (including a lost connection to the local server) does **not** erase browser state: claims and decisions already held are kept. Reloading the page, or clicking **Suggest records** again, clears it.
+- A failed request (including a lost connection to the local server) does **not** erase browser state: claims and decisions already held are kept. Reloading the page clears it; a re-run replaces it only after valid settings and a usable parse have been committed.
+- **Re-running Suggest records** reads the proposed week and timezone into local variables, validates the week and parses the input first. Only when the input parses into at least one dated message does it commit the new week, timezone, messages and roster together with an empty review state. A non-Monday week, a parse error or an input with no dated messages leaves the previous session (claims, decisions, marks, settings) unchanged, so an export can never combine old approvals with new settings. A failure later, while reading messages, keeps the new session with the claims read so far.
 
 ## 12. Logging and observability
 
@@ -194,12 +202,12 @@ Adds: `person`, `person_state` (`resolved | ambiguous | unknown`), `person_candi
 | Evaluation caches and results | `evaluation/runs/`, `evaluation/results/` (fictional fixtures only) | No |
 | Telemetry | None implemented | — |
 
-No external integration other than the local Gemma model is implemented today. Any future one must follow [DECISIONS.md](DECISIONS.md) D-17 (opt-in, off by default, free tier only, message content excluded from telemetry, clear disclosure when content leaves the device).
+No external integration other than the local Gemma model is implemented today. Any future runtime service must follow [DECISIONS.md](DECISIONS.md) D-17 and the detailed [integration contracts](INTEGRATIONS.md): opt-in/off by default, verified free allowance, no private content in telemetry, disclosure of external transfers, and no disruption to the local workflow. Development tools and demo narration are separate data paths, not application runtime dependencies.
 
 ## 14. Known technical limitations
 
 - No persistence or session save/load; one browser tab is the only copy of review work.
-- Export is a record log rather than the reconciled sheet, and cannot reliably be replayed into it (the planned fix is specified in [specs/final-export.md](specs/final-export.md)); no protection against spreadsheet formula injection in exported text (values starting with `=`, `+`, `-`, `@`).
+- The review-log export cannot be replayed into the sheet (use the final-sheet export instead); no protection against spreadsheet formula injection in exported text (values starting with `=`, `+`, `-`, `@`).
 - Evidence gate: a real quote with invented day or time words is applied provisionally (flagged, pending).
 - Pending suggestions count on the sheet and chart, so the sheet is provisional until everything is reviewed.
 - Timezone is not used; day start/end and period hours are fixed.
@@ -219,8 +227,27 @@ No external integration other than the local Gemma model is implemented today. A
 
 ### Hosted demo: none (not implemented)
 
-There is no hosted copy, deployment file or public URL. A free hosting plan cannot run Gemma, and a hosted server cannot reach Ollama on a user's laptop.
+There is no hosted copy, deployment file or public URL. No free hosted Gemma runtime has been selected or verified. The existing server binds to `127.0.0.1`, and its hard-coded Ollama address points to the server's own machine; deploying it as-is does not connect it to Ollama on a coordinator's laptop.
 
-### Proposed (Planned, not built)
+### Agreed demonstration direction (Planned, not built)
 
-A **replay-mode** demo could be hosted on a free hosting plan (for example Render), optionally reached through the owner's existing `bipulchamoli.tech` domain pointed at that host (a domain is an address, not hosting), if the server gained a reader that serves the **saved model outputs** in `evaluation/runs/` for the fictional fixtures only. Such a page must be labelled "replaying saved Gemma outputs for fictional messages; no model runs here", must not accept arbitrary pasted text for the model reader, and must stop rather than incur charges if a free allowance ends. See [TASKS.md](../TASKS.md) DEP-02 and [DECISIONS.md](DECISIONS.md) D-19.
+The selected direction is an **interactive fictional replay on Render**, subject to free-plan, implementation and deployment approval gates. The existing code has no replay reader or deployment configuration; it would need a deliberately scoped mode that serves **saved Gemma outputs** only for fixed fictional fixtures. It must be labelled "replaying saved Gemma outputs for fictional messages; no model runs here", preserve actual review/correction/export interactions and prevent arbitrary pasted content from entering the hosted model-replay path. A local video remains a permitted submission path if hosting is not ready.
+
+The owner's existing `bipulchamoli.tech` may point to that host after DNS configuration. A domain is an address, not hosting; the project name need not match it. Prize eligibility depends separately on evidence of acquisition through the Hacktoberfest offer. No DNS change, deployment, free-quota verification or public URL is recorded. The optional hosted demo must stop/degrade before charges and contain no pilot data, keys or private transcripts. See [INTEGRATIONS.md](INTEGRATIONS.md), [TASKS.md](../TASKS.md) DEP-02 and [DECISIONS.md](DECISIONS.md) D-19.
+
+## 16. Supporting technology roles (Planned or conditional, not implemented)
+
+The core runtime stays browser → local Python → local Ollama. Supporting technologies have separate purposes and data boundaries; they must not be added as unnecessary dependencies on every coordinator request.
+
+| Path | Intended role and boundary | Gate before use |
+|---|---|---|
+| Development: Copilot + Actions | Use Copilot on genuine needed coding/review tasks; use Actions for offline regression CI on fictional fixtures. These are distinct evidence routes, not a claim that Actions implies Copilot wrote code. | Record real issues/PRs/reviews and workflow results; verify available free access and avoid private pilot content/secrets. |
+| Development: Entire | Capture actual future sessions, decisions and commit checkpoints. No application API or runtime dependency is implied. | Confirm supported agent compatibility and inspect/redact sessions before sharing; never fabricate past use or checkpoints. Transcripts reconstructed from genuinely captured records must retain authentic provenance. |
+| Development: Backboard R-CLI | Optional bounded task using an existing local model if compatible and useful. | Verify model compatibility, local routing, external data handling and free allowance. Do not switch application inference to a cloud provider or upload private data to obtain eligibility. |
+| Optional runtime diagnostics: Sentry | Allow-listed operational metadata about extraction failure/latency and a documented real debugging/performance finding. No private text, names, quotes, prompts, replies or sensitive raw exceptions. | Explicit dependency/network/privacy architecture decision before code; verify Python/runtime support, default capture behavior, redaction with fictional data, opt-in/off-by-default operation and free quota. No SDK or environment variable contract is implemented today. |
+| Public demo: Render + domain | Fixed fictional saved-output replay with useful review/export interactions, clearly disclosed. Domain supplies DNS only. | Implement and verify the replay boundary, server binding/deployment configuration, cost fail-safe, and domain acquisition/renewal evidence. |
+| Public video: ElevenLabs | Narrate a fictional demonstration script; the generated audio is a demo asset. | Verify free entitlement, output-publication rights and required attribution/disclosure. Do not send real messages/audio; in-product voice or transcription is not selected. |
+
+Detailed acceptance/evidence gates are canonical in [INTEGRATIONS.md](INTEGRATIONS.md). Competition eligibility and strategic priority are canonical in [COMPETITION.md](COMPETITION.md). These plans are not evidence of completed integrations or permission to install, claim credits, deploy or publish.
+
+**Core dependency order:** freeze unseen fictional set C before changing behavior, without implementation agents reading it → COR-03/COR-10 failure and evidence safeguards → COR-02 protection in both CSV writers → score C once after planned behavior changes → independent/coordinator validation and matched timing study. Necessary development can create genuine sponsor evidence along the way. Historical A/B results remain post-hoc; no new service or sponsor proof substitutes for a trustworthy confirmed export.

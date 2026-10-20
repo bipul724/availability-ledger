@@ -2,7 +2,7 @@
 
 Everything here was read from `server.py`, `ui/app.js`, `ledger/*.py` and `evaluation/*.py` on 2026-10-20. Status and error examples were produced by calling the running handlers locally with fictional data. Nothing in the "Proposed" section can be called today.
 
-Related: [ARCHITECTURE.md](ARCHITECTURE.md) for data structures and flow.
+Related: [ARCHITECTURE.md](ARCHITECTURE.md) for data structures and flow; [INTEGRATIONS.md](INTEGRATIONS.md) for the agreed sponsor roles and gates; [COMPETITION.md](COMPETITION.md) for eligibility and historical evidence. This interface document describes the current local application. A planned service or award target does not add a route, dependency or configuration key.
 
 ## Contents
 
@@ -13,9 +13,11 @@ Related: [ARCHITECTURE.md](ARCHITECTURE.md) for data structures and flow.
 - [POST /api/parse](#post-apiparse)
 - [POST /api/suggest](#post-apisuggest)
 - [POST /api/resolve](#post-apiresolve)
+- [POST /api/export](#post-apiexport)
 - [Flags](#flags)
 - [Message import format](#message-import-format)
-- [CSV export](#csv-export)
+- [CSV export](#csv-export) (review log)
+- [Final-sheet CSV](#final-sheet-csv)
 - [Model-adapter boundary](#model-adapter-boundary)
 - [Command-line interface](#command-line-interface)
 - [Proposed interfaces (not implemented)](#proposed-interfaces-not-implemented)
@@ -147,6 +149,7 @@ Request:
 | `week_start` | `YYYY-MM-DD` | yes | Monday |
 | `timezone` | string | no | stored only |
 | `coordinators` | list | no | extra coordinator names |
+| `reviewed_messages` | list of strings | no | message ids the reviewer explicitly marked reviewed; see validation below |
 
 `override` fields a reviewer can set: `person`, `dates` (list of ISO dates; days outside the week are discarded), `start`/`end` (`HH:MM`; both empty means "no time"; start must be before end, otherwise the time is unparsed), `status`, `condition`.
 
@@ -174,7 +177,27 @@ Response 200 (fictional: Ana offers Tuesday 2–5 on 3 Nov, then cancels on 5 No
 - `review` becomes `dropped` (with `drop_reason`) only when **both** the quote and the day/time phrases are missing from the message, when the quote names none of the claimed days, or for a coordinator's own self-claim when the coordinator does not resolve to a roster name (a coordinator who is also on the roster is kept). A `rejected` or `accepted` review is never overwritten.
 - **Limitation:** a suggestion whose quote is found but whose day or time words are invented is **not** dropped. Example (mocked, fictional): message "Happy to help", proposed day "Tuesday", time "2-4". It gets `phrase_not_in_message`, stays `pending`, and Tuesday 14:00–16:00 appears on the provisional sheet (COR-10).
 - `history` entries for duplicate messages have `"what": "repeated"` and an extra `duplicate_of` field.
+- `confirmed` summarises the final-sheet export the current state would give: `{"status": "complete"|"provisional", "week", "unreviewed": [ids], "pending": n, "blocking_issues": n, "needs_review_cells": n, "unknown_reviewed": [ids]}`. Rules: [specs/final-export.md](specs/final-export.md).
 - Side effects: none.
+
+## POST /api/export
+
+Purpose: produce the confirmed final-sheet CSV. Body: the same as `/api/resolve` (include `reviewed_messages`).
+
+Response 200 (fictional: one accepted Tuesday 10-12 offer, its message marked reviewed):
+
+```json
+{"status": "complete", "week": "2026-11-09", "unreviewed": [], "pending": 0, "blocking_issues": 0,
+ "needs_review_cells": 0, "unknown_reviewed": [], "rows": 1,
+ "filename": "availability-final-2026-11-09-complete.csv",
+ "csv": "# availability-final v1; week=2026-11-09; status=complete; unreviewed=; pending=0; blocking_issues=0\nvolunteer,date,start,end,status,condition,cell_state,sources\nAna Example,2026-11-10,10:00,12:00,available,,confirmed,m01.1\n"}
+```
+
+- A provisional export is still 200; `status` and `filename` say provisional.
+- Ids in `reviewed_messages` that match no message are ignored and returned in `unknown_reviewed`.
+- Current validation uses `body.get("reviewed_messages") or []`: omission and JSON values falsy under Python (`null`, `false`, `0`, `""`, `[]`, `{}`) mean no marks. A truthy non-list value or a list containing any non-string returns 400. Clients should always send a list of strings; these tolerated values are implementation behavior, not inferred review.
+- Errors: as `/api/resolve` (400 with the exception text).
+- Side effects: none; the browser saves `csv` under `filename`.
 
 ## Flags
 
@@ -217,7 +240,7 @@ Pasted text or an uploaded `.txt`/`.csv` file (read as text in the browser). Thr
 
 ## CSV export
 
-Built entirely in the browser by **Export reviewed records (CSV)**; the file is named `availability-<week_start>.csv`. Every value is quoted and inner quotes are doubled.
+This section describes the **review log**. It is built entirely in the browser by **Export review log (CSV)**; the file is named `availability-log-<week_start>.csv`. For the reconciled result see [Final-sheet CSV](#final-sheet-csv). Every value is quoted and inner quotes are doubled.
 
 | Column | Meaning |
 |---|---|
@@ -234,9 +257,9 @@ Built entirely in the browser by **Export reviewed records (CSV)**; the file is 
 
 Rejected and dropped suggestions are never exported. **The file is a log of reviewed records in message order, not the final sheet**: an offer and its later cancellation are both rows.
 
-**It cannot reliably reconstruct the final sheet.** There is no `replaces_earlier` column, and `evaluation/score_csv.py` replays every row with `replaces_earlier` set to false. "Tuesday 10-12" followed by "Tuesday 2-4 instead" therefore replays as both ranges, while the app's sheet shows 14:00–16:00 only (checked 2026-10-20 with fictional data). Treat the in-app sheet as the reconciled view until a confirmed final export exists (COR-01, EVAL-06).
+**It cannot reliably reconstruct the final sheet.** There is no `replaces_earlier` column, and `evaluation/score_csv.py` replays every row with `replaces_earlier` set to false. "Tuesday 10-12" followed by "Tuesday 2-4 instead" therefore replays as both ranges, while the app's sheet shows 14:00–16:00 only (checked 2026-10-20 with fictional data). Use the [final-sheet CSV](#final-sheet-csv) for the reconciled result.
 
-After export the status line reports review minutes and counts of accepts, edits, rejects, added records and bulk accepts.
+After export the status line reports review minutes and counts of accepts, edits, rejects, added records, bulk actions and messages marked reviewed.
 
 Fictional example:
 
@@ -245,6 +268,28 @@ Fictional example:
 "m01.1","accepted","Ana Example","2026-11-10","14:00","17:00","available","","m01","2026-11-03 09:00","Ana Example","Tuesday 2-5 works",""
 "m02.1","accepted","Ana Example","2026-11-10","","","unavailable","","m02","2026-11-05 18:00","Ana Example","Sorry, can't do Tuesday after all",""
 ```
+
+## Final-sheet CSV
+
+Produced by `POST /api/export` (**Export final sheet (CSV)**) and, for the manual timing condition, typed into `evaluation/final_sheet_template.csv`. The canonical definition is [specs/final-export.md](specs/final-export.md); in short:
+
+```csv
+# availability-final v1; week=2026-11-09; status=provisional; unreviewed=m03 m07; pending=2; blocking_issues=1
+volunteer,date,start,end,status,condition,cell_state,sources
+Ana Example,2026-11-10,14:00,16:00,available,,confirmed,m01.1;m02.1
+Ben Example,2026-11-14,,,,,needs_review,
+```
+
+| Column | Meaning |
+|---|---|
+| `volunteer`, `date` | roster name; ISO date inside the week |
+| `start`, `end` | `HH:MM` on 15-minute boundaries, 06:00–23:00; empty only on a `needs_review` row with nothing confirmed |
+| `status` | `available` or `conditional` (unavailable time has no row) |
+| `condition` | condition text for conditional segments |
+| `cell_state` | `confirmed`, or `needs_review` when a pending suggestion, a blocking issue or an unreviewed message touches that person/day |
+| `sources` | claim ids behind the segment, `;`-separated |
+
+`status=complete` only when every message is marked reviewed, nothing is pending and no `who`/`date`/`time`/`conflict` issue is open. The reader (`ledger.export.parse_final_csv`) rejects malformed or self-contradicting files, including `status=complete` with any `needs_review` row or non-zero counts, and any status-line key that appears more than once. It requires the same eight column names exactly once, but permits a different column order. The scorer compares availability/conditional slot states; it does not validate condition prose, source ids or whether a human actually reviewed a message.
 
 ## Model-adapter boundary
 
@@ -257,7 +302,7 @@ available_models() -> list[str]
 ```
 
 - Returns claim dicts in the `said` shape and a stats dict (including the raw reply under `raw`, which the server removes before responding).
-- The only outbound calls are `POST /api/chat` and `GET /api/tags` on `http://127.0.0.1:11434` (hard-coded).
+- The current application's only outbound calls are `POST /api/chat` and `GET /api/tags` on `http://127.0.0.1:11434` (hard-coded). No Sentry, Backboard or hosted inference request exists.
 - Any other reader must return the same `said` shape: `person, day_text, time_text, status, condition, replaces_earlier, excerpt`. `ledger/rules.py` (`extract(msg, roster)`) is the second implementation.
 - Changing `SYSTEM` or `EXAMPLES` requires bumping `PROMPT_VERSION`, which changes the cache folder in `evaluation/runs/` (see [TUNING.md](../evaluation/TUNING.md)).
 
@@ -268,10 +313,12 @@ All commands run from the project folder. None read environment variables.
 | Command | Purpose | Notes |
 |---|---|---|
 | `python3 server.py [port]` | start the app | default 8765; host 127.0.0.1 |
-| `python3 -m unittest discover -s tests` | 21 offline checks | no Ollama needed |
-| `python3 -m evaluation.run --set A\|B --extractor rules\|model\|hybrid [--model NAME] [--only m02,m05] [--refresh] [--label X]` | score a reader against the fictional reference | model outputs cached per message in `evaluation/runs/<model>_prompt<v>[_setB]/`; `--refresh` makes new model calls; writes `evaluation/results/set<S>_<extractor>[_<model>_prompt<v>][_<label>].json` |
+| `python3 -m unittest discover -s tests` | 49 offline checks | no Ollama needed |
+| `node tests/browser/session_rerun.mjs` | optional browser check that a failed or rejected rerun keeps the reviewed session and its export | needs Node 22+ and a local Chrome; installs nothing |
+| `python3 -m evaluation.run --set A\|B --extractor rules\|model\|hybrid [--model NAME] [--only m02,m05] [--refresh] [--label X]` | score a reader against the fictional reference | model outputs cached per message in `evaluation/runs/<model>_prompt<v>[_setB]/`; a missing model cache also makes a fresh call without --refresh; --refresh forces new calls; writes `evaluation/results/set<S>_<extractor>[_<model>_prompt<v>][_<label>].json` |
 | `python3 -m evaluation.compare [frozen]` | print the results table | `frozen` reads `evaluation/results/frozen/` |
-| `python3 -m evaluation.score_csv FILE.csv --set A\|B` | score a hand-typed or exported CSV against the reference | **does not replay replacements** (`replaces_earlier` is always false), so it is not yet valid for the timing study in [MEASUREMENT.md](../evaluation/MEASUREMENT.md) (EVAL-06) |
+| `python3 -m evaluation.score_final FILE.csv --set A\|B [--allow-provisional]` | score a final-sheet CSV (either timing condition) against the reference | exit 2 with the reason for a malformed or self-contradicting file, or for a provisional file without `--allow-provisional`; unresolved cells count as 68 disagreeing slots each; withdrawal and condition metrics are final-state errors (a condition counts once if any slot of its interval is wrong or missing) |
+| `python3 -m evaluation.score_csv FILE.csv --set A\|B` | score a review-log CSV against the reference | **does not replay replacements** (`replaces_earlier` is always false); not for the timing study |
 
 Never point `--label` or any script at `evaluation/results/frozen/`; that folder is the first-scored record.
 
@@ -283,5 +330,13 @@ These **cannot be called today**. They are listed so nobody mistakes them for ex
 |---|---|---|
 | A `replay` reader for `/api/suggest` that returns saved outputs from `evaluation/runs/` for the fictional fixtures | free hosted demo without a model | [DEP-02](../TASKS.md#deployment-and-submission) |
 | Session save/load (download and re-open a JSON file of messages, claims and reviews) | survive reloads | [COR-04](../TASKS.md#core-correctness) |
-| `POST /api/export` and a confirmed final-sheet CSV | final sheet from accepted records only, with pending and unresolved items marked; specified in [specs/final-export.md](specs/final-export.md) | [COR-01](../TASKS.md#core-correctness) |
-| Optional voice-note transcription feeding `/api/parse` (ElevenLabs) | audio input; **audio would leave the device** | [INT-05](../TASKS.md#optional-sponsor-integrations) |
+
+### Agreed integration boundaries (planned, no new interfaces yet)
+
+- **Local core:** preserve existing parse → suggest → resolve → explicit review → final export contracts. All optional services may be absent and the local workflow must still work. The app reads no environment variables or `.env` files; [.env.example](../.env.example) remains comments only.
+- **Copilot, GitHub Actions, Entire and optional Backboard R-CLI:** development/process tools, not runtime APIs. Capture genuine work with fictional inputs and inspect public artifacts for private data. No API route or provider-backed memory layer is implied.
+- **Sentry:** optional, opt-in structural diagnostics using fictional demonstrations, not message-content telemetry. Implementation would need an explicit dependency/network/privacy decision, a verified free allowance and a reviewed event schema/redaction test before any events leave the machine. No SDK, endpoint, environment variable or transport has been selected in this code.
+- **Render and .tech:** proposed judge-facing interactive fictional replay plus a domain pointing at hosting. A replay must be labelled as saved output, keep public input restricted to fictional data and document its actual export/review behavior; do not imply the present loopback-only server is already deployable or that the hosted site runs live Gemma. No replay route is final or implemented. Domain prize eligibility remains conditional on acquisition evidence.
+- **ElevenLabs:** narration for the demonstration video, outside the runtime. No voice-input, transcription or in-app speech route is planned for this submission; reconsider product voice only after a validated coordinator need and a separate scope decision.
+
+The exact deployed architecture, credentials, SDKs, transport and configuration belong in a later implementation decision and API update once selected. Do not create placeholder keys or unsupported endpoints to make an integration appear finished. Additional spend remains ₹0; optional integrations require verified free plans or confirmed credits, safe allowance limits and no paid fallback. See [INTEGRATIONS.md](INTEGRATIONS.md).
