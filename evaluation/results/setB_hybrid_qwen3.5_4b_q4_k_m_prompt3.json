@@ -1,0 +1,303 @@
+{
+ "set": "B",
+ "extractor": "hybrid",
+ "model": "qwen3.5:4b-q4_K_M",
+ "prompt_version": 3,
+ "messages_run": 20,
+ "wall_s": 0.0,
+ "speed": {
+  "fresh_calls": 0,
+  "median_s_per_message": null,
+  "max_s_per_message": null,
+  "output_tokens_per_s": null,
+  "prompt_tokens_per_s": null,
+  "json_parse_failures": 0,
+  "first_load_s": null
+ },
+ "memory": {
+  "samples": 1,
+  "ollama_rss_peak_mb": 9,
+  "swap_used_start_mb": 5000.38,
+  "swap_used_peak_mb": 5000.38,
+  "free_pct_min": 34,
+  "pressure_level_share": {
+   "warn": 1.0
+  },
+  "swapout_pages_during_run": 0,
+  "ollama_ps": []
+ },
+ "heldout": {
+  "messages": 20,
+  "reference_units": 35,
+  "correct_units": 32,
+  "extraction_errors": 3,
+  "error_kinds": {
+   "time_error": 2,
+   "missed_availability": 1
+  },
+  "silent_errors": 2,
+  "flagged_units": 23,
+  "flagged_but_correct": 22,
+  "effort_proxy": {
+   "manual_actions": 107,
+   "assisted_actions_full_review": 41,
+   "ratio_full_review": 0.38,
+   "assisted_actions_bulk_accept": 4,
+   "ratio_bulk_accept": 0.04
+  },
+  "errors": [
+   {
+    "msg": "m02",
+    "key": [
+     "Ada Brooks",
+     "2026-11-18"
+    ],
+    "kind": "time_error",
+    "silent": false,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "10:00",
+       "14:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m08",
+    "key": [
+     "Imani Okoro",
+     "2026-11-20"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m13",
+    "key": [
+     "Tariq Aziz",
+     "2026-11-19"
+    ],
+    "kind": "missed_availability",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   }
+  ],
+  "errors_per_message": {
+   "m01": 0,
+   "m02": 1,
+   "m03": 0,
+   "m04": 0,
+   "m05": 0,
+   "m06": 0,
+   "m07": 0,
+   "m08": 1,
+   "m09": 0,
+   "m10": 0,
+   "m11": 0,
+   "m12": 0,
+   "m13": 1,
+   "m14": 0,
+   "m15": 0,
+   "m16": 0,
+   "m17": 0,
+   "m18": 0,
+   "m19": 0,
+   "m20": 0
+  }
+ },
+ "all": {
+  "messages": 20,
+  "reference_units": 35,
+  "correct_units": 32,
+  "extraction_errors": 3,
+  "error_kinds": {
+   "time_error": 2,
+   "missed_availability": 1
+  },
+  "silent_errors": 2,
+  "flagged_units": 23,
+  "flagged_but_correct": 22,
+  "effort_proxy": {
+   "manual_actions": 107,
+   "assisted_actions_full_review": 41,
+   "ratio_full_review": 0.38,
+   "assisted_actions_bulk_accept": 4,
+   "ratio_bulk_accept": 0.04
+  },
+  "errors": [
+   {
+    "msg": "m02",
+    "key": [
+     "Ada Brooks",
+     "2026-11-18"
+    ],
+    "kind": "time_error",
+    "silent": false,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "10:00",
+       "14:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m08",
+    "key": [
+     "Imani Okoro",
+     "2026-11-20"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m13",
+    "key": [
+     "Tariq Aziz",
+     "2026-11-19"
+    ],
+    "kind": "missed_availability",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   }
+  ],
+  "errors_per_message": {
+   "m01": 0,
+   "m02": 1,
+   "m03": 0,
+   "m04": 0,
+   "m05": 0,
+   "m06": 0,
+   "m07": 0,
+   "m08": 1,
+   "m09": 0,
+   "m10": 0,
+   "m11": 0,
+   "m12": 0,
+   "m13": 1,
+   "m14": 0,
+   "m15": 0,
+   "m16": 0,
+   "m17": 0,
+   "m18": 0,
+   "m19": 0,
+   "m20": 0
+  }
+ },
+ "ledger": {
+  "slot_agreement": 1.0,
+  "slots_compared": 196,
+  "missed_withdrawals": 0,
+  "withdrawals_total": 5,
+  "missed_withdrawal_list": [],
+  "incorrectly_resolved_conditions": 0,
+  "conditions_total": 2,
+  "condition_error_list": [],
+  "ambiguities_flagged": 1,
+  "ambiguities_total": 1,
+  "ambiguity_detail": {
+   "m18": true
+  },
+  "count_chart_abs_error_sum": 0,
+  "count_chart_max_error": 0,
+  "count_chart_slots_wrong": 0
+ },
+ "form_analysis": {
+  "final_records": 11,
+  "fit_checkbox_form": 7,
+  "need_free_text": 4,
+  "reasons": {
+   "partial hours do not match a shift box": 4
+  }
+ }
+}
