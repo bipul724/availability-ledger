@@ -97,7 +97,7 @@ The agreed supporting portfolio has distinct roles: genuine Copilot development/
 | S7 | Duplicate message sent twice within 24 h | second copy greyed, "Same as mXX", no separate suggestions, history "repeated" | **Implemented, Verified** (unit tests and a headless-browser check, 2026-10-20) |
 | S8 | Ambiguous date: "Next Friday" sent on a Monday; "one day this weekend" | both candidate dates shown; not applied until the reviewer picks | **Implemented, Verified** (unit tests) |
 | S8b | Ambiguous or unreadable time: "at 9", "the same" with nothing earlier | not applied; issue shown | **Implemented, Verified** (unit tests) |
-| S9 | No availability: "Thanks! Do I need gloves?"; coordinator's own "still need people Thursday" | "No availability found in this message"; coordinator self-claims dropped when the sender is off the volunteer roster | **Implemented.** Partly verified by evaluation. A model JSON failure is not flagged: with model only it looks like "no availability"; with model + rules only the rules' cancellations appear (COR-03) |
+| S9 | No availability: "Thanks! Do I need gloves?"; coordinator's own "still need people Thursday" | "No availability found in this message"; coordinator self-claims dropped when the sender is off the volunteer roster | **Implemented.** Partly verified by evaluation. Since COR-03 (2026-10-20) a request error or unreadable model reply is shown as a per-message warning instead of "no availability" |
 | S10 | Human review and confirmed export | only accepted records in the final sheet, corrections replayed; complete only when every message is explicitly reviewed | **Implemented, Verified** (unit tests, headless Chrome, 2026-10-20). The in-app sheet and chart still include pending suggestions (UI-05) |
 
 ## 9. Requirements
@@ -123,7 +123,7 @@ The agreed supporting portfolio has distinct roles: genuine Copilot development/
 | FR-15 | Export reviewed records as a review-log CSV with source and warnings | Implemented |
 | FR-16 | Export a confirmed final sheet built from accepted records only, marking anything pending or unresolved, complete only after explicit message review | Implemented, Verified ([specs/final-export.md](specs/final-export.md)) |
 | FR-17 | Save and reopen a review session | **Planned** (COR-04) |
-| FR-18 | Show a warning when extraction fails for a message | **Planned** (COR-03) |
+| FR-18 | Show a warning when extraction fails for a message | **Implemented** (COR-03, 2026-10-20; browser check `tests/browser/extraction_failures.mjs`) |
 | FR-19 | Use the selected timezone, or remove the field | **Planned** (COR-05) |
 | FR-20 | Day or time words not found in the message never reach the sheet without a reviewer's decision | **Planned** (COR-10) |
 

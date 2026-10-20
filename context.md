@@ -69,7 +69,8 @@ No reliable per-category totals or judge scorecards were found. A 20-post conven
 | Review UI | **Implemented:** accept/reject/edit/reset/add, eligible bulk acceptance, J/K/A/R/E/Esc, explicit message review with M, sheet/chart/issues/history. |
 | Confirmed export and scoring | **Implemented, Verified:** COR-01/EVAL-06; separate final-sheet and review-log exports; strict final-sheet scorer for both timing conditions. |
 | Four corrective fixes | **Implemented, Verified:** COR-11 atomic reruns, COR-12 dropped/rejected scope exclusion, EVAL-08 partial condition loss and duplicate metadata rejection. |
-| Save/reopen, visible extraction failures, formula protection | **Planned**, not implemented. |
+| Visible extraction failures, formula protection | **Implemented, Verified (2026-10-20):** COR-03 per-message warnings and continued reading; COR-02 neutralises formula-like cells in both CSVs. Not committed yet. |
+| Save/reopen | **Planned**, not implemented (deferred, D-23). |
 | Hosted replay, narration, other sponsors | **Proposed/Planned**, not demonstrated; see category table. |
 
 **49 offline unit tests pass in the latest docs audit:** 21 in `tests/test_ledger.py`, 28 in `tests/test_export.py`. The optional browser rerun check passed in the earlier source audit; it was not rerun in this docs pass. Verification scope is in §10. No human timing study or real pilot has been run.
@@ -95,7 +96,7 @@ flowchart LR
 5. Python resolves claims and builds the provisional ledger. Browser rendering shows quotes, issues, history, availability and headcounts.
 6. `POST /api/export` recomputes the accepted-only final sheet and writes its CSV. The review-log CSV is built separately in the browser.
 
-**State:** messages, raw claims/overrides, resolved claims, roster, calendar, review marks and counters live in browser memory and are processed transiently by the local server. No database, disk save, cookies for accounts or browser persistence is implemented. Reload loses work. Invalid settings, failed parsing or no dated messages preserve the previous session/export; a usable parse commits the new settings and resets the session together. A later extraction failure stops processing and retains the partial new session.
+**State:** messages, raw claims/overrides, resolved claims, roster, calendar, review marks and counters live in browser memory and are processed transiently by the local server. No database, disk save, cookies for accounts or browser persistence is implemented. Reload loses work. Invalid settings, failed parsing or no dated messages preserve the previous session/export; a usable parse commits the new settings and resets the session together. A later extraction failure marks only that message with a warning and reading continues (COR-03).
 
 **Ollama:** fixed `http://127.0.0.1:11434`; default `gemma4:e2b-it-qat`; prompt `PROMPT_VERSION = 3` in `ledger/model.py`. Requests use a JSON schema, temperature 0, seed 7, context 4096, `think: false`, no streaming, 300-second timeout and no retry. The model receives planning week, sent time, sender and message text; it does not receive the roster. The UI can select an installed model. Qwen3.5 4B was an evaluated comparison, not an additional current requirement; installed models were not probed in this audit.
 
@@ -225,7 +226,7 @@ Next-work review (DOC-02, 2026-10-20) reconfirmed EVAL-01 as the immediate next 
 
 The owner agreed to the layered direction in §2 and the integration plan, not to activation of every optional tool. This does not replace the correctness/evaluation order or authorize implementation by itself. Low-effort eligibility must not be presented as demonstrated winning strength.
 
-Other **Planned** work: COR-04 session save/load; COR-06 roster-limit warning; COR-08 coordinator UI; UI-01 sheet overflow; UI-02 accessibility verification; stop/cancel support and richer failure statistics. COR-05 timezone behavior/removal and COR-09 repeat-after-intervening-cancellation semantics need decisions. Current model JSON failures look like no suggestions; request errors stop the extraction loop. Both CSV exports still lack formula protection.
+Other **Planned** work: COR-04 session save/load; COR-06 roster-limit warning; COR-08 coordinator UI; UI-01 sheet overflow; UI-02 accessibility verification; stop/cancel support and richer failure statistics. COR-05 timezone behavior/removal and COR-09 repeat-after-intervening-cancellation semantics need decisions. Extraction failures are now visible per message (COR-03) and both CSV exports are formula-protected (COR-02); failed requests are not retried.
 
 **Owner/external decisions:** project licence; actual development start and personal eligibility; organizer deadline clarification; .tech acquisition/renewal; final sponsor categories; optional host/replay; coordinator interviews/pilot and independent reference review. No evidence establishes demand or whether reviewing is faster than a signup form/manual entry.
 

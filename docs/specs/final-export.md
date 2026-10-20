@@ -83,7 +83,7 @@ Ben Example,2026-11-14,,,,,needs_review,
   - A `needs_review` cell with no confirmed segment gets one row with empty times and status, so every unresolved cell appears.
 - **`status`:** `available` or `conditional`; unavailable time is simply absent.
 - **`sources`:** the claim ids behind the segment, `;`-separated. Empty in hand-typed files.
-- **CSV quoting:** every data cell goes through `ledger.export._cell`, the intended change point for COR-02, before `csv.writer` quotes it as needed. `_cell` currently only converts values to strings: spreadsheet-formula protection remains unimplemented. The status line is written verbatim. The browser-built review log has its own writer and also needs protection.
+- **CSV quoting and formula protection (COR-02, 2026-10-20):** every data cell goes through `ledger.export._cell` before `csv.writer` quotes it as needed. A cell whose text starts with `=`, `+`, `-`, `@`, tab or carriage return is written with a leading apostrophe (`=Eve Example` → `'=Eve Example`) so spreadsheets do not run it as a formula. The reader removes one leading apostrophe that is followed by one of those characters, so formula-like roster names and conditions round-trip; a value typed without the apostrophe reads unchanged. Edge case: a value that genuinely begins with an apostrophe followed by one of those characters loses that apostrophe on reading. The status line is written verbatim.
 - **Manual condition:** typists use `evaluation/final_sheet_template.csv`. They replace `YYYY-MM-DD` with the set's week and may mark uncertain cells `needs_review`, which then requires `status=provisional`.
 
 The record log stays available as **Export review log (CSV)** (`availability-log-<week>.csv`).
@@ -131,7 +131,7 @@ Tolerated: a BOM, blank rows, and empty trailing cells that spreadsheets add. Un
 - **`slot_agreement`:** agreeing slots divided by the union of reference slots, file slots and unresolved slots.
 - **Final-state errors.** These measure the final sheet, not which message a reader missed:
   - `withdrawal_final_state_errors`: a reference withdrawal whose interval still shows availability, or whose cell is unresolved. The unresolved part is reported separately.
-  - `condition_final_state_errors`: a reference condition whose final state is wrong anywhere in its interval: treated as firm, offer lost, offer partly lost, resolution missed, availability lost, availability partly lost, decline missed; or unresolved. Every slot is checked, and each reference condition counts at most once. The unresolved part is reported separately.
+  - `condition_final_state_errors`: a reference condition whose final state is wrong anywhere in its interval: treated as firm, offer lost, offer partly lost, resolution missed, availability lost, availability partly lost, decline missed; or unresolved. Every slot is checked, and each reference condition counts at most once. The unresolved part is reported separately. The verdict comes from `evaluation.run.condition_error`, shared with the evaluation's ledger metric (EVAL-09).
 - **Also reported:** `slots_compared`, `reference_slots`, `unresolved_cells`, `unresolved_slots`, `rows_used`, and the error lists.
 
 `evaluation/score_csv.py` remains for record logs only and is documented as unfit for timing.

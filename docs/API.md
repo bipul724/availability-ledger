@@ -131,7 +131,7 @@ Response 200 (rules reader, fictional):
 - With `model` or `hybrid`, `stats` holds `wall_s`, `prompt_tokens`, `output_tokens`, `prompt_s`, `output_s`, `load_s`, `json_ok`. The page ignores `stats`.
 - With `hybrid`, claims may carry `hints` (`replace_cue`, `readers_disagree`, `one_reader`, `added_by_rules`); rules-only cancellations are appended as extra claims with `source: "rules"`.
 - If `message.duplicate_of` is set the server returns `{"claims": [], "stats": {}, "duplicate_of": "m01"}` **without** calling the model.
-- If the model's reply is not valid JSON, the model contributes no claims and `stats.json_ok` is `false` (still 200). With `model` the response has no claims at all. With `hybrid` the rules' cancellations (days the rules read as unavailable) are still added and flagged `added_by_rules`, but no availability is. The page shows neither case as an error (COR-03).
+- If the model's reply is not valid JSON, the model contributes no claims and `stats.json_ok` is `false` (still 200). With `model` the response has no claims at all. With `hybrid` the rules' cancellations (days the rules read as unavailable) are still added and flagged `added_by_rules`, but no availability is. Since COR-03 (2026-10-20) the page shows a warning on that message in both cases ("…could not be read, so it has no suggestions" / "…Only the rules' cancellations below were added"), keeps reading the next messages, and reports how many messages could not be read fully. A request error for one message (for example Ollama unreachable) is shown on that message the same way instead of stopping the run. No retry is attempted, and a failed message is never offered "Accept all and mark reviewed".
 - Errors: Ollama unreachable or a timeout (300 s) → 400 with the exception text. No retries.
 - Side effects: one Ollama `/api/chat` call for `model`/`hybrid`; nothing stored.
 
@@ -240,7 +240,7 @@ Pasted text or an uploaded `.txt`/`.csv` file (read as text in the browser). Thr
 
 ## CSV export
 
-This section describes the **review log**. It is built entirely in the browser by **Export review log (CSV)**; the file is named `availability-log-<week_start>.csv`. For the reconciled result see [Final-sheet CSV](#final-sheet-csv). Every value is quoted and inner quotes are doubled.
+This section describes the **review log**. It is built entirely in the browser by **Export review log (CSV)**; the file is named `availability-log-<week_start>.csv`. For the reconciled result see [Final-sheet CSV](#final-sheet-csv). Every value is quoted and inner quotes are doubled; a value starting with `=`, `+`, `-`, `@`, tab or carriage return is written with a leading apostrophe so spreadsheets do not run it (COR-02).
 
 | Column | Meaning |
 |---|---|
@@ -289,7 +289,7 @@ Ben Example,2026-11-14,,,,,needs_review,
 | `cell_state` | `confirmed`, or `needs_review` when a pending suggestion, a blocking issue or an unreviewed message touches that person/day |
 | `sources` | claim ids behind the segment, `;`-separated |
 
-`status=complete` only when every message is marked reviewed, nothing is pending and no `who`/`date`/`time`/`conflict` issue is open. The reader (`ledger.export.parse_final_csv`) rejects malformed or self-contradicting files, including `status=complete` with any `needs_review` row or non-zero counts, and any status-line key that appears more than once. It requires the same eight column names exactly once, but permits a different column order. The scorer compares availability/conditional slot states; it does not validate condition prose, source ids or whether a human actually reviewed a message.
+`status=complete` only when every message is marked reviewed, nothing is pending and no `who`/`date`/`time`/`conflict` issue is open. Cells starting with `=`, `+`, `-`, `@`, tab or carriage return are written with a leading apostrophe, which the reader removes (COR-02). The reader (`ledger.export.parse_final_csv`) rejects malformed or self-contradicting files, including `status=complete` with any `needs_review` row or non-zero counts, and any status-line key that appears more than once. It requires the same eight column names exactly once, but permits a different column order. The scorer compares availability/conditional slot states; it does not validate condition prose, source ids or whether a human actually reviewed a message.
 
 ## Model-adapter boundary
 
@@ -315,7 +315,7 @@ All commands run from the project folder. None read environment variables.
 | `python3 server.py [port]` | start the app | default 8765; host 127.0.0.1 |
 | `python3 -m unittest discover -s tests` | 49 offline checks | no Ollama needed |
 | `node tests/browser/session_rerun.mjs` | optional browser check that a failed or rejected rerun keeps the reviewed session and its export | needs Node 22+ and a local Chrome; installs nothing |
-| `python3 -m evaluation.run --set A\|B --extractor rules\|model\|hybrid [--model NAME] [--only m02,m05] [--refresh] [--label X]` | score a reader against the fictional reference | model outputs cached per message in `evaluation/runs/<model>_prompt<v>[_setB]/`; a missing model cache also makes a fresh call without --refresh; --refresh forces new calls; writes `evaluation/results/set<S>_<extractor>[_<model>_prompt<v>][_<label>].json` |
+| `python3 -m evaluation.run --set A\|B --extractor rules\|model\|hybrid [--model NAME] [--only m02,m05] [--refresh] [--label X]` | score a reader against the fictional reference | model outputs cached per message in `evaluation/runs/<model>_prompt<v>[_setB]/`; a missing model cache also makes a fresh call without --refresh; --refresh forces new calls; writes `evaluation/results/set<S>_<extractor>[_<model>_prompt<v>][_<label>].json`. Since 2026-10-20 unit metrics exclude duplicate messages from both sides and report `duplicate_messages_excluded`/`duplicate_units_excluded` per split (EVAL-10), and the ledger's wrong-conditions count checks every slot of each condition interval (`…partly lost`, EVAL-09) |
 | `python3 -m evaluation.compare [frozen]` | print the results table | `frozen` reads `evaluation/results/frozen/` |
 | `python3 -m evaluation.score_final FILE.csv --set A\|B [--allow-provisional]` | score a final-sheet CSV (either timing condition) against the reference | exit 2 with the reason for a malformed or self-contradicting file, or for a provisional file without `--allow-provisional`; unresolved cells count as 68 disagreeing slots each; withdrawal and condition metrics are final-state errors (a condition counts once if any slot of its interval is wrong or missing) |
 | `python3 -m evaluation.score_csv FILE.csv --set A\|B` | score a review-log CSV against the reference | **does not replay replacements** (`replaces_earlier` is always false); not for the timing study |
