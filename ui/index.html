@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Availability Ledger</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Availability Ledger</h1>
+  <p>A local open model proposes. Ordinary code checks dates, history and counts. You decide.</p>
+</header>
+
+<section id="setup" class="panel">
+  <div class="row">
+    <label>Week starting (Monday) <input type="date" id="week"></label>
+    <label>Timezone <input id="tz" value="America/New_York" size="20"></label>
+    <label>Reader
+      <select id="extractor">
+        <option value="hybrid">Model + rules cross-check</option>
+        <option value="model">Model only</option>
+        <option value="rules">Rules only</option>
+      </select>
+    </label>
+    <label>Model <select id="model"></select></label>
+    <label class="check"><input type="checkbox" id="dayfirst"> WhatsApp dates are day-first</label>
+  </div>
+  <div class="row grow">
+    <label class="grow">Messages (YYYY-MM-DD HH:MM | Sender | text, or a WhatsApp export)
+      <textarea id="text" rows="7" spellcheck="false"></textarea></label>
+    <label>Volunteers (one per line, up to 20)
+      <textarea id="roster" rows="7" spellcheck="false"></textarea></label>
+  </div>
+  <div class="row">
+    <input type="file" id="file" accept=".txt,.csv,text/plain">
+    <button id="demo" type="button">Load fictional demo</button>
+    <button id="run" type="button" class="primary">Suggest records</button>
+    <span id="progress" role="status"></span>
+  </div>
+</section>
+
+<main id="workspace" hidden>
+  <section id="review">
+    <div class="review-head">
+      <h2>Messages and suggestions</h2>
+      <button id="accept-clean" type="button">Accept all suggestions without warnings</button>
+    </div>
+    <p class="hint" id="keys">Keyboard: J / K next / previous suggestion · A accept · R reject · E edit its first field · Esc leave a field</p>
+    <div id="rows"></div>
+  </section>
+  <aside id="summary">
+    <section class="panel">
+      <h2>Needs a decision</h2>
+      <ul id="issues"></ul>
+    </section>
+    <section class="panel">
+      <h2>People available</h2>
+      <p class="hint">Solid: available. Striped: conditional (not counted as available). From all suggestions you have not rejected.</p>
+      <div id="chart"></div>
+    </section>
+    <section class="panel">
+      <h2>Availability sheet</h2>
+      <div id="sheet"></div>
+    </section>
+    <section class="panel">
+      <h2>Changes over time</h2>
+      <ul id="changes"></ul>
+    </section>
+    <section class="panel">
+      <button id="export" type="button" class="primary">Export reviewed records (CSV)</button>
+      <label class="check"><input type="checkbox" id="include-pending"> include records not yet reviewed</label>
+    </section>
+  </aside>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
