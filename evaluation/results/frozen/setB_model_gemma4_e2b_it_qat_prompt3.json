@@ -1,0 +1,462 @@
+{
+ "set": "B",
+ "extractor": "model",
+ "model": "gemma4:e2b-it-qat",
+ "prompt_version": 3,
+ "messages_run": 20,
+ "wall_s": 57.5,
+ "speed": {
+  "fresh_calls": 20,
+  "median_s_per_message": 2.3,
+  "max_s_per_message": 6.8,
+  "output_tokens_per_s": 33.0,
+  "prompt_tokens_per_s": 5884.0,
+  "json_parse_failures": 0,
+  "first_load_s": 0.03
+ },
+ "memory": {
+  "samples": 55,
+  "ollama_rss_peak_mb": 168,
+  "swap_used_start_mb": 10291.81,
+  "swap_used_peak_mb": 10295.12,
+  "free_pct_min": 15,
+  "pressure_level_share": {
+   "warn": 1.0
+  },
+  "swapout_pages_during_run": 9596,
+  "ollama_ps": [
+   {
+    "name": "gemma4:e2b-it-qat",
+    "size_mb": 1590,
+    "size_vram_mb": 1590,
+    "context_length": 4096
+   }
+  ]
+ },
+ "heldout": {
+  "messages": 20,
+  "reference_units": 35,
+  "correct_units": 28,
+  "extraction_errors": 7,
+  "error_kinds": {
+   "time_error": 3,
+   "missed_cancellation": 2,
+   "missed_availability": 1,
+   "ambiguity_guessed": 1
+  },
+  "silent_errors": 5,
+  "flagged_units": 10,
+  "flagged_but_correct": 8,
+  "effort_proxy": {
+   "manual_actions": 107,
+   "assisted_actions_full_review": 45,
+   "ratio_full_review": 0.42,
+   "assisted_actions_bulk_accept": 7,
+   "ratio_bulk_accept": 0.07
+  },
+  "errors": [
+   {
+    "msg": "m02",
+    "key": [
+     "Ada Brooks",
+     "2026-11-18"
+    ],
+    "kind": "time_error",
+    "silent": false,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "10:00",
+       "14:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": [
+      "available"
+     ]
+    }
+   },
+   {
+    "msg": "m04",
+    "key": [
+     "Diego Alvarez",
+     "2026-11-20"
+    ],
+    "kind": "time_error",
+    "silent": false,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "16:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": [
+      "available"
+     ]
+    }
+   },
+   {
+    "msg": "m08",
+    "key": [
+     "Imani Okoro",
+     "2026-11-20"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m14",
+    "key": [
+     "Ada Brooks",
+     "2026-11-18"
+    ],
+    "kind": "missed_cancellation",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m16",
+    "key": [
+     "Chen Wei",
+     "2026-11-21"
+    ],
+    "kind": "missed_availability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m18",
+    "key": [
+     "Imani Okoro",
+     "?2026-11-20|2026-11-27"
+    ],
+    "kind": "ambiguity_guessed",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m19",
+    "key": [
+     "Jo Whitfield",
+     "2026-11-16"
+    ],
+    "kind": "missed_cancellation",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   }
+  ],
+  "errors_per_message": {
+   "m01": 0,
+   "m02": 1,
+   "m03": 0,
+   "m04": 1,
+   "m05": 0,
+   "m06": 0,
+   "m07": 0,
+   "m08": 1,
+   "m09": 0,
+   "m10": 0,
+   "m11": 0,
+   "m12": 0,
+   "m13": 0,
+   "m14": 1,
+   "m15": 0,
+   "m16": 1,
+   "m17": 0,
+   "m18": 1,
+   "m19": 1,
+   "m20": 0
+  }
+ },
+ "all": {
+  "messages": 20,
+  "reference_units": 35,
+  "correct_units": 28,
+  "extraction_errors": 7,
+  "error_kinds": {
+   "time_error": 3,
+   "missed_cancellation": 2,
+   "missed_availability": 1,
+   "ambiguity_guessed": 1
+  },
+  "silent_errors": 5,
+  "flagged_units": 10,
+  "flagged_but_correct": 8,
+  "effort_proxy": {
+   "manual_actions": 107,
+   "assisted_actions_full_review": 45,
+   "ratio_full_review": 0.42,
+   "assisted_actions_bulk_accept": 7,
+   "ratio_bulk_accept": 0.07
+  },
+  "errors": [
+   {
+    "msg": "m02",
+    "key": [
+     "Ada Brooks",
+     "2026-11-18"
+    ],
+    "kind": "time_error",
+    "silent": false,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "10:00",
+       "14:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": [
+      "available"
+     ]
+    }
+   },
+   {
+    "msg": "m04",
+    "key": [
+     "Diego Alvarez",
+     "2026-11-20"
+    ],
+    "kind": "time_error",
+    "silent": false,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "16:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": [
+      "available"
+     ]
+    }
+   },
+   {
+    "msg": "m08",
+    "key": [
+     "Imani Okoro",
+     "2026-11-20"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m14",
+    "key": [
+     "Ada Brooks",
+     "2026-11-18"
+    ],
+    "kind": "missed_cancellation",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m16",
+    "key": [
+     "Chen Wei",
+     "2026-11-21"
+    ],
+    "kind": "missed_availability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m18",
+    "key": [
+     "Imani Okoro",
+     "?2026-11-20|2026-11-27"
+    ],
+    "kind": "ambiguity_guessed",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m19",
+    "key": [
+     "Jo Whitfield",
+     "2026-11-16"
+    ],
+    "kind": "missed_cancellation",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   }
+  ],
+  "errors_per_message": {
+   "m01": 0,
+   "m02": 1,
+   "m03": 0,
+   "m04": 1,
+   "m05": 0,
+   "m06": 0,
+   "m07": 0,
+   "m08": 1,
+   "m09": 0,
+   "m10": 0,
+   "m11": 0,
+   "m12": 0,
+   "m13": 0,
+   "m14": 1,
+   "m15": 0,
+   "m16": 1,
+   "m17": 0,
+   "m18": 1,
+   "m19": 1,
+   "m20": 0
+  }
+ },
+ "ledger": {
+  "slot_agreement": 0.731,
+  "slots_compared": 208,
+  "missed_withdrawals": 1,
+  "withdrawals_total": 5,
+  "missed_withdrawal_list": [
+   "m19 Jo Whitfield 2026-11-16 09:00-12:00"
+  ],
+  "incorrectly_resolved_conditions": 0,
+  "conditions_total": 2,
+  "condition_error_list": [],
+  "ambiguities_flagged": 0,
+  "ambiguities_total": 1,
+  "ambiguity_detail": {
+   "m18": false
+  },
+  "count_chart_abs_error_sum": 28,
+  "count_chart_max_error": 1,
+  "count_chart_slots_wrong": 28
+ },
+ "form_analysis": {
+  "final_records": 11,
+  "fit_checkbox_form": 7,
+  "need_free_text": 4,
+  "reasons": {
+   "partial hours do not match a shift box": 4
+  }
+ }
+}

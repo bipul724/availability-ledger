@@ -1,0 +1,944 @@
+{
+ "set": "B",
+ "extractor": "rules",
+ "model": null,
+ "prompt_version": null,
+ "messages_run": 20,
+ "wall_s": 0.0,
+ "heldout": {
+  "messages": 20,
+  "reference_units": 35,
+  "correct_units": 17,
+  "extraction_errors": 18,
+  "error_kinds": {
+   "false_negation": 1,
+   "condition_treated_as_firm": 1,
+   "time_error": 4,
+   "missed_availability": 2,
+   "missed_unavailability": 7,
+   "missed_negation": 2,
+   "missed_cancellation": 1
+  },
+  "silent_errors": 18,
+  "flagged_units": 1,
+  "flagged_but_correct": 1,
+  "effort_proxy": {
+   "manual_actions": 107,
+   "assisted_actions_full_review": 51,
+   "ratio_full_review": 0.48,
+   "assisted_actions_bulk_accept": 1,
+   "ratio_bulk_accept": 0.01
+  },
+  "errors": [
+   {
+    "msg": "m04",
+    "key": [
+     "Diego Alvarez",
+     "2026-11-20"
+    ],
+    "kind": "false_negation",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "16:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m05",
+    "key": [
+     "Nora Patel",
+     "2026-11-21"
+    ],
+    "kind": "condition_treated_as_firm",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m08",
+    "key": [
+     "Imani Okoro",
+     "2026-11-17"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "15:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m08",
+    "key": [
+     "Imani Okoro",
+     "2026-11-20"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m09",
+    "key": [
+     "Jo Whitfield",
+     "2026-11-16"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ],
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m09",
+    "key": [
+     "Jonah Whitfield",
+     "2026-11-16"
+    ],
+    "kind": "missed_availability",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-16"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-17"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-18"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-19"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-20"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-21"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-22"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m11",
+    "key": [
+     "Rosa Nguyen",
+     "2026-11-18"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "12:00",
+       "14:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "14:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m14",
+    "key": [
+     "Ada Brooks",
+     "2026-11-18"
+    ],
+    "kind": "missed_negation",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m16",
+    "key": [
+     "Chen Wei",
+     "2026-11-22"
+    ],
+    "kind": "missed_cancellation",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m16",
+    "key": [
+     "Chen Wei",
+     "2026-11-21"
+    ],
+    "kind": "missed_availability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m20",
+    "key": [
+     "Rosa Nguyen",
+     "2026-11-21"
+    ],
+    "kind": "missed_negation",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   }
+  ],
+  "errors_per_message": {
+   "m01": 0,
+   "m02": 0,
+   "m03": 0,
+   "m04": 1,
+   "m05": 1,
+   "m06": 0,
+   "m07": 0,
+   "m08": 2,
+   "m09": 2,
+   "m10": 7,
+   "m11": 1,
+   "m12": 0,
+   "m13": 0,
+   "m14": 1,
+   "m15": 0,
+   "m16": 2,
+   "m17": 0,
+   "m18": 0,
+   "m19": 0,
+   "m20": 1
+  }
+ },
+ "all": {
+  "messages": 20,
+  "reference_units": 35,
+  "correct_units": 17,
+  "extraction_errors": 18,
+  "error_kinds": {
+   "false_negation": 1,
+   "condition_treated_as_firm": 1,
+   "time_error": 4,
+   "missed_availability": 2,
+   "missed_unavailability": 7,
+   "missed_negation": 2,
+   "missed_cancellation": 1
+  },
+  "silent_errors": 18,
+  "flagged_units": 1,
+  "flagged_but_correct": 1,
+  "effort_proxy": {
+   "manual_actions": 107,
+   "assisted_actions_full_review": 51,
+   "ratio_full_review": 0.48,
+   "assisted_actions_bulk_accept": 1,
+   "ratio_bulk_accept": 0.01
+  },
+  "errors": [
+   {
+    "msg": "m04",
+    "key": [
+     "Diego Alvarez",
+     "2026-11-20"
+    ],
+    "kind": "false_negation",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "16:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m05",
+    "key": [
+     "Nora Patel",
+     "2026-11-21"
+    ],
+    "kind": "condition_treated_as_firm",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m08",
+    "key": [
+     "Imani Okoro",
+     "2026-11-17"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "15:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m08",
+    "key": [
+     "Imani Okoro",
+     "2026-11-20"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m09",
+    "key": [
+     "Jo Whitfield",
+     "2026-11-16"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ],
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m09",
+    "key": [
+     "Jonah Whitfield",
+     "2026-11-16"
+    ],
+    "kind": "missed_availability",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-16"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-17"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-18"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-19"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-20"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-21"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m10",
+    "key": [
+     "Leo Marsh",
+     "2026-11-22"
+    ],
+    "kind": "missed_unavailability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m11",
+    "key": [
+     "Rosa Nguyen",
+     "2026-11-18"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "12:00",
+       "14:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "14:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m14",
+    "key": [
+     "Ada Brooks",
+     "2026-11-18"
+    ],
+    "kind": "missed_negation",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m16",
+    "key": [
+     "Chen Wei",
+     "2026-11-22"
+    ],
+    "kind": "missed_cancellation",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m16",
+    "key": [
+     "Chen Wei",
+     "2026-11-21"
+    ],
+    "kind": "missed_availability",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m20",
+    "key": [
+     "Rosa Nguyen",
+     "2026-11-21"
+    ],
+    "kind": "missed_negation",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   }
+  ],
+  "errors_per_message": {
+   "m01": 0,
+   "m02": 0,
+   "m03": 0,
+   "m04": 1,
+   "m05": 1,
+   "m06": 0,
+   "m07": 0,
+   "m08": 2,
+   "m09": 2,
+   "m10": 7,
+   "m11": 1,
+   "m12": 0,
+   "m13": 0,
+   "m14": 1,
+   "m15": 0,
+   "m16": 2,
+   "m17": 0,
+   "m18": 0,
+   "m19": 0,
+   "m20": 1
+  }
+ },
+ "ledger": {
+  "slot_agreement": 0.57,
+  "slots_compared": 316,
+  "missed_withdrawals": 3,
+  "withdrawals_total": 5,
+  "missed_withdrawal_list": [
+   "m14 Ada Brooks 2026-11-18 10:00-14:00",
+   "m16 Chen Wei 2026-11-22 09:00-20:00",
+   "m20 Rosa Nguyen 2026-11-21 09:00-12:00"
+  ],
+  "incorrectly_resolved_conditions": 1,
+  "conditions_total": 2,
+  "condition_error_list": [
+   "Rosa Nguyen 2026-11-21 09:00-12:00: decline missed"
+  ],
+  "ambiguities_flagged": 1,
+  "ambiguities_total": 1,
+  "ambiguity_detail": {
+   "m18": true
+  },
+  "count_chart_abs_error_sum": 62,
+  "count_chart_max_error": 2,
+  "count_chart_slots_wrong": 58
+ },
+ "form_analysis": {
+  "final_records": 11,
+  "fit_checkbox_form": 7,
+  "need_free_text": 4,
+  "reasons": {
+   "partial hours do not match a shift box": 4
+  }
+ }
+}

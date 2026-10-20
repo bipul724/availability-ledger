@@ -1,0 +1,588 @@
+{
+ "extractor": "model",
+ "model": "gemma4:e2b-it-qat",
+ "messages_run": 30,
+ "wall_s": 122.9,
+ "speed": {
+  "fresh_calls": 30,
+  "median_s_per_message": 3.625,
+  "max_s_per_message": 9.23,
+  "output_tokens_per_s": 23.9,
+  "prompt_tokens_per_s": 2306.7,
+  "json_parse_failures": 0,
+  "first_load_s": 0.04
+ },
+ "memory": {
+  "samples": 113,
+  "ollama_rss_peak_mb": 2473,
+  "swap_used_start_mb": 9754.94,
+  "swap_used_peak_mb": 10176.5,
+  "free_pct_min": 15,
+  "pressure_level_share": {
+   "warn": 1.0
+  },
+  "swapout_pages_during_run": 99804,
+  "ollama_ps": [
+   {
+    "name": "gemma4:e2b-it-qat",
+    "size_mb": 1590,
+    "size_vram_mb": 1590,
+    "context_length": 4096
+   }
+  ]
+ },
+ "dev": {
+  "messages": 30,
+  "reference_units": 44,
+  "correct_units": 41,
+  "extraction_errors": 9,
+  "error_kinds": {
+   "claim_from_unrelated_message": 3,
+   "condition_treated_as_firm": 1,
+   "extra_available": 2,
+   "false_condition": 1,
+   "missed_condition": 1,
+   "extra_conditional": 1
+  },
+  "silent_errors": 3,
+  "effort_proxy": {
+   "manual_actions": 189,
+   "assisted_actions_full_review": 61,
+   "ratio_full_review": 0.32,
+   "assisted_actions_bulk_accept": 19,
+   "ratio_bulk_accept": 0.1
+  },
+  "errors": [
+   {
+    "msg": "m01",
+    "key": [
+     "?",
+     "unreadable"
+    ],
+    "kind": "claim_from_unrelated_message",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ],
+      [
+       "available",
+       "13:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m23",
+    "key": [
+     "Priya Nair",
+     "2026-11-13"
+    ],
+    "kind": "condition_treated_as_firm",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m23",
+    "key": [
+     "Priya Nair",
+     "2026-11-09"
+    ],
+    "kind": "extra_available",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [
+      [
+       "available",
+       "15:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m23",
+    "key": [
+     "Priya Nair",
+     "2026-11-11"
+    ],
+    "kind": "extra_available",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m30",
+    "key": [
+     "Rui Costa",
+     "2026-11-11"
+    ],
+    "kind": "false_condition",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "conditional",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m34",
+    "key": [
+     "?",
+     "2026-11-11"
+    ],
+    "kind": "claim_from_unrelated_message",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m34",
+    "key": [
+     "?",
+     "2026-11-15"
+    ],
+    "kind": "claim_from_unrelated_message",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m48",
+    "key": [
+     "Marta Lopes",
+     "2026-11-10"
+    ],
+    "kind": "missed_condition",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m48",
+    "key": [
+     "Maria Lopez",
+     "2026-11-10"
+    ],
+    "kind": "extra_conditional",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "conditional"
+     ],
+     "unreadable": []
+    }
+   }
+  ],
+  "errors_per_message": {
+   "m01": 1,
+   "m02": 0,
+   "m04": 0,
+   "m05": 0,
+   "m06": 0,
+   "m08": 0,
+   "m09": 0,
+   "m10": 0,
+   "m11": 0,
+   "m13": 0,
+   "m15": 0,
+   "m17": 0,
+   "m19": 0,
+   "m20": 0,
+   "m21": 0,
+   "m23": 3,
+   "m24": 0,
+   "m27": 0,
+   "m29": 0,
+   "m30": 1,
+   "m32": 0,
+   "m34": 2,
+   "m35": 0,
+   "m36": 0,
+   "m37": 0,
+   "m39": 0,
+   "m40": 0,
+   "m44": 0,
+   "m48": 2,
+   "m49": 0
+  }
+ },
+ "all": {
+  "messages": 30,
+  "reference_units": 44,
+  "correct_units": 41,
+  "extraction_errors": 9,
+  "error_kinds": {
+   "claim_from_unrelated_message": 3,
+   "condition_treated_as_firm": 1,
+   "extra_available": 2,
+   "false_condition": 1,
+   "missed_condition": 1,
+   "extra_conditional": 1
+  },
+  "silent_errors": 3,
+  "effort_proxy": {
+   "manual_actions": 189,
+   "assisted_actions_full_review": 61,
+   "ratio_full_review": 0.32,
+   "assisted_actions_bulk_accept": 19,
+   "ratio_bulk_accept": 0.1
+  },
+  "errors": [
+   {
+    "msg": "m01",
+    "key": [
+     "?",
+     "unreadable"
+    ],
+    "kind": "claim_from_unrelated_message",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ],
+      [
+       "available",
+       "13:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m23",
+    "key": [
+     "Priya Nair",
+     "2026-11-13"
+    ],
+    "kind": "condition_treated_as_firm",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m23",
+    "key": [
+     "Priya Nair",
+     "2026-11-09"
+    ],
+    "kind": "extra_available",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [
+      [
+       "available",
+       "15:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m23",
+    "key": [
+     "Priya Nair",
+     "2026-11-11"
+    ],
+    "kind": "extra_available",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m30",
+    "key": [
+     "Rui Costa",
+     "2026-11-11"
+    ],
+    "kind": "false_condition",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "conditional",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m34",
+    "key": [
+     "?",
+     "2026-11-11"
+    ],
+    "kind": "claim_from_unrelated_message",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m34",
+    "key": [
+     "?",
+     "2026-11-15"
+    ],
+    "kind": "claim_from_unrelated_message",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m48",
+    "key": [
+     "Marta Lopes",
+     "2026-11-10"
+    ],
+    "kind": "missed_condition",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m48",
+    "key": [
+     "Maria Lopez",
+     "2026-11-10"
+    ],
+    "kind": "extra_conditional",
+    "silent": false,
+    "expected": null,
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "conditional"
+     ],
+     "unreadable": []
+    }
+   }
+  ],
+  "errors_per_message": {
+   "m01": 1,
+   "m02": 0,
+   "m04": 0,
+   "m05": 0,
+   "m06": 0,
+   "m08": 0,
+   "m09": 0,
+   "m10": 0,
+   "m11": 0,
+   "m13": 0,
+   "m15": 0,
+   "m17": 0,
+   "m19": 0,
+   "m20": 0,
+   "m21": 0,
+   "m23": 3,
+   "m24": 0,
+   "m27": 0,
+   "m29": 0,
+   "m30": 1,
+   "m32": 0,
+   "m34": 2,
+   "m35": 0,
+   "m36": 0,
+   "m37": 0,
+   "m39": 0,
+   "m40": 0,
+   "m44": 0,
+   "m48": 2,
+   "m49": 0
+  }
+ }
+}

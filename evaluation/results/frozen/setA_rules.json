@@ -1,0 +1,1064 @@
+{
+ "set": "A",
+ "extractor": "rules",
+ "model": null,
+ "prompt_version": null,
+ "messages_run": 50,
+ "wall_s": 0.0,
+ "dev": {
+  "messages": 30,
+  "reference_units": 44,
+  "correct_units": 40,
+  "extraction_errors": 5,
+  "error_kinds": {
+   "time_error": 2,
+   "extra_available": 1,
+   "missed_availability": 1,
+   "missed_condition": 1
+  },
+  "silent_errors": 5,
+  "flagged_units": 0,
+  "flagged_but_correct": 0,
+  "effort_proxy": {
+   "manual_actions": 189,
+   "assisted_actions_full_review": 62,
+   "ratio_full_review": 0.33,
+   "assisted_actions_bulk_accept": 1,
+   "ratio_bulk_accept": 0.01
+  },
+  "errors": [
+   {
+    "msg": "m11",
+    "key": [
+     "Beth Carter",
+     "2026-11-15"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m13",
+    "key": [
+     "Kofi Mensah",
+     "2026-11-10"
+    ],
+    "kind": "extra_available",
+    "silent": true,
+    "expected": null,
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m20",
+    "key": [
+     "Kofi Mensah",
+     "2026-11-15"
+    ],
+    "kind": "missed_availability",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "11:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m24",
+    "key": [
+     "Olu Adeyemi",
+     "2026-11-14"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m48",
+    "key": [
+     "Marta Lopes",
+     "2026-11-10"
+    ],
+    "kind": "missed_condition",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   }
+  ],
+  "errors_per_message": {
+   "m01": 0,
+   "m02": 0,
+   "m04": 0,
+   "m05": 0,
+   "m06": 0,
+   "m08": 0,
+   "m09": 0,
+   "m10": 0,
+   "m11": 1,
+   "m13": 1,
+   "m15": 0,
+   "m17": 0,
+   "m19": 0,
+   "m20": 1,
+   "m21": 0,
+   "m23": 0,
+   "m24": 1,
+   "m27": 0,
+   "m29": 0,
+   "m30": 0,
+   "m32": 0,
+   "m34": 0,
+   "m35": 0,
+   "m36": 0,
+   "m37": 0,
+   "m39": 0,
+   "m40": 0,
+   "m44": 0,
+   "m48": 1,
+   "m49": 0
+  }
+ },
+ "heldout": {
+  "messages": 20,
+  "reference_units": 30,
+  "correct_units": 20,
+  "extraction_errors": 10,
+  "error_kinds": {
+   "time_error": 3,
+   "false_negation": 2,
+   "condition_treated_as_firm": 3,
+   "missed_ambiguity_flag": 1,
+   "ambiguity_guessed": 1
+  },
+  "silent_errors": 10,
+  "flagged_units": 2,
+  "flagged_but_correct": 2,
+  "effort_proxy": {
+   "manual_actions": 101,
+   "assisted_actions_full_review": 49,
+   "ratio_full_review": 0.49,
+   "assisted_actions_bulk_accept": 1,
+   "ratio_bulk_accept": 0.01
+  },
+  "errors": [
+   {
+    "msg": "m03",
+    "key": [
+     "Priya Nair",
+     "2026-11-11"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "15:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m12",
+    "key": [
+     "Beth Carter",
+     "2026-11-15"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m14",
+    "key": [
+     "Hannah Wright",
+     "2026-11-15"
+    ],
+    "kind": "false_negation",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m18",
+    "key": [
+     "Samira Haddad",
+     "2026-11-13"
+    ],
+    "kind": "condition_treated_as_firm",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m18",
+    "key": [
+     "Samira Haddad",
+     "2026-11-14"
+    ],
+    "kind": "condition_treated_as_firm",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m22",
+    "key": [
+     "?Sam Okafor|Samira Haddad",
+     "2026-11-14"
+    ],
+    "kind": "missed_ambiguity_flag",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m41",
+    "key": [
+     "Rui Costa",
+     "2026-11-11"
+    ],
+    "kind": "false_negation",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m46",
+    "key": [
+     "Kofi Mensah",
+     "2026-11-11"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "10:00",
+       "11:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "conditional",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m47",
+    "key": [
+     "Zoe Martin",
+     "?2026-11-14|2026-11-15"
+    ],
+    "kind": "ambiguity_guessed",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m50",
+    "key": [
+     "Priya Nair",
+     "2026-11-13"
+    ],
+    "kind": "condition_treated_as_firm",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   }
+  ],
+  "errors_per_message": {
+   "m03": 1,
+   "m07": 0,
+   "m12": 1,
+   "m14": 1,
+   "m16": 0,
+   "m18": 2,
+   "m22": 1,
+   "m25": 0,
+   "m26": 0,
+   "m28": 0,
+   "m31": 0,
+   "m33": 0,
+   "m38": 0,
+   "m41": 1,
+   "m42": 0,
+   "m43": 0,
+   "m45": 0,
+   "m46": 1,
+   "m47": 1,
+   "m50": 1
+  }
+ },
+ "all": {
+  "messages": 50,
+  "reference_units": 74,
+  "correct_units": 60,
+  "extraction_errors": 15,
+  "error_kinds": {
+   "time_error": 5,
+   "extra_available": 1,
+   "false_negation": 2,
+   "condition_treated_as_firm": 3,
+   "missed_availability": 1,
+   "missed_ambiguity_flag": 1,
+   "ambiguity_guessed": 1,
+   "missed_condition": 1
+  },
+  "silent_errors": 15,
+  "flagged_units": 2,
+  "flagged_but_correct": 2,
+  "effort_proxy": {
+   "manual_actions": 290,
+   "assisted_actions_full_review": 111,
+   "ratio_full_review": 0.38,
+   "assisted_actions_bulk_accept": 1,
+   "ratio_bulk_accept": 0.0
+  },
+  "errors": [
+   {
+    "msg": "m03",
+    "key": [
+     "Priya Nair",
+     "2026-11-11"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "15:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m11",
+    "key": [
+     "Beth Carter",
+     "2026-11-15"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m12",
+    "key": [
+     "Beth Carter",
+     "2026-11-15"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m13",
+    "key": [
+     "Kofi Mensah",
+     "2026-11-10"
+    ],
+    "kind": "extra_available",
+    "silent": true,
+    "expected": null,
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m14",
+    "key": [
+     "Hannah Wright",
+     "2026-11-15"
+    ],
+    "kind": "false_negation",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m18",
+    "key": [
+     "Samira Haddad",
+     "2026-11-13"
+    ],
+    "kind": "condition_treated_as_firm",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m18",
+    "key": [
+     "Samira Haddad",
+     "2026-11-14"
+    ],
+    "kind": "condition_treated_as_firm",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m20",
+    "key": [
+     "Kofi Mensah",
+     "2026-11-15"
+    ],
+    "kind": "missed_availability",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "11:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m22",
+    "key": [
+     "?Sam Okafor|Samira Haddad",
+     "2026-11-14"
+    ],
+    "kind": "missed_ambiguity_flag",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "13:00",
+       "17:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m24",
+    "key": [
+     "Olu Adeyemi",
+     "2026-11-14"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "09:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m41",
+    "key": [
+     "Rui Costa",
+     "2026-11-11"
+    ],
+    "kind": "false_negation",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m46",
+    "key": [
+     "Kofi Mensah",
+     "2026-11-11"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "10:00",
+       "11:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "conditional",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m47",
+    "key": [
+     "Zoe Martin",
+     "?2026-11-14|2026-11-15"
+    ],
+    "kind": "ambiguity_guessed",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m48",
+    "key": [
+     "Marta Lopes",
+     "2026-11-10"
+    ],
+    "kind": "missed_condition",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "09:00",
+       "12:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m50",
+    "key": [
+     "Priya Nair",
+     "2026-11-13"
+    ],
+    "kind": "condition_treated_as_firm",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "conditional",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [
+      [
+       "available",
+       "17:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    }
+   }
+  ],
+  "errors_per_message": {
+   "m01": 0,
+   "m02": 0,
+   "m03": 1,
+   "m04": 0,
+   "m05": 0,
+   "m06": 0,
+   "m07": 0,
+   "m08": 0,
+   "m09": 0,
+   "m10": 0,
+   "m11": 1,
+   "m12": 1,
+   "m13": 1,
+   "m14": 1,
+   "m15": 0,
+   "m16": 0,
+   "m17": 0,
+   "m18": 2,
+   "m19": 0,
+   "m20": 1,
+   "m21": 0,
+   "m22": 1,
+   "m23": 0,
+   "m24": 1,
+   "m25": 0,
+   "m26": 0,
+   "m27": 0,
+   "m28": 0,
+   "m29": 0,
+   "m30": 0,
+   "m31": 0,
+   "m32": 0,
+   "m33": 0,
+   "m34": 0,
+   "m35": 0,
+   "m36": 0,
+   "m37": 0,
+   "m38": 0,
+   "m39": 0,
+   "m40": 0,
+   "m41": 1,
+   "m42": 0,
+   "m43": 0,
+   "m44": 0,
+   "m45": 0,
+   "m46": 1,
+   "m47": 1,
+   "m48": 1,
+   "m49": 0,
+   "m50": 1
+  }
+ },
+ "ledger": {
+  "slot_agreement": 0.787,
+  "slots_compared": 694,
+  "missed_withdrawals": 0,
+  "withdrawals_total": 12,
+  "missed_withdrawal_list": [],
+  "incorrectly_resolved_conditions": 2,
+  "conditions_total": 7,
+  "condition_error_list": [
+   "Priya Nair 2026-11-13 17:00-20:00: treated as firm",
+   "Marta Lopes 2026-11-10 09:00-12:00: offer lost"
+  ],
+  "ambiguities_flagged": 2,
+  "ambiguities_total": 4,
+  "ambiguity_detail": {
+   "m22": false,
+   "m26": true,
+   "m41": true,
+   "m47": false
+  },
+  "count_chart_abs_error_sum": 52,
+  "count_chart_max_error": 2,
+  "count_chart_slots_wrong": 48
+ },
+ "form_analysis": {
+  "final_records": 31,
+  "fit_checkbox_form": 18,
+  "need_free_text": 13,
+  "reasons": {
+   "partial hours do not match a shift box": 9,
+   "conditional offer needs free text": 4
+  }
+ }
+}
