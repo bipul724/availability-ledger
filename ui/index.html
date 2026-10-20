@@ -47,7 +47,8 @@
       <h2>Messages and suggestions</h2>
       <button id="accept-clean" type="button">Accept all suggestions without warnings</button>
     </div>
-    <p class="hint" id="keys">Keyboard: J / K next / previous suggestion · A accept · R reject · E edit its first field · Esc leave a field</p>
+    <p class="hint" id="keys">Keyboard: J / K next / previous suggestion · A accept · R reject · E edit its first field · M mark its message reviewed · Esc leave a field</p>
+    <p class="hint" id="review-state" role="status"></p>
     <div id="rows"></div>
   </section>
   <aside id="summary">
@@ -69,8 +70,10 @@
       <ul id="changes"></ul>
     </section>
     <section class="panel">
-      <button id="export" type="button" class="primary">Export reviewed records (CSV)</button>
-      <label class="check"><input type="checkbox" id="include-pending"> include records not yet reviewed</label>
+      <p class="hint">The final sheet uses accepted records only. It is marked provisional until every message is marked reviewed, nothing is pending and no blocking issue is open.</p>
+      <button id="export-final" type="button" class="primary">Export final sheet (CSV)</button>
+      <button id="export" type="button">Export review log (CSV)</button>
+      <label class="check"><input type="checkbox" id="include-pending"> include records not yet reviewed in the log</label>
     </section>
   </aside>
 </main>

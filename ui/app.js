@@ -2,7 +2,8 @@
 
 const $ = (id) => document.getElementById(id);
 const state = { messages: [], claims: [], resolved: [], ledger: null, roster: [], week: "", tz: "", read: new Set(), cur: null,
-  stats: { reviewStart: null, accepts: 0, edits: 0, rejects: 0, adds: 0, bulk: 0 } };
+  reviewed: new Set(), confirmed: null,  // message ids the reviewer explicitly marked; export status from the server
+  stats: { reviewStart: null, accepts: 0, edits: 0, rejects: 0, adds: 0, bulk: 0, marks: 0 } };
 
 const FLAG_TEXT = {
   who_ambiguous: "Which volunteer? The name matches more than one",
@@ -28,6 +29,9 @@ const FLAG_TEXT = {
   edited: "Edited by you",
 };
 const INFO_FLAGS = new Set(["time_unstated", "conditional", "edited", "replace_cue", "similar_name", "time_from_same_message"]);
+// "Accept all and mark reviewed" is offered only when every undecided suggestion in a message passes this.
+const bulkEligible = (c) => c.review === "pending" && c.flags.every((f) => INFO_FLAGS.has(f)) &&
+  c.person_state === "resolved" && c.date_state === "resolved" && c.time_state !== "unparsed";
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -84,6 +88,7 @@ async function init() {
   };
   $("run").onclick = run;
   $("export").onclick = exportCsv;
+  $("export-final").onclick = exportFinal;
   $("accept-clean").onclick = acceptClean;
   $("rows").addEventListener("change", onFieldChange);
   $("rows").addEventListener("click", onClick);
@@ -99,22 +104,29 @@ async function loadDemo() {
 }
 
 async function run() {
-  state.week = $("week").value;
-  state.tz = $("tz").value.trim();
-  if (!state.week || new Date(state.week + "T12:00:00Z").getUTCDay() !== 1) {
-    $("progress").textContent = "Pick a Monday as the start of the week.";
+  // Proposed settings stay local until the new input has parsed; a failure leaves the current session untouched.
+  const week = $("week").value, tz = $("tz").value.trim();
+  const kept = state.messages.length ? " The current review is unchanged." : "";
+  if (!week || new Date(week + "T12:00:00Z").getUTCDay() !== 1) {
+    $("progress").textContent = "Pick a Monday as the start of the week." + kept;
     return;
   }
   $("run").disabled = true;
+  let parsed;
   try {
-    const parsed = await api("/api/parse", { text: $("text").value, roster: $("roster").value, day_first: $("dayfirst").checked });
-    state.messages = parsed.messages;
-    state.roster = parsed.roster;
-    state.claims = [];
-    state.read = new Set();
-    state.cur = null;
-    if (!state.messages.length) throw new Error("No dated messages found. Expected 'YYYY-MM-DD HH:MM | Sender | text'.");
+    parsed = await api("/api/parse", { text: $("text").value, roster: $("roster").value, day_first: $("dayfirst").checked });
+    if (!parsed.messages.length) throw new Error("No dated messages found. Expected 'YYYY-MM-DD HH:MM | Sender | text'.");
+  } catch (e) {
+    $("progress").textContent = "Error: " + e.message.replace(/\.?$/, ".") + kept;
+    $("run").disabled = false;
+    return;
+  }
+  // Commit the new session as one unit: settings, messages and a fresh review state.
+  Object.assign(state, { week, tz, messages: parsed.messages, roster: parsed.roster, claims: [], resolved: [], ledger: null,
+    confirmed: null, read: new Set(), reviewed: new Set(), cur: null });
+  try {
     $("workspace").hidden = false;
+    await resolveNow();  // clear the previous session's cards, sheet and chart before reading
     const t0 = performance.now();
     for (const [i, msg] of state.messages.entries()) {
       $("progress").textContent = `Reading message ${i + 1} of ${state.messages.length}…`;
@@ -129,7 +141,7 @@ async function run() {
       if (i % 5 === 4 || i === state.messages.length - 1) await resolveNow();
     }
     $("progress").textContent = `Read ${state.messages.length} messages in ${((performance.now() - t0) / 1000).toFixed(0)} s on this computer. Review timer started.`;
-    state.stats = { reviewStart: performance.now(), accepts: 0, edits: 0, rejects: 0, adds: 0, bulk: 0 };
+    state.stats = { reviewStart: performance.now(), accepts: 0, edits: 0, rejects: 0, adds: 0, bulk: 0, marks: 0 };
   } catch (e) {
     $("progress").textContent = "Error: " + e.message;
   } finally {
@@ -145,14 +157,31 @@ function scheduleResolve() {
   timer = setTimeout(resolveNow, 250);
 }
 
+function payload() {
+  return { messages: state.messages, claims: state.claims, roster: state.roster, week_start: state.week, timezone: state.tz,
+    reviewed_messages: [...state.reviewed] };
+}
+
 async function resolveNow() {
-  const out = await api("/api/resolve", {
-    messages: state.messages, claims: state.claims, roster: state.roster, week_start: state.week, timezone: state.tz,
-  });
+  const out = await api("/api/resolve", payload());
   state.resolved = out.claims;
   state.ledger = out.ledger;
+  state.confirmed = out.confirmed;
   renderRows();
   renderSummary();
+  renderReviewState();
+}
+
+function exportProblems(c) {
+  return [c.unreviewed.length && `${c.unreviewed.length} message(s) not marked reviewed`, c.pending && `${c.pending} pending`,
+    c.blocking_issues && `${c.blocking_issues} blocking issue(s)`].filter(Boolean).join(", ");
+}
+
+function renderReviewState() {
+  const msgs = state.messages.filter((m) => !m.duplicate_of && state.read.has(m.id));
+  const done = msgs.filter((m) => state.reviewed.has(m.id)).length, c = state.confirmed;
+  $("review-state").textContent = `${done} of ${msgs.length} messages marked reviewed. Final sheet export: ` +
+    (c ? (c.status === "complete" ? "complete." : `provisional (${exportProblems(c)}).`) : "not computed yet.");
 }
 
 function highlight(text, spans) {
@@ -180,14 +209,19 @@ function renderRows() {
       return `<div class="msgrow duplicate" id="row-${m.id}">
         <div class="msg"><div class="meta">${esc(m.id)} · ${esc(m.sent)} · <strong>${esc(m.sender)}</strong></div>
           <div class="body">${esc(m.text)}</div></div>
-        <div class="cards"><div class="none">Same as <a href="#row-${esc(m.duplicate_of)}">${esc(m.duplicate_of)}</a>. Its suggestions cover this message.</div></div>
+        <div class="cards"><div class="none">Same as <a href="#row-${esc(m.duplicate_of)}">${esc(m.duplicate_of)}</a>. Its suggestions cover this message, and marking ${esc(m.duplicate_of)} reviewed covers this one too.</div></div>
       </div>`;
     }
     const cs = (byMsg[m.id] || []).sort((a, b) => (a.n || 0) - (b.n || 0));
     const spans = cs.filter((c) => !["rejected", "dropped"].includes(c.review)).map((c) => c.excerpt_span);
-    return `<div class="msgrow" id="row-${m.id}">
+    const reviewed = state.reviewed.has(m.id);
+    const undecided = cs.filter((c) => c.review === "pending" || c.review === "dropped");
+    const bulk = undecided.length && undecided.every(bulkEligible);
+    return `<div class="msgrow${reviewed ? " reviewed" : ""}" id="row-${m.id}">
       <div class="msg"><div class="meta">${esc(m.id)} · ${esc(m.sent)} · <strong>${esc(m.sender)}</strong></div>
-        <div class="body">${highlight(m.text, spans)}</div></div>
+        <div class="body">${highlight(m.text, spans)}</div>
+        <div class="msg-actions"><button type="button" data-act="mark" data-msg="${m.id}" aria-pressed="${reviewed}">${reviewed ? "✓ Reviewed" : "Mark message reviewed"}</button>
+          ${bulk && !reviewed ? `<button type="button" data-act="accept-mark" data-msg="${m.id}">Accept all and mark reviewed</button>` : ""}</div></div>
       <div class="cards">${cs.map(card).join("") || `<div class="none">No availability found in this message.</div>`}
         <div><button type="button" data-act="add" data-msg="${m.id}">+ Add a record from this message</button></div></div>
     </div>`;
@@ -265,11 +299,25 @@ function onClick(ev) {
       said: { person: "", day_text: "", time_text: "", status: "available", condition: "", replaces_earlier: false, excerpt: "" },
       override: { dates: [] } });
     state.stats.adds++;
+  } else if (act === "mark") {
+    toggleReviewed(btn.dataset.msg);
+  } else if (act === "accept-mark") {
+    const undecided = state.resolved.filter((c) => c.msg === btn.dataset.msg && ["pending", "dropped"].includes(c.review));
+    if (!undecided.length || !undecided.every(bulkEligible)) return;  // never accept anything flagged or unresolved
+    for (const c of undecided) rawClaim(c.id).review = "accepted";
+    state.reviewed.add(btn.dataset.msg);
+    state.stats.bulk++;
+    state.stats.marks++;
   } else {
     state.cur = btn.closest(".card").dataset.id;
     review(rawClaim(state.cur), act);
   }
   resolveNow();
+}
+
+function toggleReviewed(msg) {
+  if (state.reviewed.has(msg)) state.reviewed.delete(msg);
+  else { state.reviewed.add(msg); state.stats.marks++; }
 }
 
 function review(c, act) {
@@ -313,6 +361,10 @@ function onKey(ev) {
     const next = i < 0 ? 0 : Math.max(0, Math.min(all.length - 1, i + (key === "j" ? 1 : -1)));
     state.cur = all[next].dataset.id;
     markCurrent(true);
+  } else if (key === "m") {
+    if (!markCurrent(false)) return;
+    toggleReviewed(rawClaim(state.cur).msg);
+    resolveNow();
   } else if (key === "a" || key === "r" || key === "e") {
     const el = markCurrent(false);
     if (!el) return;
@@ -422,16 +474,36 @@ function buildCsv(withPending) {
   return { rows: rows.length - 1, csv: rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n") };
 }
 
-function exportCsv() {
-  const { rows, csv } = buildCsv($("include-pending").checked);
+function download(filename, text) {
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-  a.download = `availability-${state.week}.csv`;
+  a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+function reviewSoFar() {
   const s = state.stats, mins = s.reviewStart ? (performance.now() - s.reviewStart) / 60000 : 0;
-  $("progress").textContent = `Exported ${rows} rows. Review so far: ${mins.toFixed(1)} min, ` +
-    `${s.accepts} accepts, ${s.edits} field edits, ${s.rejects} rejects, ${s.adds} added, ${s.bulk} bulk accepts.`;
+  return `Review so far: ${mins.toFixed(1)} min, ${s.accepts} accepts, ${s.edits} field edits, ${s.rejects} rejects, ` +
+    `${s.adds} added, ${s.bulk} bulk accepts, ${s.marks} messages marked reviewed.`;
+}
+
+function exportCsv() {
+  const { rows, csv } = buildCsv($("include-pending").checked);
+  download(`availability-log-${state.week}.csv`, csv);
+  $("progress").textContent = `Exported the review log (${rows} rows). ${reviewSoFar()}`;
+}
+
+async function exportFinal() {
+  try {
+    const out = await api("/api/export", payload());
+    download(out.filename, out.csv);
+    const rows = `${out.rows} row${out.rows === 1 ? "" : "s"}`;
+    $("progress").textContent = (out.status === "complete" ? `Exported the final sheet (${rows}, complete). `
+      : `Exported a PROVISIONAL final sheet (${rows}): ${exportProblems(out)}. `) + reviewSoFar();
+  } catch (e) {
+    $("progress").textContent = "Export failed: " + e.message;
+  }
 }
 
 init();

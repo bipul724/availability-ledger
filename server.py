@@ -12,6 +12,7 @@ from pathlib import Path
 
 from ledger import hybrid, model, rules
 from ledger.core import build_ledger, resolve_all
+from ledger.export import SUMMARY, confirmed_export, final_csv
 from ledger.messages import Message, parse_messages, parse_roster
 from ledger.resolve import Calendar
 
@@ -47,12 +48,31 @@ def suggest(body: dict) -> dict:
     return {"claims": claims, "stats": stats}
 
 
-def resolve(body: dict) -> dict:
+def _reviewed(body: dict) -> list[str]:
+    reviewed = body.get("reviewed_messages") or []
+    if not isinstance(reviewed, list) or not all(isinstance(x, str) for x in reviewed):
+        raise ValueError("reviewed_messages must be a list of message ids")
+    return reviewed
+
+
+def _confirmed(body: dict):
     messages = [Message.from_dict(m) for m in body["messages"]]
     roster = body["roster"][:MAX_VOLUNTEERS]
     cal = calendar(body)
     resolved = resolve_all(messages, body["claims"], roster, cal, body.get("coordinators", []))
-    return {"claims": resolved, "ledger": build_ledger(messages, resolved, roster, cal)}
+    return messages, roster, cal, resolved, confirmed_export(messages, resolved, roster, cal, _reviewed(body))
+
+
+def resolve(body: dict) -> dict:
+    messages, roster, cal, resolved, exp = _confirmed(body)
+    return {"claims": resolved, "ledger": build_ledger(messages, resolved, roster, cal),
+            "confirmed": {k: exp[k] for k in SUMMARY}}
+
+
+def export(body: dict) -> dict:
+    *_, exp = _confirmed(body)
+    filename, text = final_csv(exp)
+    return {**{k: exp[k] for k in SUMMARY}, "rows": len(exp["rows"]), "filename": filename, "csv": text}
 
 
 def demo() -> dict:
@@ -96,6 +116,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(suggest(body))
             if self.path == "/api/resolve":
                 return self._json(resolve(body))
+            if self.path == "/api/export":
+                return self._json(export(body))
             self._json({"error": "unknown endpoint"}, 404)
         except Exception as e:  # report to the page instead of dropping the connection
             self._json({"error": f"{type(e).__name__}: {e}"}, 400)
