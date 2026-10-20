@@ -43,6 +43,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 | D-26 | Duplicate-aware extraction scoring before set C is scored | accepted (project lead, 2026-10-20) |
 | D-27 | Documentation economy until submission | accepted (project lead, 2026-10-20) |
 | D-28 | Work that cannot bias set C may start before the C freeze | accepted (project lead, 2026-10-20) |
+| D-29 | Set C may be written by a fresh, isolated AI session if the owner cannot write it | accepted (project lead, 2026-10-21) |
 
 ---
 
@@ -265,3 +266,16 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 - **Context:** The implementation agent correctly stopped because the C manifest does not exist yet. An earlier brief named it `setC.sha256`; the canonical name is now `fixtures/setC.manifest` (D-24). Waiting for C would idle the agent for half a day.
 - **Decision:** the freeze protects C as an independent test of changes to **what is extracted and what reaches the sheet**. COR-10 and COR-07a change exactly that, so they still wait. COR-03 (visible extraction failures and continuing after them), COR-02 (CSV formula protection), EVAL-09 and EVAL-10 (metric definitions fixed from invented inputs) do not change any reader's claims or the ledger, so they may start now. Their acceptance tests use invented messages only, and they must not touch `ledger/model.py`, `ledger/rules.py`, `ledger/hybrid.py`, `ledger/resolve.py`, or claim and ledger logic in `ledger/core.py`.
 - **Check:** after these tasks, a cached re-run of A/B must leave every extraction and ledger number unchanged, except metrics EVAL-09 and EVAL-10 intentionally redefine, which are reported separately and labelled. Any other change means the work crossed the boundary and must be reverted or re-planned.
+
+### D-29 Set C may be written by a fresh, isolated AI session if the owner cannot write it
+
+- **Date:** 2026-10-21, about 01:00 IST. **Status:** accepted.
+- **Context:** The owner asked whether their coding agent could write set C. Waiting for a human writer puts C on the critical path.
+- **Decision:** **Not the coding agent.** It has seen the code and the A/B failures, and it will implement COR-10 and COR-07a, so a C it wrote would not test its own changes independently. A **brand-new AI session** may write C instead, under these conditions:
+  - it is started only for this task and never used afterwards for this project's code, planning or briefs;
+  - it works only in `~/Documents/availability-setC/`;
+  - it does not read the project's code, tests, docs (other than the brief), set A/B messages or results;
+  - it gets the reference format from the brief and its own reading of `fixtures/reference.json`.
+  The owner then reads every message and **rewrites at least 5 of them in their own words** before freezing, and spot-checks the reference answers.
+- **Consequence:** C is recorded as "written by an isolated AI session, edited by the owner". That is weaker than human-written, because a model may write in ways models read easily, and the write-up must say so. It is still independent of the code changes, which is what EVAL-07 needs.
+- **Addendum (2026-10-21, about 01:15 IST):** the owner chose to use **ChatGPT** as the isolated writer. A model from a different provider is acceptable, and arguably more independent of the code's author. C is fictional, so sending it to that service raises no privacy issue; it must stay within the free tier (₹0). ChatGPT cannot read local files, so the owner pastes a self-contained prompt, saves its outputs into `~/Documents/availability-setC/` and runs the local consistency check from the brief. The owner-edit rule (at least 5 messages) still applies.
