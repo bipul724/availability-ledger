@@ -47,6 +47,8 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 420px)
 .msgrow.duplicate .msg { opacity: 0.55; }
 .msg-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 .msgrow.reviewed .msg { border-color: var(--ok); }
+.msgrow.failed .msg { border-color: var(--maybe); }
+.failure { background: var(--warn-bg); border-radius: 6px; padding: 6px 8px; font-size: 13px; }
 #summary .panel button + button { margin-left: 6px; }
 .card .fields { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
 .card .days { display: flex; gap: 4px; flex-wrap: wrap; }

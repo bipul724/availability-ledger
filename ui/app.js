@@ -3,6 +3,7 @@
 const $ = (id) => document.getElementById(id);
 const state = { messages: [], claims: [], resolved: [], ledger: null, roster: [], week: "", tz: "", read: new Set(), cur: null,
   reviewed: new Set(), confirmed: null,  // message ids the reviewer explicitly marked; export status from the server
+  failures: new Map(),  // message id -> why its suggestions could not be read (COR-03)
   stats: { reviewStart: null, accepts: 0, edits: 0, rejects: 0, adds: 0, bulk: 0, marks: 0 } };
 
 const FLAG_TEXT = {
@@ -123,7 +124,7 @@ async function run() {
   }
   // Commit the new session as one unit: settings, messages and a fresh review state.
   Object.assign(state, { week, tz, messages: parsed.messages, roster: parsed.roster, claims: [], resolved: [], ledger: null,
-    confirmed: null, read: new Set(), reviewed: new Set(), cur: null });
+    confirmed: null, read: new Set(), reviewed: new Set(), failures: new Map(), cur: null });
   try {
     $("workspace").hidden = false;
     await resolveNow();  // clear the previous session's cards, sheet and chart before reading
@@ -131,16 +132,23 @@ async function run() {
     for (const [i, msg] of state.messages.entries()) {
       $("progress").textContent = `Reading message ${i + 1} of ${state.messages.length}…`;
       if (!msg.duplicate_of) {  // a repeat of an earlier message is not read again
-        const out = await api("/api/suggest", {
-          message: msg, roster: state.roster, week_start: state.week, timezone: state.tz,
-          extractor: $("extractor").value, model: $("model").value,
-        });
-        state.claims.push(...out.claims);
+        try {  // one failed message must not stop the others (COR-03)
+          const out = await api("/api/suggest", {
+            message: msg, roster: state.roster, week_start: state.week, timezone: state.tz,
+            extractor: $("extractor").value, model: $("model").value,
+          });
+          state.claims.push(...out.claims);
+          if (out.stats?.json_ok === false) state.failures.set(msg.id, { kind: "reply", rulesOnly: out.claims.length > 0 });
+        } catch (e) {
+          state.failures.set(msg.id, { kind: "request", error: e.message });
+        }
       }
       state.read.add(msg.id);
       if (i % 5 === 4 || i === state.messages.length - 1) await resolveNow();
     }
-    $("progress").textContent = `Read ${state.messages.length} messages in ${((performance.now() - t0) / 1000).toFixed(0)} s on this computer. Review timer started.`;
+    const failed = state.failures.size;
+    $("progress").textContent = `Read ${state.messages.length} messages in ${((performance.now() - t0) / 1000).toFixed(0)} s on this computer.` +
+      (failed ? ` ${failed} of ${state.messages.length} messages could not be read fully; each has a warning.` : "") + " Review timer started.";
     state.stats = { reviewStart: performance.now(), accepts: 0, edits: 0, rejects: 0, adds: 0, bulk: 0, marks: 0 };
   } catch (e) {
     $("progress").textContent = "Error: " + e.message;
@@ -181,7 +189,15 @@ function renderReviewState() {
   const msgs = state.messages.filter((m) => !m.duplicate_of && state.read.has(m.id));
   const done = msgs.filter((m) => state.reviewed.has(m.id)).length, c = state.confirmed;
   $("review-state").textContent = `${done} of ${msgs.length} messages marked reviewed. Final sheet export: ` +
-    (c ? (c.status === "complete" ? "complete." : `provisional (${exportProblems(c)}).`) : "not computed yet.");
+    (c ? (c.status === "complete" ? "complete." : `provisional (${exportProblems(c)}).`) : "not computed yet.") +
+    (state.failures.size ? ` ${state.failures.size} message${state.failures.size === 1 ? "" : "s"} could not be read fully.` : "");
+}
+
+function failureText(f) {
+  if (f.kind === "request") return `Could not read this message (${f.error}). It has no suggestions; read it yourself and add records if needed.`;
+  return f.rulesOnly
+    ? "The model's reply for this message could not be read. Only the rules' cancellations below were added; read the message yourself."
+    : "The model's reply for this message could not be read, so it has no suggestions. Read the message yourself and add records if needed.";
 }
 
 function highlight(text, spans) {
@@ -216,13 +232,14 @@ function renderRows() {
     const spans = cs.filter((c) => !["rejected", "dropped"].includes(c.review)).map((c) => c.excerpt_span);
     const reviewed = state.reviewed.has(m.id);
     const undecided = cs.filter((c) => c.review === "pending" || c.review === "dropped");
-    const bulk = undecided.length && undecided.every(bulkEligible);
-    return `<div class="msgrow${reviewed ? " reviewed" : ""}" id="row-${m.id}">
+    const fail = state.failures.get(m.id);
+    const bulk = !fail && undecided.length && undecided.every(bulkEligible);  // a failed read is never bulk-reviewed
+    return `<div class="msgrow${reviewed ? " reviewed" : ""}${fail ? " failed" : ""}" id="row-${m.id}">
       <div class="msg"><div class="meta">${esc(m.id)} · ${esc(m.sent)} · <strong>${esc(m.sender)}</strong></div>
         <div class="body">${highlight(m.text, spans)}</div>
         <div class="msg-actions"><button type="button" data-act="mark" data-msg="${m.id}" aria-pressed="${reviewed}">${reviewed ? "✓ Reviewed" : "Mark message reviewed"}</button>
           ${bulk && !reviewed ? `<button type="button" data-act="accept-mark" data-msg="${m.id}">Accept all and mark reviewed</button>` : ""}</div></div>
-      <div class="cards">${cs.map(card).join("") || `<div class="none">No availability found in this message.</div>`}
+      <div class="cards">${fail ? `<div class="failure" role="alert">${esc(failureText(fail))}</div>` : ""}${cs.map(card).join("") || (fail ? "" : `<div class="none">No availability found in this message.</div>`)}
         <div><button type="button" data-act="add" data-msg="${m.id}">+ Add a record from this message</button></div></div>
     </div>`;
   }).join("");
@@ -458,6 +475,12 @@ function renderChart(counts) {
 
 // ------------------------------------------------------------ export
 
+const FORMULA_START = /^[=+\-@\t\r]/;  // a spreadsheet would run a cell starting with these (COR-02)
+const csvCell = (v) => {
+  const s = String(v);
+  return `"${(FORMULA_START.test(s) ? "'" + s : s).replace(/"/g, '""')}"`;
+};
+
 function buildCsv(withPending) {
   const msgs = Object.fromEntries(state.messages.map((m) => [m.id, m]));
   const cols = ["record_id", "review", "volunteer", "date", "start", "end", "status", "condition", "message_id", "message_time", "sender", "excerpt", "warnings"];
@@ -471,7 +494,7 @@ function buildCsv(withPending) {
       rows.push([c.id, c.review, c.person || "", d, c.start || "", c.end || "", c.status, c.condition || "", c.msg, m.sent, m.sender, c.said?.excerpt || "", warnings]);
     }
   }
-  return { rows: rows.length - 1, csv: rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n") };
+  return { rows: rows.length - 1, csv: rows.map((r) => r.map(csvCell).join(",")).join("\n") };
 }
 
 function download(filename, text) {
