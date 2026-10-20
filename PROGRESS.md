@@ -295,3 +295,82 @@ Re-checked independently: `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discove
 ### Lead review of UI-05 and UI-01; repository synced (2026-10-20, about 22:45 IST)
 
 Re-checked independently: **56** unit tests pass; `git diff` shows no change in `ledger/`, `server.py`, `evaluation/` or `fixtures/`; the light-mode panel screenshot was inspected. Accepted. Noted: merged segments with any pending claim show wholly as pending (UI-06, deferred, errs toward caution), and the pending-conditional chart layer is too faint in light mode (UI-07). Browser checks were not re-run by the lead. **REL-06 done:** local `HEAD` equals `origin/main` at `b8cc15a`. REL-01 (licence) is still open. Set C manifest is still absent, so COR-10 and COR-07a remain blocked. While waiting, the agent is assigned INT-10 (Actions CI) plus UI-07 and a README refresh, none of which touch extraction or the ledger.
+
+### Licence chosen (2026-10-21, about 00:50 IST)
+
+The owner chose **MIT**. The lead added `LICENSE` (copyright holder `bipul724`, the configured git user name; the owner may change it to their legal name) and updated the README licence section and REL-01. The model's own licence (Apache 2.0) is separate. No code changed.
+
+CLAUDE.md, the canonical agent guide, was stale: it described the uncommitted tree at `4c1f700`, 49 tests, committing set C and the full multi-category direction. The lead aligned it with D-23, D-24, D-27 and D-28 and the current 56-test count (re-run 2026-10-21: 56 passed).
+
+### D-29 (2026-10-21, about 01:00 IST)
+
+The owner asked whether the coding agent could write set C. Decision: no, because it would be testing its own changes. A fresh, isolated AI session may write C if the owner cannot, provided the owner rewrites at least 5 messages and checks the answers; C is then labelled accordingly. The brief and EVAL-01 row were updated.
+
+### INT-10, UI-07 and README refresh (2026-10-21 00:55 IST)
+
+**Boundary:** no change to `ledger/`, `server.py`, `evaluation/` or `fixtures/`. Changed: new `.github/workflows/tests.yml`; `ui/app.js`, `ui/style.css` (chart patterns and gridline rule); `tests/browser/sheet_display.mjs` (UI-07 contrast checks); `README.md`; the INT-10 and UI-07 rows. The owner's uncommitted `LICENSE` and README licence line were kept. Not committed.
+
+**INT-10 (in progress):** workflow added as specified (push and pull request to `main`, `ubuntu-latest`, Python 3.12 via `actions/setup-python@v6`, `actions/checkout@v5`, read-only permissions, 10-minute timeout, no secrets, no deploy, no model). Checks: YAML parsed with Ruby's YAML library; `PYTHONDONTWRITEBYTECODE=1 python3.12 -m unittest discover -s tests` → 56 OK on Python 3.12.6 locally. Not verified: an actual GitHub run (needs a push). Browser checks deliberately not in CI (reasons in the INT-10 row).
+
+**UI-07 (done), with a pre-existing defect found:** the new check measured the conditional layers' stripe colour and found it was the gridline grey, not amber: the rule `#chart line { stroke: var(--line) }` also matched the pattern's `<line>`. So since the first prototype both conditional layers rendered grey (light: accepted 1.38:1, pending 1.13:1); earlier statements that the hatch was amber, including the UI-05 entry above, described the intended colour, not the rendered one. Fixed as recorded in the UI-07 row; now 3.92:1 (light) and 5.29:1 (dark) for both layers. The colour-blind validator still passes for the unchanged chart tokens. Light and dark screenshots reviewed by eye.
+
+**README:** refreshed to the current state (COR-01/02/03, UI-01/05, final-sheet export, 56 unit tests, four browser checks with their Node 22+/Chrome/`CHROME` requirements), the TASKS work order, and the D-23 Week 3 scope (overall + Gemma, Actions CI; everything else deferred). Removed stale items: uncommitted-tree note, "no warning" for unreadable model replies, open EVAL-09 gap, "49 checks", the pre-D-23 integration plan. Evaluation statements limited to RESULTS.md frozen figures plus the labelled metric redefinitions.
+
+**Checks run:** unit tests 56 OK (Python 3.15 and 3.12); browser checks session_rerun 10/10, extraction_failures 14/14, csv_safety 4/4, sheet_display 28/28 (26 before plus 2 UI-07 checks, which failed before the fix); scratchpad final-export 13/13 and keyboard 18/18; doc links 0 problems.
+
+**Owner next step:** push, then confirm the first run as listed in the INT-10 row and the hand-back report; mark INT-10 done with the run link.
+
+
+D-29 addendum (2026-10-21, ~01:15 IST): the owner will use ChatGPT (free tier) as the isolated set C writer, with a self-contained prompt from the lead; the owner saves the files outside the repo and runs the local consistency check.
+
+### EVAL-01 done: set C frozen (2026-10-21)
+
+Owner report: 24 messages, 12 volunteers, 21 reference claims. Coverage: 4 cancellations, 2 corrections, 6 partial-hours offers, 2 conditional offers (1 settled), 1 duplicate, 1 look-alike pair, 1 third-party message, 1 ambiguous day, 1 outside-week mention, 3 unrelated messages, 1 additional person ambiguity. Written by an isolated ChatGPT session; the owner rewrote m03, m04, m14, m15 and m21 (and aligned the duplicate m05). The owner-run consistency check printed OK and the hashes were verified.
+
+Lead verification, without opening C: commit `688c50d` is on `origin/main`; `fixtures/setC.manifest` lists three SHA-256 hashes (setC_messages.txt, setC_roster.txt, setC_reference.json); no set C content file is tracked. Under D-29, C counts as AI-written plus owner edits, and the write-up must say so. **COR-10 and COR-07a are now unblocked.** EVAL-07 scores C once after them.
+
+### COR-10 and COR-07a implemented; post-hoc A/B re-score (2026-10-21 03:11 IST)
+
+**Previous assignment:** INT-10, UI-07 and the README refresh were reported in the previous hand-back; their rows stand (INT-10 stays in progress until a real GitHub run is observed).
+
+**Changed:** `ledger/core.py` (`CHANGE_WORDS`; `held` flag in `resolve_claim`; held claims excluded and `held`/`unanswered_change` issues in `build_ledger`), `ledger/export.py` (held claims mark no cell), `ui/app.js` (flag and issue labels, issue order), new `tests/test_review_safeguards.py` and `tests/browser/review_safeguards.mjs`, `tests/test_evaluation.py` (its invented message now contains the proposed time words, so COR-10 does not hold it; expected verdicts unchanged), `docs/API.md`, `docs/ARCHITECTURE.md`, `docs/specs/final-export.md`, the two TASKS rows. Not changed: `ledger/model.py`, `ledger/rules.py`, fixtures, frozen/tuning results, cached runs. Set C not opened. Not committed.
+
+**Checks:** unit tests 65 OK on Python 3.15 and 3.12 (56 + 9 new; the two positive tests failed before the change). Browser: session_rerun 10/10, extraction_failures 14/14, csv_safety 4/4, sheet_display 28/28, review_safeguards 7/7; scratchpad final export 13/13, keyboard 18/18. Cache coverage verified first (A 49/49, B 19/19 per model); baseline re-score matched HEAD in every scoring field; after re-score 0 fresh calls; protected folders unchanged.
+
+**Every changed number, post-hoc (A/B)** (extraction/unit metrics unchanged everywhere; only ledger metrics moved; A rules, A Gemma only and B rules unchanged):
+
+| Configuration | Missed cancellations | Slot agreement | Chart slots wrong | Chart abs. error | Slots compared |
+|---|---|---|---|---|---|
+| A Gemma + rules | 0 → 1 /12 | 0.876 → 0.871 | 28 → 30 | 34 → 36 | 646 → 650 |
+| A Qwen only | 5 → 7 /12 | 0.926 → 0.880 | 24 → 36 | 24 → 36 | 650 → 666 |
+| A Qwen + rules | 0 → 3 /12 | 1.0 → 0.930 | 0 → 22 (max error 0 → 1) | 0 → 22 | 602 → 630 |
+| B Gemma only | 3/5 (unchanged) | 0.845 → 0.810 | 18 → 22 | 18 → 22 | 232 (unchanged) |
+| B Gemma + rules | 1/5 (unchanged) | 0.925 → 0.887 | 8 → 12 | 8 → 12 | 212 (unchanged) |
+| B Qwen only | 1/5 (unchanged) | 0.961 → 0.810 | 4 → 22 | 4 → 22 | 204 → 232 |
+| B Qwen + rules | 0 → 1 /5 | 1.0 → 0.810 | 0 → 22 (max error 0 → 1) | 0 → 22 | 196 → 232 |
+
+All movements come from COR-10 holds (the evaluation applies no human review, so every held suggestion stays off the sheet); COR-07a only adds issues and changes no metric.
+
+**COR-10 hold analysis (post-hoc A/B):** held per configuration: A rules 0, A Gemma 2/2 (model/hybrid), A Qwen 5/5, B rules 0, B Gemma 2/2, B Qwen 5/5; **28 holds, all of correct suggestions (holding cost a correct unit), 0 holds of wrong suggestions.** Set A: m32, m44 (dev; Gemma and Qwen), m15, m49 (dev), m16 (held-out; Qwen). Set B (all held-out): m08, m10 (Gemma and Qwen), m02, m03, m17 (Qwen). Cause, judged on set A dev only: the model normalises wording ("Wed" → "Wednesday", "from 2 until 6" → "2-6", "the rest of this week" → "all week") and `phrase_not_in_message` checks exact words, not meaning. In the review workflow these were already excluded from bulk accept (the flag was already a warning); the new cost is that they no longer count on the provisional sheet and chart until accepted. **Lead decision needed:** (a) keep as specified; (b) revert the hold and keep the flag only (D-13 precedent); (c) hold only when the day or time words are unsupported in meaning, e.g. `resolve_day(day_text)` not within the dates the message itself names, or `resolve_time(time_text)` not matching a time the message states. Option (c) is motivated by set A dev evidence; its A/B effect would still be post-hoc, and only set C is independent.
+
+**COR-07a warning analysis (post-hoc A/B), judged against the references:** A Gemma only 4 (m28, m31, m45, m50; all held-out), A Qwen only 4 (m45, m50 held-out; m49 ×2 dev), A Qwen + rules 2 (m49 ×2, dev), A Gemma + rules 0, A rules 0; B Gemma only 2 (m14, m19), B Gemma + rules 1 (m14, the "scratch Wednesday" case), B Qwen 0/0, B rules 0. **Set A 10 warnings, set B 3; all 13 are real misses of reference cancellations; 0 false alarms.** The warnings do not change the sheet, so the missed-cancellation metric is unchanged by them; their value is that a reviewer now sees each of these misses. "scratch"/"skip" also occur in set B, so the set B result is post-hoc; the change list was written before running and was not adjusted afterwards.
+
+**Not verified:** behaviour on set C (EVAL-07, not run, per the assignment); false-alarm rate on real messages; the evaluation scores the provisional sheet with no human acceptance, so held correct suggestions count as misses there but would be applied after review in practice.
+
+
+### Lead decision on COR-10 / COR-07a (2026-10-21, about 03:15 IST)
+
+Re-checked independently: 65 unit tests pass; no change to `model.py`, `rules.py`, `hybrid.py`, `resolve.py`, fixtures, runs or frozen results. Reviewed the INT-10 workflow (`.github/workflows/tests.yml`: unit tests only, Python 3.12, read-only permissions, no secrets): accepted; a real GitHub run has not been observed yet. README refresh accepted, but it is stale on test count and EVAL-01 status. **D-30:** revert the COR-10 hold (28 held, all correct, 0 wrong, post-hoc), keep the flag and a non-blocking review entry; COR-07a accepted (13 warnings, all real misses, 0 false alarms, post-hoc).
+
+### COR-10 reverted to flag only (D-30); COR-07a kept (2026-10-21 03:17 IST)
+
+**Changed:** `ledger/core.py` (the `held` flag and its exclusion from the ledger removed; a pending `phrase_not_in_message` claim now raises a non-blocking `check_wording` issue; COR-07a code untouched), `ledger/export.py` (back to byte-identical with HEAD), `ui/app.js` (label "Check the wording" replaces the held badge and "Needs review" label), `tests/test_review_safeguards.py` (COR-10 tests rewritten to the D-30 contract), `tests/browser/review_safeguards.mjs`, README, the COR-10/COR-07a rows, and contract text in `docs/API.md`, `docs/ARCHITECTURE.md`, `docs/specs/final-export.md`. `tests/test_evaluation.py` keeps its corrected invented message (its claims' time words now appear in the message; still correct without the hold). Not changed: `ledger/model.py`, `ledger/rules.py`, fixtures, frozen/tuning results, cached runs. Set C not opened; EVAL-07 not run. Not committed.
+
+**Checks:** the rewritten COR-10 main test failed against the hold code and passes after the revert. Unit tests 66 OK on Python 3.15 and 3.12 (56 before COR-10/COR-07a + 10 in `test_review_safeguards.py`). Browser: session_rerun 10/10, extraction_failures 14/14, csv_safety 4/4, sheet_display 28/28, review_safeguards 10/10 (flagged suggestion on the provisional sheet as pending, kept badge, "Check the wording" entry, no bulk accept, absent from the final export while pending and present once accepted; the open COR-07a warning does not block a complete file); scratchpad final export 13/13, keyboard 18/18. Cache coverage verified (A 49/49, B 19/19 per model); re-score made 0 fresh calls; **all 1,394 scoring values in the 10 result files are identical to the pre-COR-10 snapshot** (only runtime memory fields differ); COR-07a adds no result fields. Protected folders unchanged.
+
+**Not verified:** set C behaviour (EVAL-07); the `check_wording` item's usefulness to real reviewers, since on A/B it mostly fires on harmless rewording.
+
+
+### Lead review of the D-30 revert (2026-10-21, about 03:25 IST)
+
+Re-checked: 66 unit tests pass; `ledger/export.py`, model, rules, hybrid, resolve, fixtures, runs and frozen/tuning results are unchanged against HEAD. Accepted. The agent-reported result JSON changes are memory-sample fields only, so the owner restores those files rather than committing noise. Next: owner commits and pushes, checks the first GitHub Actions run, then EVAL-07 after owner confirmation.

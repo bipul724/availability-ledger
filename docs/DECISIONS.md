@@ -44,6 +44,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 | D-27 | Documentation economy until submission | accepted (project lead, 2026-10-20) |
 | D-28 | Work that cannot bias set C may start before the C freeze | accepted (project lead, 2026-10-20) |
 | D-29 | Set C may be written by a fresh, isolated AI session if the owner cannot write it | accepted (project lead, 2026-10-21) |
+| D-30 | COR-10: flag unsupported phrases, do not hold them; keep COR-07a | accepted (project lead, 2026-10-21) |
 
 ---
 
@@ -279,3 +280,11 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
   The owner then reads every message and **rewrites at least 5 of them in their own words** before freezing, and spot-checks the reference answers.
 - **Consequence:** C is recorded as "written by an isolated AI session, edited by the owner". That is weaker than human-written, because a model may write in ways models read easily, and the write-up must say so. It is still independent of the code changes, which is what EVAL-07 needs.
 - **Addendum (2026-10-21, about 01:15 IST):** the owner chose to use **ChatGPT** as the isolated writer. A model from a different provider is acceptable, and arguably more independent of the code's author. C is fictional, so sending it to that service raises no privacy issue; it must stay within the free tier (₹0). ChatGPT cannot read local files, so the owner pastes a self-contained prompt, saves its outputs into `~/Documents/availability-setC/` and runs the local consistency check from the brief. The owner-edit rule (at least 5 messages) still applies.
+
+### D-30 COR-10: flag unsupported phrases, do not hold them; keep COR-07a
+
+- **Date:** 2026-10-21, about 03:15 IST. **Status:** accepted.
+- **Evidence (post-hoc, A/B):** COR-10 as specified held **28 suggestions, every one correct, 0 wrong**. The model had rewritten the wording without changing the meaning ("Wed" → "Wednesday", "from 2 until 6" → "2-6"). Slot agreement fell in seven configurations (e.g. B Qwen + rules 1.0 → 0.810), and missed cancellations rose in three. That is worse than the 15:3 record that removed D-13. The case that motivated COR-10, a real quote with invented **days**, is already covered by the quote-day gate (`days_narrowed_to_quote` / `days_not_in_quote`, D-06). Neither A nor B shows an invented **time**.
+- **Decision:** option (b). Revert the hold. A `phrase_not_in_message` suggestion counts on the provisional sheet as before, keeps its visible flag, stays excluded from bulk accept (as before), and is listed under Needs a decision as a **non-blocking** "check the wording" item. The final export still takes accepted claims only, so nothing unreviewed reaches it.
+- **Rejected for now:** option (c), meaning-based time checking. It is plausible, but there is no observed failure to fix, it would be a new post-hoc design, and there is no time to validate it before EVAL-07.
+- **COR-07a kept:** 13 warnings on A/B, all real missed cancellations, 0 false alarms (post-hoc; word list fixed before the run). Its independent test is EVAL-07 on set C.

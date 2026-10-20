@@ -208,6 +208,7 @@ Do not call current A/B results independent validation: cross-check design saw A
 **Project-lead plan (2026-10-20, 20:45 IST; this supersedes the ordering below where they differ).** Canonical timeline: [TASKS.md § Order of work](TASKS.md#order-of-work). Decisions: [D-23–D-27](docs/DECISIONS.md#d-23-week-3-submission-scope-gemma-core-optional-actions-ci-other-integrations-deferred).
 
 - **Week 3 scope (D-23):** overall + Gemma. Actions CI is optional and only if the core is finished by Thu 22 Oct 14:00 IST. Sentry, Render/.tech, ElevenLabs, Entire, Copilot agent work and R-CLI are deferred until after submission.
+- **Update 2026-10-21:** licence (MIT), REL-06 and **EVAL-01** are done (set C manifest `688c50d`). COR-10 and COR-07a are unblocked.
 - **Owner actions tonight:** choose a licence (REL-01); commit and push the working tree, because the **public** GitHub repo is still at `4c1f700` without the export/scorer work (REL-06); write set C **outside the repo** following [the brief](docs/specs/eval-01-setC-brief.md), and commit only `fixtures/setC.manifest` (EVAL-01, D-24).
 - **Then (implementation agent):** COR-10, COR-03 → COR-07a (a warning for possibly missed cancellations, D-25) → COR-02 → EVAL-09, EVAL-10 (duplicate-aware scoring, D-26) → EVAL-07 (score C once) → UI-05 → UI-01 → demo → post. Publish by Sat 24 Oct 21:00 IST.
 - **Docs (D-27):** until submission, each task updates its TASKS row plus one dated PROGRESS entry; this file changes only when the plan or state changes.

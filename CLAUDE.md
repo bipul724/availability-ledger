@@ -25,14 +25,14 @@ For implemented behavior, source and reproducible checks take precedence over st
 
 ## Owner-approved direction (planning, 2026-10-20)
 
-Keep the coordinator's local availability-review workflow at the center. Gemma is the current runtime model integration. Copilot and Entire support genuine future development; GitHub Actions supplies CI separately. A proposed Sentry adapter would send structural metadata only. A proposed Render demo would use fictional saved model outputs and identify replay clearly. The existing .tech domain would point to that host only if acquisition eligibility and renewal settings are verified. ElevenLabs is for fictional demo narration; in-app voice is deferred. Backboard R-CLI is an optional bounded development tool if a real task, compatible local model and free route are verified. See D-22 and [INTEGRATIONS](docs/INTEGRATIONS.md).
+Keep the coordinator's local availability-review workflow at the center. Gemma is the current runtime model integration. Copilot and Entire support genuine future development; GitHub Actions supplies CI separately. A proposed Sentry adapter would send structural metadata only. A proposed Render demo would use fictional saved model outputs and identify replay clearly. The existing .tech domain would point to that host only if acquisition eligibility and renewal settings are verified. ElevenLabs is for fictional demo narration; in-app voice is deferred. Backboard R-CLI is an optional bounded development tool if a real task, compatible local model and free route are verified. See D-22 and [INTEGRATIONS](docs/INTEGRATIONS.md). **For the Week 3 submission, D-23 narrows this to overall + Gemma, with GitHub Actions CI optional; everything else is deferred until after submission.**
 
 This direction authorizes documentation and planning, not installation, account changes, credit claims, external data transfer, runtime changes, deployment or publication. Select only useful, evidenced categories; one entry may seek multiple qualifying awards but can win only one. Recheck official rules before submission; no category is known to offer easier odds.
 
-## Commands (verified 2026-10-20)
+## Commands (re-verified 2026-10-21)
 
 ```bash
-python3 -m unittest discover -s tests           # 49 checks, offline, < 1 s
+python3 -m unittest discover -s tests           # 56 checks (2026-10-21), offline, < 1 s
 node tests/browser/session_rerun.mjs            # optional browser check (Node 22+, local Chrome)
 python3 -m evaluation.score_final FILE.csv --set A   # final-sheet scorer (timing study)
 python3 server.py [port]                         # http://127.0.0.1:8765
@@ -56,8 +56,8 @@ Model/hybrid evaluation makes fresh calls when a cache file is missing, even wit
 - **Keep the model/code boundary.** The model copies words; dates, times, history and counts are code.
 - **Preserve history and review behaviour:** later answers change only the times they mention; ambiguous people/dates are never guessed; conditionals stay conditional until a later message settles them; a reviewer's decision (`review`, `override`) controls **that same claim** and is never overwritten by automatic checks, but other claims, including later pending ones, still change the provisional sheet; rejected suggestions never reach the sheet or export; only accepted records reach the final-sheet export, and a message counts as reviewed only when the reviewer marks it (never inferred).
 - **Tests:** any change to parsing, resolution, ledger or review semantics needs a unit test with invented messages, and all existing tests must pass. Re-run the cached evaluation and report held-out regressions plainly; never hide one by editing fixtures or scoring.
-- **Scope:** read the current assignment before acting. Backlog items and proposed sponsor uses are not automatic implementation permission. Check the dirty working tree first; current uncommitted export/scorer/browser work differs from HEAD `4c1f700`. Preserve unrelated work; do not commit or push during a documentation-only task.
-- **Evaluation gate:** before further behavior changes, arrange EVAL-01: an independent writer freezes and commits fictional set C plus its reference, unscored and unseen by implementing agents. Implement using invented development cases, then run EVAL-07 once after the planned changes. Existing A/B changes remain post-hoc.
+- **Scope:** read the current assignment before acting. Backlog items and proposed sponsor uses are not automatic implementation permission. Check `git status` first and preserve unrelated uncommitted work. The owner commits and pushes; agents do not commit or push unless asked.
+- **Evaluation gate (D-24, D-28):** set C is written by the owner and kept **outside the repository** (`~/Documents/availability-setC/`). Only `fixtures/setC.manifest` (SHA-256 hashes) is committed. Never search for, open or ask about C. Changes to what extraction proposes or what lands on the sheet (COR-10, COR-07a) wait for the manifest; work that changes neither may proceed. Implement with invented development cases, then run EVAL-07 once after the planned changes. Existing A/B changes remain post-hoc.
 - **Budget: ₹0.** Do not install software, download models, create accounts, claim credits, purchase, deploy or publish without the owner's explicit request. No paid fallbacks or auto-renewals. Optional services must be opt-in and fail safe.
 - **Secrets and data:** never read, print or commit `.env` files or keys. The app reads no environment variables today ([.env.example](.env.example)). Fixtures are fictional; keep it that way.
 - **Real messages:** do not read real messages, with one exception: data for an approved pilot (TASKS EVAL-03). Allowed only when the owner has confirmed in writing that the people involved consented, the data was anonymised before it reached you, it is kept outside version control (never committed, never added to `fixtures/`), and it is processed locally only. Never copy pilot text into docs, tests, logs, issues, telemetry or any external service; report only aggregate results.
@@ -66,7 +66,7 @@ Model/hybrid evaluation makes fresh calls when a cache file is missing, even wit
 
 ## Work order
 
-Follow [TASKS.md § Order of work](TASKS.md#order-of-work): final export/scorer and review fixes are done → **freeze unseen set C (EVAL-01)** → visible failures and unsupported suggestions (COR-03, COR-10) → CSV protection (COR-02) → score C once after planned behavior changes (EVAL-07), then validation/timing under the common final-sheet scorer. REL-03 is done. Preserve EVAL-09 as an open, separate correction to the older evaluation metric. Genuine development evidence may accompany this necessary work; optional integrations do not replace correctness or coordinator validation.
+Follow [TASKS.md § Order of work](TASKS.md#order-of-work), which is canonical. As of 2026-10-21: COR-01/02/03, EVAL-06/08/09/10, UI-01/05, REL-01/03/06 are done; **EVAL-01 (set C manifest)** is awaited from the owner; then COR-10 → COR-07a → EVAL-07 (score C once) → demo and write-up. Per D-27, each task updates its TASKS row and one dated PROGRESS entry. Genuine development evidence may accompany this necessary work; optional integrations do not replace correctness or coordinator validation.
 
 ## Mandatory documentation for every task
 

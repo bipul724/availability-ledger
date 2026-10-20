@@ -51,7 +51,7 @@ Otherwise it is **provisional**.
 ## 4. Cell states (person × date)
 
 A cell is `needs_review` when it is touched by any of the following:
-- a **pending** claim. A pending cancellation over an accepted offer keeps the offer in the rows and marks the cell;
+- a **pending** claim. A pending cancellation over an accepted offer keeps the offer in the rows and marks the cell. A pending claim flagged `phrase_not_in_message` is treated like any other pending claim (COR-10 is flag only, D-30); its `check_wording` issue is not a blocking kind;
 - the claim behind a **blocking issue**;
 - an **accepted or pending** claim of an **unreviewed message**. Dropped and rejected claims never create or mark cells (fixed 2026-10-20).
 

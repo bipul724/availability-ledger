@@ -11,7 +11,7 @@ Sets A and B have both shaped the code (see [TUNING.md](../../evaluation/TUNING.
 
 | Role | Who | May see C? |
 |---|---|---|
-| **Writer** | The project owner (a human). The writer must not be an AI that has worked on this project. | Yes: writes it. |
+| **Writer** | Preferably the project owner (a human). If not possible, a **fresh, isolated AI session** under [D-29](../DECISIONS.md#d-29-set-c-may-be-written-by-a-fresh-isolated-ai-session-if-the-owner-cannot-write-it), with the owner rewriting at least 5 messages and checking the answers. **Never** the coding agent or any session that has worked on this project. | Yes: writes it. |
 | **Steward** (optional helper) | A **new** Claude session started only for this task: no project history, not used before or afterwards for planning, briefs or code in this project. It turns the writer's notes into JSON and checks consistency. | Yes |
 | Project lead (planning session) | Claude in the planning role | **No.** Receives only the manifest and the counts in "Completion" below. |
 | Implementation agents | Any coding agent | **No.** Never search for, open or ask about C. |

@@ -6,7 +6,7 @@ It records **availability** (when people say they can or cannot help), not shift
 
 **A local open model proposes and ordinary code decides.** The model (Gemma 4 E2B through Ollama) only copies phrases such as "next Tuesday", "after 3" or "if needed". Python code turns them into dates and times, checks each suggestion's words against the message and flags or drops unsupported ones (with one documented gap: a real quote with invented day or time words is only flagged and counts on the provisional sheet), keeps each person's history per day, keeps conditional offers conditional, and does every count. In the core workflow nothing leaves your computer.
 
-Status: validation prototype. Every message, name and organisation in `fixtures/` is **fictional**. No real-coordinator pilot or measured human time saving is recorded. Read [context.md](context.md) and [CLAUDE.md](CLAUDE.md) before changing the project; this working tree includes uncommitted implementation and documentation that committed HEAD does not yet reproduce.
+Status: validation prototype. Every message, name and organisation in `fixtures/` is **fictional**. No real-coordinator pilot or measured human time saving is recorded. Read [context.md](context.md) and [CLAUDE.md](CLAUDE.md) before changing the project.
 
 ## Example (fictional)
 
@@ -26,28 +26,31 @@ Implemented (which items are verified, and how, is in [PROGRESS.md](PROGRESS.md#
 - Three readers: **Model + rules cross-check** (default), **Model only**, **Rules only** (no model needed).
 - Day and time phrases resolved in code: relative days, "next/this" weekdays, numeric dates, ranges, "after 3", "4 onwards", morning/afternoon/evening, "the same" (within one message). Ambiguous days are shown with their candidates, not guessed.
 - Suggestions beside their source message with the quote highlighted; warnings in plain English. Suggestions with neither their quote nor their day/time words in the message are not applied unless you choose "Use it anyway" (a real quote with invented day/time words is only flagged; see Limitations).
-- Accept, reject, edit (volunteer, days, times, status, condition), reset or add records; "Accept all suggestions without warnings"; keyboard review (J/K move, A accept, R reject, E edit, Esc leave field).
+- **Visible extraction failures (COR-03):** if a message's request fails or the model's reply cannot be read, that message shows a warning, reading continues with the next message, and the run reports how many messages could not be read fully. A failed message is never offered "Accept all and mark reviewed".
+- Accept, reject, edit (volunteer, days, times, status, condition), reset or add records; "Accept all suggestions without warnings"; keyboard review (J/K move, A accept, R reject, E edit, M mark the message reviewed, Esc leave a field).
 - Repeated messages (same sender, same text within 24 h) are collapsed and shown as "Same as mXX".
 - **Needs a decision** list, half-hourly **People available** chart, **Availability sheet**, **Changes over time**.
-- Explicit message review marks and the `M` shortcut; **Accept all and mark reviewed** appears only for eligible pending suggestions with resolved person/day and readable time.
-- A confirmed final-sheet CSV (complete or clearly provisional) and a review-log CSV.
+- **Provisional vs accepted display (UI-05):** sheet segments backed by any suggestion not yet accepted have a dashed outline and a "pending" label; "pending change" marks a day where a pending suggestion cancels or replaces availability; the chart stacks accepted and pending layers; both panels say **Provisional** until the final export would be complete. The sheet fits its panel at desktop and phone widths, switching to one card per volunteer when narrow (UI-01).
+- **Possible missed change (COR-07a):** when a later message from the same person contains a general-English change word (cancel, can't, drop, skip, scratch, …) and names a day on which they still have open time, but no suggestion from that message touches that day, **Needs a decision** shows "Possible change not applied (mXX mentions <day>)". It is a warning only: it never edits the sheet or the export.
+- Explicit message review marks; **Accept all and mark reviewed** appears only when every undecided suggestion in the message is unflagged and fully resolved.
+- A confirmed **final-sheet CSV** (complete or clearly provisional, COR-01) and a **review-log CSV**; in both, cells that a spreadsheet would run as a formula (starting with `=`, `+`, `-`, `@`) are written with a leading apostrophe (COR-02).
 
 ## Limitations
 
 - Review work lives only in the browser tab; reloading or a successful re-run replaces it. A re-run that fails (bad week, parse error, no dated messages) keeps the current review unchanged.
 - The review-log CSV is an audit trail, not the final sheet, and cannot be replayed into it; use **Export final sheet** for the reconciled result. A message with no suggestions can be marked reviewed only with its button (J/K move between suggestion cards).
-- A suggestion whose quote is real but whose day or time words were invented is flagged ("Some words are not in this message") but still counts on the provisional sheet until you reject it.
+- A suggestion whose quote is real but whose day or time words are not in the message keeps its flag ("Some words are not in this message") and still counts on the provisional sheet until you accept or reject it; it is listed under **Needs a decision** as "Check the wording" and never reaches the final export unless accepted (COR-10, flag only per [D-30](docs/DECISIONS.md#d-30-cor-10-flag-unsupported-phrases-do-not-hold-them-keep-cor-07a)). The flag checks exact words, so it also appears when the model only reworded a day or time ("Wed" → "Wednesday").
+- Pending suggestions count on the in-app sheet and chart (marked as pending); only the final-sheet export is limited to accepted records. Adjacent accepted and pending time ranges that the ledger merges are shown wholly as pending.
+- A failed extraction request is not retried; read that message yourself.
 - The timezone field is stored but not used; timestamps are read as written.
-- If the model returns invalid JSON there is no warning: with **Model only** the message shows "No availability found"; with **Model + rules** only the rules' cancellations appear.
 - Point times ("at 9") are not read. Names not on the roster are never applied.
-- Pending (unreviewed) suggestions already count on the sheet and chart.
 - Accuracy figures come from fictional messages only; human time saved has **not** been measured.
 
 Full list: [docs/ARCHITECTURE.md §14](docs/ARCHITECTURE.md#14-known-technical-limitations) and [TASKS.md](TASKS.md).
 
 ## Prerequisites
 
-- macOS or Linux with Python 3.10+ (stated requirement; checked on Python 3.15.0 on macOS). Standard library only: nothing to `pip install`.
+- macOS or Linux with Python 3.10+ (stated requirement; the unit tests have been run on Python 3.15 and 3.12 on macOS, and CI is configured for 3.12). Standard library only: nothing to `pip install`.
 - A modern browser (checked with Chrome).
 - For the model readers only: [Ollama](https://ollama.com) and the `gemma4:e2b-it-qat` model (about 4.3 GB download; about 1.6 GB of memory once loaded, recorded on an 8 GB Mac). **Rules only** needs neither.
 
@@ -87,7 +90,7 @@ There are no environment variables and no `.env` loading; [.env.example](.env.ex
 
 Each message appears on the left with its suggestions on the right. Warnings (yellow) mean "check this"; grey badges are informational. Editing any field marks the suggestion accepted. Work through **Needs a decision** for unresolved people, ambiguous days, unreadable times, same-message conflicts and open conditions.
 
-Each message also has **Mark message reviewed** (keyboard `M`). Marking is always explicit: deciding every suggestion does not mark a message. **Accept all and mark reviewed** appears only for eligible pending suggestions with a resolved person/day, readable time and no blocking warning; approved informational flags are allowed. The line above the list shows how many messages are marked and whether the final sheet would be complete.
+Each message also has **Mark message reviewed** (keyboard `M`). Marking is always explicit: deciding every suggestion does not mark a message. **Accept all and mark reviewed** appears only for eligible pending suggestions with a resolved person/day, readable time and no blocking warning; approved informational flags are allowed. The line above the list shows how many messages are marked, whether the final sheet would be complete, and how many messages could not be read fully.
 
 Two exports:
 
@@ -105,47 +108,50 @@ The status line then shows review time and counts of accepts, edits, rejects, ad
 | Telemetry, analytics, crash reports | none |
 | Hosted version | none; there is no public URL |
 
-## Agreed direction, optional integrations and costs
+## Week 3 scope, work order and costs
 
-The core remains a **local review-and-export tool**: Gemma proposes phrases, Python reconciles them, and the coordinator decides. Sponsor tools support that workflow through development evidence, diagnostics or demonstration. They are not reasons to add accounts, a cloud database, in-app voice or a different model provider.
+**Scope ([D-23](docs/DECISIONS.md#d-23-week-3-submission-scope-gemma-core-optional-actions-ci-other-integrations-deferred)):** the DEV Hacktoberfest Week 3 entry targets **overall + Gemma**. The only addition is **GitHub Actions CI** running the offline unit tests. Everything else (Sentry, Render replay and `.tech` routing, ElevenLabs narration, Entire, Copilot agent work, Backboard R-CLI) is **deferred until after submission**; roles and gates for later are in [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md), competition rules in [docs/COMPETITION.md](docs/COMPETITION.md). An entry can win at most one prize, and only completed, genuine uses may be named.
 
-The additional-spending budget is **₹0**: existing resources, verified free plans or confirmed sponsor credits only. No automatic upgrades, top-ups, paid fallbacks or renewals. Optional services must be off by default where they affect runtime, stop or degrade when allowances end, and leave the local workflow usable. This documentation direction does not install, claim, deploy or activate anything.
+| Technology | Status |
+|---|---|
+| Gemma 4 E2B via local Ollama | **Implemented.** Phrase extraction, cross-checked by rules and reviewed by a person. |
+| GitHub Actions CI | **Workflow added** (`.github/workflows/tests.yml`, INT-10): unit tests on push and pull request to `main`, Python 3.12, no secrets or model. A real run has not been observed yet. |
+| Everything else listed above | **Deferred** (D-23); not implemented. |
 
-| Technology | Agreed role | Status and gate |
-|---|---|---|
-| Gemma 4 E2B via local Ollama | Core phrase extraction, with rules cross-check and human review | **Implemented.** Preserve local processing and the model/code boundary. |
-| GitHub Copilot + GitHub Actions | Genuine needed development/review tasks; automated regression checks in CI | **Planned use; no qualifying evidence verified.** Agent/PR work and Actions are distinct evidence routes; CI alone must not be presented as Copilot-authored work. |
-| Entire | Capture real future coding sessions, decisions and checkpoints | **Planned use; no qualifying evidence verified.** Confirm current agent compatibility and inspect/redact anything shared; never fabricate retrospective provenance. |
-| Sentry Agent Tracing | Optional failure/latency diagnostics with a documented useful finding | **Conditional proposal.** Requires an explicit dependency/network/privacy decision, metadata allow-list, opt-in/off-by-default behavior and verified free allowance. Private messages, names, quotes, model content and raw sensitive exceptions must not leave the device. |
-| Render | Interactive demonstration using saved Gemma outputs for fixed fictional fixtures | **Planned demonstration; not built or deployed.** Label replay clearly, disable arbitrary input for hosted model replay, and verify free limits. It is not hosted live inference. |
-| `bipulchamoli.tech` | DNS address for the eventual hosted project | **Owned per owner; connection unverified.** It need not match the project name. The .tech prize additionally depends on evidence it was claimed through Hacktoberfest; prevent paid renewal. |
-| ElevenLabs | Narrate the fictional demonstration video | **Planned demonstration asset; not generated.** Use a fictional script with verified free credits, publication rights and required attribution/disclosure. In-app voice/transcription is not selected. |
-| Backboard R-CLI | Optional bounded development task if genuinely useful | **Conditional proposal.** Verify local-model compatibility and data routing first; do not replace local Gemma inference or upload private messages. |
+**Work order ([TASKS.md](TASKS.md#order-of-work)):** done: licence (MIT), visible extraction failures (COR-03), CSV formula protection (COR-02), duplicate-aware and partial-condition evaluation metrics (EVAL-10, EVAL-09), provisional display and sheet fit (UI-05, UI-01), unseen fictional set C frozen (**EVAL-01**, manifest `fixtures/setC.manifest`, commit 688c50d), wording check for unsupported phrases (**COR-10**, flag only per D-30), possible-missed-change warning (**COR-07a**). Next: score set C once (**EVAL-07**) → demo recording (**DEP-03**) → submission post (**REL-05**, owner checks eligibility **REL-04**). Coordinator conversations (**EVAL-03**) run in parallel; the timing pilot (**EVAL-02**) only if at least two participants are available.
 
-**Work order:** freeze unseen fictional set C before further behavior changes → visible extraction failures and unsupported-phrase safeguards (COR-03/COR-10) → protect both CSV exports (COR-02) → score C once after planned behavior changes → coordinator validation and the matched timing study. Capture genuine development evidence while doing necessary work. Add diagnostics and demo assets only after their gates are met; they do not replace core correctness work.
-
-The strategy retains **Overall + Gemma**, then considers additional categories supported by completed, meaningful use. Week 3 permits multiple genuinely used categories but a maximum of one prize; no reliable evidence establishes an easier category. No published entry or qualifying use beyond Gemma is verified. Canonical details: [integration roles, boundaries and gates](docs/INTEGRATIONS.md), [official rules and historical competition research](docs/COMPETITION.md), and [TASKS.md](TASKS.md).
+**Costs:** additional spending stays at **₹0**: existing resources, verified free plans or confirmed sponsor credits only, with no automatic upgrades, top-ups, paid fallbacks or renewals. CI runs on GitHub-hosted runners within the account's free allowance.
 
 ## Evaluation summary
 
-On fictional held-out messages (set A: 20 messages, 30 units; set B: 20 messages, 35 units), at first (frozen) scoring:
+On fictional held-out messages (set A: 20 messages, 30 units; set B: 20 messages, 35 units), at first (frozen) scoring ([evaluation/RESULTS.md](evaluation/RESULTS.md)):
 
 - Rules alone: 20/30 and 17/35 units right, with many silent errors.
 - Gemma alone: 20/30 and 28/35; it left 7 of 12 set A cancellations on the final sheet (a ledger figure computed over all 50 set A messages, dev included).
 - Gemma + rules: 26/30 and 30/35; no cancellations left on either final sheet (the set B result was partly luck).
 
-Changes made after reading held-out errors (most recently on 2026-10-20) moved these numbers, some up and some down; they are labelled post-hoc and are not independent evidence. The same author wrote the fixtures, references and rules. Human time saved has not been measured. The final-sheet export and strict scorer exist, including partial-condition-loss checks. The older `evaluation/run.py` condition metric still has a partial-loss gap (EVAL-09). The study itself (matched workloads, several participants) has not been run ([evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md)). Full tables and provenance: [PROGRESS.md](PROGRESS.md#evaluation-status) and [evaluation/RESULTS.md](evaluation/RESULTS.md).
+Changes made after reading held-out errors moved these numbers, some up and some down; they are labelled post-hoc and are not independent evidence. Two metric definitions were also corrected on 2026-10-20: duplicate messages are no longer counted as missed units (EVAL-10), and a condition interval that is only partly lost now counts as an error (EVAL-09); the before/after tables are in [PROGRESS.md](PROGRESS.md). The same author wrote the fixtures, references and rules. An independent fictional set C is planned (EVAL-01, EVAL-07). Human time saved has **not** been measured: the final-sheet export and strict scorer exist, but the timing study (matched workloads, several participants) has not been run ([evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md)).
+
+### Checks
 
 ```bash
-python3 -m unittest discover -s tests                        # 49 offline checks
-node tests/browser/session_rerun.mjs                        # optional: needs Node 22+ and Chrome
-python3 -m evaluation.run --set A --extractor rules          # no model needed
-python3 -m evaluation.run --set A --extractor hybrid         # uses cached model outputs in evaluation/runs/
-python3 -m evaluation.compare                                # current results; add "frozen" for first scoring
-python3 -m evaluation.score_final my_final.csv --set A        # score a final-sheet CSV (timing study)
+python3 -m unittest discover -s tests                 # 66 offline unit tests; no model, no network (CI runs these)
+python3 -m evaluation.compare                         # saved results; add "frozen" for first scoring
+python3 -m evaluation.run --set A --extractor rules   # re-score with the rules reader; writes evaluation/results/
+python3 -m evaluation.score_final my_final.csv --set A  # score a final-sheet CSV (timing study)
 ```
 
-Model/hybrid evaluation uses existing per-message caches, but a missing cache triggers a fresh model call even without --refresh. Evaluation also writes current results and may create caches. Verify complete cache coverage before a cache-only run; use evaluation.compare to read saved results without rescoring. No model calls or evaluation writes were made in this docs pass.
+Optional browser checks drive the real page in headless Chrome with invented messages and the rules reader (no model calls). They need **Node 22+** (built-in WebSocket) and **Google Chrome**; on macOS the default Chrome path is used, elsewhere set `CHROME=/path/to/chrome`. They are not run in CI.
+
+```bash
+node tests/browser/session_rerun.mjs        # a failed re-run keeps the reviewed session and its export
+node tests/browser/extraction_failures.mjs  # per-message failure warnings; reading continues
+node tests/browser/csv_safety.mjs           # formula-like cells are neutralised in both exports
+node tests/browser/sheet_display.mjs        # pending vs accepted display, chart layers, no overflow at 1400 px and 390 px
+node tests/browser/review_safeguards.mjs    # wording check (COR-10) and possible-missed-change warning (COR-07a)
+```
+
+Model and hybrid evaluation use per-message caches in `evaluation/runs/`, but a missing cache entry triggers a fresh model call even without `--refresh`; check cache coverage first ([CLAUDE.md](CLAUDE.md)).
 
 ## Documentation
 
@@ -154,6 +160,7 @@ Model/hybrid evaluation uses existing per-message caches, but a missing cache tr
 | [docs/PRD.md](docs/PRD.md) | problem, users, scenarios, requirements, metrics |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | how it works, data, boundaries, deployment |
 | [docs/API.md](docs/API.md) | HTTP routes, import and CSV formats, CLI |
+| [docs/specs/final-export.md](docs/specs/final-export.md) | final-sheet CSV format and scoring contract |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | why it is built this way |
 | [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md) | agreed technology roles, current status, privacy/budget gates and evidence |
 | [docs/COMPETITION.md](docs/COMPETITION.md) | verified challenge rules, category eligibility, Week 1/2 research and strategy |
@@ -175,11 +182,12 @@ ledger/export.py     confirmed final sheet: export and strict reader
 ledger/model.py      Ollama call: copy phrases into JSON (schema-constrained)
 ledger/rules.py      keyword baseline
 ledger/hybrid.py     model + rules cross-check
-tests/               offline unit tests
+tests/               offline unit tests; tests/browser/ optional headless-Chrome checks
+.github/workflows/   CI: unit tests on push and pull request to main
 evaluation/          scoring, cached model outputs, results, tuning and measurement notes
 fixtures/            fictional message sets, rosters, references
 ```
 
 ## Licence
 
-No licence file is included, so no licence has been granted yet. The [Ollama listing for gemma4:e2b-it-qat](https://ollama.com/library/gemma4:e2b-it-qat) identifies Apache 2.0 (checked 2026-10-20); the model licence does not grant a licence to this application code.
+This application is released under the [MIT License](LICENSE) (owner decision, 2026-10-21). The [Ollama listing for gemma4:e2b-it-qat](https://ollama.com/library/gemma4:e2b-it-qat) identifies Apache 2.0 (checked 2026-10-20); the model licence does not grant a licence to this application code.

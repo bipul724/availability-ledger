@@ -175,7 +175,7 @@ Response 200 (fictional: Ana offers Tuesday 2–5 on 3 Nov, then cancels on 5 No
 
 - Claims whose `msg` is not among `messages` are ignored.
 - `review` becomes `dropped` (with `drop_reason`) only when **both** the quote and the day/time phrases are missing from the message, when the quote names none of the claimed days, or for a coordinator's own self-claim when the coordinator does not resolve to a roster name (a coordinator who is also on the roster is kept). A `rejected` or `accepted` review is never overwritten.
-- **Limitation:** a suggestion whose quote is found but whose day or time words are invented is **not** dropped. Example (mocked, fictional): message "Happy to help", proposed day "Tuesday", time "2-4". It gets `phrase_not_in_message`, stays `pending`, and Tuesday 14:00–16:00 appears on the provisional sheet (COR-10).
+- **Wording check (COR-10, flag only per D-30):** a pending suggestion whose quote is found but whose day or time words are not in the message keeps the `phrase_not_in_message` flag, still counts on the provisional sheet, chart and history, stays excluded from bulk accept, and raises a **non-blocking** issue of kind `check_wording`. The final export takes accepted claims only, so it is absent there until accepted. Example (fictional): message "Happy to help", proposed "Tuesday" / "2-4" → Tuesday 14:00–16:00 on the provisional sheet, flagged and listed; in the final export only once accepted. `issues` may also contain kind `unanswered_change` (COR-07a): `{kind, msg, claim: null, person, date, text}` when a message with a general-English change word names a day on which the sender still has open time but none of that message's live claims touches it; warning only, never applied, and not a blocking kind for the final export.
 - `history` entries for duplicate messages have `"what": "repeated"` and an extra `duplicate_of` field.
 - `confirmed` summarises the final-sheet export the current state would give: `{"status": "complete"|"provisional", "week", "unreviewed": [ids], "pending": n, "blocking_issues": n, "needs_review_cells": n, "unknown_reviewed": [ids]}`. Rules: [specs/final-export.md](specs/final-export.md).
 - Side effects: none.
@@ -215,7 +215,7 @@ Shown as badges on cards. "Info" flags do not block "Accept all suggestions with
 | `time_unstated` | no time given | info |
 | `conditional` | status is conditional | info |
 | `excerpt_missing` / `excerpt_approx` | quote not found / only roughly found in the message | |
-| `phrase_not_in_message` | day or time words not in the message (still applied provisionally if the quote was found) | |
+| `phrase_not_in_message` | day or time words not in the message (exact-word check after normalising case, quotes and dashes); a pending one is listed as a `check_wording` issue (COR-10, D-30) | |
 | `days_narrowed_to_quote` / `days_not_in_quote` | quote supports only some / none of the days | |
 | `day_modifier_from_quote` | "this/next/last/coming" restored from the quote | |
 | `time_from_same_message` | hours copied for "the same" from earlier in the message | info |
