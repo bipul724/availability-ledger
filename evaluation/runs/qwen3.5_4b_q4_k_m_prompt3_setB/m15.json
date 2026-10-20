@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Saturday",
+   "time_text": "afternoon",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Saturday afternoon is a definite yes"
+  }
+ ],
+ "stats": {
+  "wall_s": 8.29,
+  "prompt_tokens": 1370,
+  "output_tokens": 57,
+  "prompt_s": 3.84,
+  "output_s": 4.33,
+  "load_s": 0.03,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Saturday\", \"time_text\": \"afternoon\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Saturday afternoon is a definite yes\"}]}",
+  "json_ok": true
+ }
+}

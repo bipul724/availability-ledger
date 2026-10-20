@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "Olu Adeyemi",
+   "day_text": "Thursday",
+   "time_text": "evening",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Thursday evening"
+  },
+  {
+   "person": "Olu Adeyemi",
+   "day_text": "Saturday",
+   "time_text": "all day",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Saturday all day"
+  }
+ ],
+ "stats": {
+  "wall_s": 4.29,
+  "prompt_tokens": 1050,
+  "output_tokens": 111,
+  "prompt_s": 0.28,
+  "output_s": 3.88,
+  "load_s": 0.03,
+  "raw": "{\"claims\": [{\"person\": \"Olu Adeyemi\", \"day_text\": \"Thursday\", \"time_text\": \"evening\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Thursday evening\"}, {\"person\": \"Olu Adeyemi\", \"day_text\": \"Saturday\", \"time_text\": \"all day\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Saturday all day\"}]}",
+  "json_ok": true
+ }
+}

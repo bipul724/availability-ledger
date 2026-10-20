@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Hannah Wright",
+   "day_text": "Sunday",
+   "time_text": "morning",
+   "status": "unavailable",
+   "condition": "I'm away after all",
+   "replaces_earlier": false,
+   "excerpt": "cancel my morning"
+  }
+ ],
+ "stats": {
+  "wall_s": 5.69,
+  "prompt_tokens": 1214,
+  "output_tokens": 62,
+  "prompt_s": 1.02,
+  "output_s": 4.5,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Hannah Wright\", \"day_text\": \"Sunday\", \"time_text\": \"morning\", \"status\": \"unavailable\", \"condition\": \"I'm away after all\", \"replaces_earlier\": false, \"excerpt\": \"cancel my morning\"}]}",
+  "json_ok": true
+ }
+}

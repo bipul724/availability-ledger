@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Rui Costa",
+   "day_text": "Wednesday",
+   "time_text": "evening",
+   "status": "conditional",
+   "condition": "Just let me know",
+   "replaces_earlier": false,
+   "excerpt": "Can I also do Wednesday evening?"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.43,
+  "prompt_tokens": 1042,
+  "output_tokens": 64,
+  "prompt_s": 0.24,
+  "output_s": 2.12,
+  "load_s": 0.01,
+  "raw": "{\"claims\": [{\"person\": \"Rui Costa\", \"day_text\": \"Wednesday\", \"time_text\": \"evening\", \"status\": \"conditional\", \"condition\": \"Just let me know\", \"replaces_earlier\": false, \"excerpt\": \"Can I also do Wednesday evening?\"}]}",
+  "json_ok": true
+ }
+}

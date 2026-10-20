@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Marta Lopes",
+   "day_text": "Monday",
+   "time_text": "morning",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Monday morning I'm in"
+  }
+ ],
+ "stats": {
+  "wall_s": 1.96,
+  "prompt_tokens": 1009,
+  "output_tokens": 59,
+  "prompt_s": 0.14,
+  "output_s": 1.8,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"Marta Lopes\", \"day_text\": \"Monday\", \"time_text\": \"morning\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Monday morning I'm in\"}]}",
+  "json_ok": true
+ }
+}

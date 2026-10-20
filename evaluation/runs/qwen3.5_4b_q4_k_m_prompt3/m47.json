@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "one day this weekend",
+   "time_text": "",
+   "status": "conditional",
+   "condition": "not sure which yet",
+   "replaces_earlier": false,
+   "excerpt": "I can cover one day this weekend, not sure which yet."
+  }
+ ],
+ "stats": {
+  "wall_s": 9.06,
+  "prompt_tokens": 1372,
+  "output_tokens": 69,
+  "prompt_s": 3.77,
+  "output_s": 5.2,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"one day this weekend\", \"time_text\": \"\", \"status\": \"conditional\", \"condition\": \"not sure which yet\", \"replaces_earlier\": false, \"excerpt\": \"I can cover one day this weekend, not sure which yet.\"}]}",
+  "json_ok": true
+ }
+}

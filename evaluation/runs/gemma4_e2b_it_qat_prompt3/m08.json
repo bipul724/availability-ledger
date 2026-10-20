@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "all week",
+   "time_text": "",
+   "status": "available",
+   "condition": "except Friday",
+   "replaces_earlier": false,
+   "excerpt": "I'm free all week except Friday"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.11,
+  "prompt_tokens": 1376,
+  "output_tokens": 62,
+  "prompt_s": 0.15,
+  "output_s": 1.93,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"all week\", \"time_text\": \"\", \"status\": \"available\", \"condition\": \"except Friday\", \"replaces_earlier\": false, \"excerpt\": \"I'm free all week except Friday\"}]}",
+  "json_ok": true
+ }
+}

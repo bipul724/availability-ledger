@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Lena Fischer",
+   "day_text": "all week",
+   "time_text": "",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I'm free all week except Friday"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.05,
+  "prompt_tokens": 1008,
+  "output_tokens": 59,
+  "prompt_s": 0.16,
+  "output_s": 1.79,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Lena Fischer\", \"day_text\": \"all week\", \"time_text\": \"\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I'm free all week except Friday\"}]}",
+  "json_ok": true
+ }
+}

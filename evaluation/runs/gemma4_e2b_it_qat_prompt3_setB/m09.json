@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Monday",
+   "time_text": "morning",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Monday morning!"
+  },
+  {
+   "person": "Jonah",
+   "day_text": "Monday",
+   "time_text": "afternoon",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Jonah says he can do Monday afternoon"
+  }
+ ],
+ "stats": {
+  "wall_s": 3.59,
+  "prompt_tokens": 1379,
+  "output_tokens": 111,
+  "prompt_s": 0.17,
+  "output_s": 3.39,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Monday\", \"time_text\": \"morning\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Monday morning!\"}, {\"person\": \"Jonah\", \"day_text\": \"Monday\", \"time_text\": \"afternoon\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Jonah says he can do Monday afternoon\"}]}",
+  "json_ok": true
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "all week",
+   "time_text": "",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "free all week"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Friday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "except Friday"
+  }
+ ],
+ "stats": {
+  "wall_s": 7.82,
+  "prompt_tokens": 1367,
+  "output_tokens": 98,
+  "prompt_s": 2.53,
+  "output_s": 5.19,
+  "load_s": 0.01,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"all week\", \"time_text\": \"\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"free all week\"}, {\"person\": \"SENDER\", \"day_text\": \"Friday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"except Friday\"}]}",
+  "json_ok": true
+ }
+}

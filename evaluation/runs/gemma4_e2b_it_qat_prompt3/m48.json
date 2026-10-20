@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Maria",
+   "day_text": "Tuesday",
+   "time_text": "morning",
+   "status": "conditional",
+   "condition": "If not I can take it",
+   "replaces_earlier": false,
+   "excerpt": "If not I can take it"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.63,
+  "prompt_tokens": 1381,
+  "output_tokens": 64,
+  "prompt_s": 0.28,
+  "output_s": 2.31,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"Maria\", \"day_text\": \"Tuesday\", \"time_text\": \"morning\", \"status\": \"conditional\", \"condition\": \"If not I can take it\", \"replaces_earlier\": false, \"excerpt\": \"If not I can take it\"}]}",
+  "json_ok": true
+ }
+}

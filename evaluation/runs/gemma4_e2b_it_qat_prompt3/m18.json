@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Friday",
+   "time_text": "afternoon",
+   "status": "conditional",
+   "condition": "one or the other, not both",
+   "replaces_earlier": false,
+   "excerpt": "Friday afternoon or Saturday morning — one or the other, not both"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.41,
+  "prompt_tokens": 1383,
+  "output_tokens": 74,
+  "prompt_s": 0.17,
+  "output_s": 2.21,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Friday\", \"time_text\": \"afternoon\", \"status\": \"conditional\", \"condition\": \"one or the other, not both\", \"replaces_earlier\": false, \"excerpt\": \"Friday afternoon or Saturday morning — one or the other, not both\"}]}",
+  "json_ok": true
+ }
+}

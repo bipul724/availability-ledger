@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "Marta Lopes",
+   "day_text": "Monday",
+   "time_text": "morning",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Monday morning I'm in"
+  },
+  {
+   "person": "Marta Lopes",
+   "day_text": "Tuesday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Not Tuesday"
+  }
+ ],
+ "stats": {
+  "wall_s": 3.71,
+  "prompt_tokens": 1149,
+  "output_tokens": 107,
+  "prompt_s": 0.15,
+  "output_s": 3.51,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"Marta Lopes\", \"day_text\": \"Monday\", \"time_text\": \"morning\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Monday morning I'm in\"}, {\"person\": \"Marta Lopes\", \"day_text\": \"Tuesday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Not Tuesday\"}]}",
+  "json_ok": true
+ }
+}

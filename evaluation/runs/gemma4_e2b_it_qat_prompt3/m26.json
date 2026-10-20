@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Saturday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "I'm at a wedding",
+   "replaces_earlier": false,
+   "excerpt": "Can't do this Saturday, I'm at a wedding"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.29,
+  "prompt_tokens": 1382,
+  "output_tokens": 70,
+  "prompt_s": 0.17,
+  "output_s": 2.1,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Saturday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"I'm at a wedding\", \"replaces_earlier\": false, \"excerpt\": \"Can't do this Saturday, I'm at a wedding\"}]}",
+  "json_ok": true
+ }
+}

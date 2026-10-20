@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Thursday",
+   "time_text": "10:30 to 1",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Thursday 10:30 to 1 is what I can manage"
+  }
+ ],
+ "stats": {
+  "wall_s": 6.98,
+  "prompt_tokens": 1379,
+  "output_tokens": 72,
+  "prompt_s": 2.92,
+  "output_s": 3.68,
+  "load_s": 0.03,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Thursday\", \"time_text\": \"10:30 to 1\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Thursday 10:30 to 1 is what I can manage\"}]}",
+  "json_ok": true
+ }
+}

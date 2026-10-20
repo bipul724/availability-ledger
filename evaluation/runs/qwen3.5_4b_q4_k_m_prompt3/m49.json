@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "all week",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "drop out for the rest of this week"
+  }
+ ],
+ "stats": {
+  "wall_s": 7.84,
+  "prompt_tokens": 1382,
+  "output_tokens": 58,
+  "prompt_s": 3.56,
+  "output_s": 4.18,
+  "load_s": 0.03,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"all week\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"drop out for the rest of this week\"}]}",
+  "json_ok": true
+ }
+}

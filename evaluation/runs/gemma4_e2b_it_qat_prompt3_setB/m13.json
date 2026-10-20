@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Thursday",
+   "time_text": "9-12",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Thursday 9-12 works"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.06,
+  "prompt_tokens": 1376,
+  "output_tokens": 62,
+  "prompt_s": 0.16,
+  "output_s": 1.89,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Thursday\", \"time_text\": \"9-12\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Thursday 9-12 works\"}]}",
+  "json_ok": true
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "Sam Okafor",
+   "day_text": "Saturday",
+   "time_text": "all day",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Count me in for Saturday, all day"
+  },
+  {
+   "person": "Sam Okafor",
+   "day_text": "Friday",
+   "time_text": "6-9",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Can also stay late Friday, like 6-9?"
+  }
+ ],
+ "stats": {
+  "wall_s": 4.46,
+  "prompt_tokens": 1049,
+  "output_tokens": 123,
+  "prompt_s": 0.31,
+  "output_s": 4.07,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Sam Okafor\", \"day_text\": \"Saturday\", \"time_text\": \"all day\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Count me in for Saturday, all day\"}, {\"person\": \"Sam Okafor\", \"day_text\": \"Friday\", \"time_text\": \"6-9\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Can also stay late Friday, like 6-9?\"}]}",
+  "json_ok": true
+ }
+}

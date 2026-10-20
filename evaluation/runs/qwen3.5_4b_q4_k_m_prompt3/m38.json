@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Thursday",
+   "time_text": "evening",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Thursday evening still on for me"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Saturday",
+   "time_text": "morning",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": true,
+   "excerpt": "Saturday I can only do the morning now"
+  }
+ ],
+ "stats": {
+  "wall_s": 12.39,
+  "prompt_tokens": 1378,
+  "output_tokens": 111,
+  "prompt_s": 3.69,
+  "output_s": 8.58,
+  "load_s": 0.05,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Thursday\", \"time_text\": \"evening\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Thursday evening still on for me\"}, {\"person\": \"SENDER\", \"day_text\": \"Saturday\", \"time_text\": \"morning\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": true, \"excerpt\": \"Saturday I can only do the morning now\"}]}",
+  "json_ok": true
+ }
+}

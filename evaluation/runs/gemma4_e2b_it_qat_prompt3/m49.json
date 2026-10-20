@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Olu Adeyemi",
+   "day_text": "this week",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "drop out for the rest of this week",
+   "replaces_earlier": false,
+   "excerpt": "I have to drop out for the rest of this week"
+  }
+ ],
+ "stats": {
+  "wall_s": 3.13,
+  "prompt_tokens": 1390,
+  "output_tokens": 74,
+  "prompt_s": 0.32,
+  "output_s": 2.78,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"Olu Adeyemi\", \"day_text\": \"this week\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"drop out for the rest of this week\", \"replaces_earlier\": false, \"excerpt\": \"I have to drop out for the rest of this week\"}]}",
+  "json_ok": true
+ }
+}

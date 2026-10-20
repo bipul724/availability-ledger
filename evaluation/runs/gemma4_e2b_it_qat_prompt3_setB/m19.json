@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Thursday",
+   "time_text": "morning",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I could do Thursday morning instead"
+  }
+ ],
+ "stats": {
+  "wall_s": 1.99,
+  "prompt_tokens": 1388,
+  "output_tokens": 58,
+  "prompt_s": 0.23,
+  "output_s": 1.74,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Thursday\", \"time_text\": \"morning\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I could do Thursday morning instead\"}]}",
+  "json_ok": true
+ }
+}

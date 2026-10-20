@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Dev Mehta",
+   "day_text": "Wednesday",
+   "time_text": "9-12",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Wednesday 9-12 works for me"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.17,
+  "prompt_tokens": 1009,
+  "output_tokens": 64,
+  "prompt_s": 0.16,
+  "output_s": 1.94,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Dev Mehta\", \"day_text\": \"Wednesday\", \"time_text\": \"9-12\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Wednesday 9-12 works for me\"}]}",
+  "json_ok": true
+ }
+}

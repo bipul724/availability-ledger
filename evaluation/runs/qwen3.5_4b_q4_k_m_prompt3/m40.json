@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Sunday",
+   "time_text": "morning",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "cancel my morning"
+  }
+ ],
+ "stats": {
+  "wall_s": 8.13,
+  "prompt_tokens": 1373,
+  "output_tokens": 55,
+  "prompt_s": 3.76,
+  "output_s": 4.28,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Sunday\", \"time_text\": \"morning\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"cancel my morning\"}]}",
+  "json_ok": true
+ }
+}

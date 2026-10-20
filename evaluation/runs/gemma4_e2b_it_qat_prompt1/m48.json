@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Maria",
+   "day_text": "Tuesday morning",
+   "time_text": "",
+   "status": "conditional",
+   "condition": "If not I can take it",
+   "replaces_earlier": false,
+   "excerpt": "Is Maria still doing Tuesday morning?"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.51,
+  "prompt_tokens": 1045,
+  "output_tokens": 63,
+  "prompt_s": 0.3,
+  "output_s": 2.13,
+  "load_s": 0.01,
+  "raw": "{\"claims\": [{\"person\": \"Maria\", \"day_text\": \"Tuesday morning\", \"time_text\": \"\", \"status\": \"conditional\", \"condition\": \"If not I can take it\", \"replaces_earlier\": false, \"excerpt\": \"Is Maria still doing Tuesday morning?\"}]}",
+  "json_ok": true
+ }
+}

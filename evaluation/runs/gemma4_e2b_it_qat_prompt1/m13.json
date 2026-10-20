@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Kofi Mensah",
+   "day_text": "Thursday",
+   "time_text": "afternoon",
+   "status": "conditional",
+   "condition": "if my work shift gets moved",
+   "replaces_earlier": false,
+   "excerpt": "I might be able to do Thursday afternoon if my work shift gets moved"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.61,
+  "prompt_tokens": 1020,
+  "output_tokens": 76,
+  "prompt_s": 0.22,
+  "output_s": 2.31,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Kofi Mensah\", \"day_text\": \"Thursday\", \"time_text\": \"afternoon\", \"status\": \"conditional\", \"condition\": \"if my work shift gets moved\", \"replaces_earlier\": false, \"excerpt\": \"I might be able to do Thursday afternoon if my work shift gets moved\"}]}",
+  "json_ok": true
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Grace Kim",
+   "day_text": "Thursday",
+   "time_text": "10:30 to 1",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Thursday 10:30 to 1 is what I can manage"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.77,
+  "prompt_tokens": 1159,
+  "output_tokens": 74,
+  "prompt_s": 0.21,
+  "output_s": 2.44,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Grace Kim\", \"day_text\": \"Thursday\", \"time_text\": \"10:30 to 1\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Thursday 10:30 to 1 is what I can manage\"}]}",
+  "json_ok": true
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Beth Carter",
+   "day_text": "Sunday",
+   "time_text": "afternoon",
+   "status": "conditional",
+   "condition": "if needed",
+   "replaces_earlier": false,
+   "excerpt": "Sunday afternoon too if needed"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.37,
+  "prompt_tokens": 1053,
+  "output_tokens": 61,
+  "prompt_s": 0.3,
+  "output_s": 2.01,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Beth Carter\", \"day_text\": \"Sunday\", \"time_text\": \"afternoon\", \"status\": \"conditional\", \"condition\": \"if needed\", \"replaces_earlier\": false, \"excerpt\": \"Sunday afternoon too if needed\"}]}",
+  "json_ok": true
+ }
+}

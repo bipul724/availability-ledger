@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Friday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Next Friday I'm away"
+  }
+ ],
+ "stats": {
+  "wall_s": 8.26,
+  "prompt_tokens": 1370,
+  "output_tokens": 54,
+  "prompt_s": 3.98,
+  "output_s": 4.17,
+  "load_s": 0.04,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Friday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Next Friday I'm away\"}]}",
+  "json_ok": true
+ }
+}

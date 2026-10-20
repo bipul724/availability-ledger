@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "Maria Lopez",
+   "day_text": "Tuesday",
+   "time_text": "mornings",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I can do Tuesday and Thursday mornings"
+  },
+  {
+   "person": "Maria Lopez",
+   "day_text": "Thursday",
+   "time_text": "mornings",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I can do Tuesday and Thursday mornings"
+  }
+ ],
+ "stats": {
+  "wall_s": 4.03,
+  "prompt_tokens": 1147,
+  "output_tokens": 117,
+  "prompt_s": 0.16,
+  "output_s": 3.8,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Maria Lopez\", \"day_text\": \"Tuesday\", \"time_text\": \"mornings\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I can do Tuesday and Thursday mornings\"}, {\"person\": \"Maria Lopez\", \"day_text\": \"Thursday\", \"time_text\": \"mornings\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I can do Tuesday and Thursday mornings\"}]}",
+  "json_ok": true
+ }
+}

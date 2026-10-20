@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Friday",
+   "time_text": "evening",
+   "status": "conditional",
+   "condition": "if you're short-handed",
+   "replaces_earlier": false,
+   "excerpt": "I'm around Friday evening if you're short-handed"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.37,
+  "prompt_tokens": 1383,
+  "output_tokens": 73,
+  "prompt_s": 0.17,
+  "output_s": 2.19,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Friday\", \"time_text\": \"evening\", \"status\": \"conditional\", \"condition\": \"if you're short-handed\", \"replaces_earlier\": false, \"excerpt\": \"I'm around Friday evening if you're short-handed\"}]}",
+  "json_ok": true
+ }
+}

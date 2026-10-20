@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Monday",
+   "time_text": "10 till 2",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Pencil me in for Monday 10 till 2"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Wednesday",
+   "time_text": "the same",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "and Wednesday the same"
+  }
+ ],
+ "stats": {
+  "wall_s": 3.9,
+  "prompt_tokens": 1385,
+  "output_tokens": 120,
+  "prompt_s": 0.18,
+  "output_s": 3.67,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Monday\", \"time_text\": \"10 till 2\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Pencil me in for Monday 10 till 2\"}, {\"person\": \"SENDER\", \"day_text\": \"Wednesday\", \"time_text\": \"the same\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"and Wednesday the same\"}]}",
+  "json_ok": true
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Thursday",
+   "time_text": "afternoon",
+   "status": "conditional",
+   "condition": "if my work shift gets moved",
+   "replaces_earlier": false,
+   "excerpt": "I might be able to do Thursday afternoon if my work shift gets moved"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.51,
+  "prompt_tokens": 1388,
+  "output_tokens": 74,
+  "prompt_s": 0.23,
+  "output_s": 2.23,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Thursday\", \"time_text\": \"afternoon\", \"status\": \"conditional\", \"condition\": \"if my work shift gets moved\", \"replaces_earlier\": false, \"excerpt\": \"I might be able to do Thursday afternoon if my work shift gets moved\"}]}",
+  "json_ok": true
+ }
+}

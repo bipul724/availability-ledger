@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Lina Fisher",
+   "day_text": "Monday",
+   "time_text": "afternoon",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I can do Monday afternoon"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.16,
+  "prompt_tokens": 1155,
+  "output_tokens": 59,
+  "prompt_s": 0.17,
+  "output_s": 1.91,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Lina Fisher\", \"day_text\": \"Monday\", \"time_text\": \"afternoon\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I can do Monday afternoon\"}]}",
+  "json_ok": true
+ }
+}

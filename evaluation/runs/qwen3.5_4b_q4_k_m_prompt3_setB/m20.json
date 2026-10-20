@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Saturday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "you're covered Saturday"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Wednesday",
+   "time_text": "",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Wednesday still happening"
+  }
+ ],
+ "stats": {
+  "wall_s": 13.22,
+  "prompt_tokens": 1376,
+  "output_tokens": 99,
+  "prompt_s": 4.37,
+  "output_s": 8.75,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Saturday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"you're covered Saturday\"}, {\"person\": \"SENDER\", \"day_text\": \"Wednesday\", \"time_text\": \"\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Wednesday still happening\"}]}",
+  "json_ok": true
+ }
+}

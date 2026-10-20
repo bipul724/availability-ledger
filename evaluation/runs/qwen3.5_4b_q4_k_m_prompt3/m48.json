@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Tuesday",
+   "time_text": "morning",
+   "status": "conditional",
+   "condition": "If not",
+   "replaces_earlier": false,
+   "excerpt": "If not I can take it"
+  }
+ ],
+ "stats": {
+  "wall_s": 7.96,
+  "prompt_tokens": 1373,
+  "output_tokens": 60,
+  "prompt_s": 3.52,
+  "output_s": 4.35,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Tuesday\", \"time_text\": \"morning\", \"status\": \"conditional\", \"condition\": \"If not\", \"replaces_earlier\": false, \"excerpt\": \"If not I can take it\"}]}",
+  "json_ok": true
+ }
+}

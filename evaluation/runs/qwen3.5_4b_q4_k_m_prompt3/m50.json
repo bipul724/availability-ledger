@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "",
+   "time_text": "this afternoon",
+   "status": "unavailable",
+   "condition": "after all — car trouble",
+   "replaces_earlier": false,
+   "excerpt": "Can't do this afternoon after all"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Friday",
+   "time_text": "evening",
+   "status": "conditional",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Friday evening offer still stands"
+  }
+ ],
+ "stats": {
+  "wall_s": 12.26,
+  "prompt_tokens": 1378,
+  "output_tokens": 114,
+  "prompt_s": 3.54,
+  "output_s": 8.65,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"\", \"time_text\": \"this afternoon\", \"status\": \"unavailable\", \"condition\": \"after all — car trouble\", \"replaces_earlier\": false, \"excerpt\": \"Can't do this afternoon after all\"}, {\"person\": \"SENDER\", \"day_text\": \"Friday\", \"time_text\": \"evening\", \"status\": \"conditional\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Friday evening offer still stands\"}]}",
+  "json_ok": true
+ }
+}

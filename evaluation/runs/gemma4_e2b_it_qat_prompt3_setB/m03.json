@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "whole weekend",
+   "time_text": "",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Whole weekend works for me"
+  }
+ ],
+ "stats": {
+  "wall_s": 1.9,
+  "prompt_tokens": 1373,
+  "output_tokens": 56,
+  "prompt_s": 0.16,
+  "output_s": 1.7,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"whole weekend\", \"time_text\": \"\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Whole weekend works for me\"}]}",
+  "json_ok": true
+ }
+}

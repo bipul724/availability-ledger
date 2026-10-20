@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Kofi Mensah",
+   "day_text": "Thursday",
+   "time_text": "afternoon",
+   "status": "available",
+   "condition": "my shift got moved",
+   "replaces_earlier": true,
+   "excerpt": "Thursday afternoon is a yes"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.9,
+  "prompt_tokens": 1225,
+  "output_tokens": 65,
+  "prompt_s": 0.48,
+  "output_s": 2.38,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"Kofi Mensah\", \"day_text\": \"Thursday\", \"time_text\": \"afternoon\", \"status\": \"available\", \"condition\": \"my shift got moved\", \"replaces_earlier\": true, \"excerpt\": \"Thursday afternoon is a yes\"}]}",
+  "json_ok": true
+ }
+}

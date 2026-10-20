@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Alex",
+   "day_text": "the 12th",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "family thing came up",
+   "replaces_earlier": false,
+   "excerpt": "the 12th is off"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.31,
+  "prompt_tokens": 1383,
+  "output_tokens": 65,
+  "prompt_s": 0.17,
+  "output_s": 2.1,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"Alex\", \"day_text\": \"the 12th\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"family thing came up\", \"replaces_earlier\": false, \"excerpt\": \"the 12th is off\"}]}",
+  "json_ok": true
+ }
+}

@@ -1,0 +1,41 @@
+{
+ "claims": [
+  {
+   "person": "Priya Nair",
+   "day_text": "Monday",
+   "time_text": "after 3",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Monday after 3 works"
+  },
+  {
+   "person": "Priya Nair",
+   "day_text": "Wednesday",
+   "time_text": "afternoon",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Wednesday afternoon"
+  },
+  {
+   "person": "Priya Nair",
+   "day_text": "Friday",
+   "time_text": "evening",
+   "status": "available",
+   "condition": "if you're short-handed",
+   "replaces_earlier": false,
+   "excerpt": "I'm around Friday evening if you're short-handed"
+  }
+ ],
+ "stats": {
+  "wall_s": 6.18,
+  "prompt_tokens": 1187,
+  "output_tokens": 180,
+  "prompt_s": 0.24,
+  "output_s": 5.91,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"Priya Nair\", \"day_text\": \"Monday\", \"time_text\": \"after 3\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Monday after 3 works\"}, {\"person\": \"Priya Nair\", \"day_text\": \"Wednesday\", \"time_text\": \"afternoon\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Wednesday afternoon\"}, {\"person\": \"Priya Nair\", \"day_text\": \"Friday\", \"time_text\": \"evening\", \"status\": \"available\", \"condition\": \"if you're short-handed\", \"replaces_earlier\": false, \"excerpt\": \"I'm around Friday evening if you're short-handed\"}]}",
+  "json_ok": true
+ }
+}

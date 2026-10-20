@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Saturday",
+   "time_text": "all day",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Count me in for Saturday, all day"
+  }
+ ],
+ "stats": {
+  "wall_s": 6.95,
+  "prompt_tokens": 1370,
+  "output_tokens": 59,
+  "prompt_s": 3.16,
+  "output_s": 3.19,
+  "load_s": 0.09,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Saturday\", \"time_text\": \"all day\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Count me in for Saturday, all day\"}]}",
+  "json_ok": true
+ }
+}

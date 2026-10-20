@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Kofi",
+   "day_text": "Sunday",
+   "time_text": "9-11",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Also happy to do Sunday 9-11"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.19,
+  "prompt_tokens": 1389,
+  "output_tokens": 65,
+  "prompt_s": 0.22,
+  "output_s": 1.96,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"Kofi\", \"day_text\": \"Sunday\", \"time_text\": \"9-11\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Also happy to do Sunday 9-11\"}]}",
+  "json_ok": true
+ }
+}

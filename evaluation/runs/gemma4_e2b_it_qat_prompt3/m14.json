@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Sunday",
+   "time_text": "morning",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "No reason I can’t do Sunday morning!"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.05,
+  "prompt_tokens": 1378,
+  "output_tokens": 61,
+  "prompt_s": 0.16,
+  "output_s": 1.84,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Sunday\", \"time_text\": \"morning\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"No reason I can’t do Sunday morning!\"}]}",
+  "json_ok": true
+ }
+}

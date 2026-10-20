@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "today",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "kid is sick",
+   "replaces_earlier": false,
+   "excerpt": "Can't come in today after all"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Thursday",
+   "time_text": "morning",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I could do Thursday morning instead"
+  }
+ ],
+ "stats": {
+  "wall_s": 12.66,
+  "prompt_tokens": 1379,
+  "output_tokens": 112,
+  "prompt_s": 3.62,
+  "output_s": 8.95,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"today\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"kid is sick\", \"replaces_earlier\": false, \"excerpt\": \"Can't come in today after all\"}, {\"person\": \"SENDER\", \"day_text\": \"Thursday\", \"time_text\": \"morning\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I could do Thursday morning instead\"}]}",
+  "json_ok": true
+ }
+}

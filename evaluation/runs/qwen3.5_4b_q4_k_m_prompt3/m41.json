@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Tuesday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Next Tuesday I'm busy"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Wednesday",
+   "time_text": "evening",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I'll still do Wednesday evening"
+  }
+ ],
+ "stats": {
+  "wall_s": 12.56,
+  "prompt_tokens": 1373,
+  "output_tokens": 106,
+  "prompt_s": 3.65,
+  "output_s": 8.82,
+  "load_s": 0.03,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Tuesday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Next Tuesday I'm busy\"}, {\"person\": \"SENDER\", \"day_text\": \"Wednesday\", \"time_text\": \"evening\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I'll still do Wednesday evening\"}]}",
+  "json_ok": true
+ }
+}

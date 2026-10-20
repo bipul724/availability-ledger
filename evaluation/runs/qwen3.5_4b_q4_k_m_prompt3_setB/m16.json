@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "Chen",
+   "day_text": "Sunday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "he has to drop Sunday"
+  },
+  {
+   "person": "Chen",
+   "day_text": "Saturday",
+   "time_text": "",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Saturday's still fine"
+  }
+ ],
+ "stats": {
+  "wall_s": 13.0,
+  "prompt_tokens": 1381,
+  "output_tokens": 101,
+  "prompt_s": 4.18,
+  "output_s": 8.72,
+  "load_s": 0.04,
+  "raw": "{\"claims\": [{\"person\": \"Chen\", \"day_text\": \"Sunday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"he has to drop Sunday\"}, {\"person\": \"Chen\", \"day_text\": \"Saturday\", \"time_text\": \"\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Saturday's still fine\"}]}",
+  "json_ok": true
+ }
+}

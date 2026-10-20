@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Monday",
+   "time_text": "after 3",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Monday after 3 works"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Wednesday",
+   "time_text": "afternoon",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "and Wednesday afternoon"
+  }
+ ],
+ "stats": {
+  "wall_s": 9.38,
+  "prompt_tokens": 1371,
+  "output_tokens": 106,
+  "prompt_s": 2.63,
+  "output_s": 5.7,
+  "load_s": 0.06,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Monday\", \"time_text\": \"after 3\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Monday after 3 works\"}, {\"person\": \"SENDER\", \"day_text\": \"Wednesday\", \"time_text\": \"afternoon\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"and Wednesday afternoon\"}]}",
+  "json_ok": true
+ }
+}

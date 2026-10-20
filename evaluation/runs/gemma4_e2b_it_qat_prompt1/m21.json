@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Ben",
+   "day_text": "Saturday",
+   "time_text": "morning",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Saturday morning works"
+  }
+ ],
+ "stats": {
+  "wall_s": 1.88,
+  "prompt_tokens": 1011,
+  "output_tokens": 54,
+  "prompt_s": 0.2,
+  "output_s": 1.64,
+  "load_s": 0.01,
+  "raw": "{\"claims\": [{\"person\": \"Ben\", \"day_text\": \"Saturday\", \"time_text\": \"morning\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Saturday morning works\"}]}",
+  "json_ok": true
+ }
+}

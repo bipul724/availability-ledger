@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "all week",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "exams",
+   "replaces_earlier": false,
+   "excerpt": "Count me out for the whole of next week"
+  }
+ ],
+ "stats": {
+  "wall_s": 8.57,
+  "prompt_tokens": 1373,
+  "output_tokens": 62,
+  "prompt_s": 3.77,
+  "output_s": 4.72,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"all week\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"exams\", \"replaces_earlier\": false, \"excerpt\": \"Count me out for the whole of next week\"}]}",
+  "json_ok": true
+ }
+}

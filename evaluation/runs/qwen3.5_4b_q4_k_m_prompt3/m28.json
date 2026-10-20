@@ -1,0 +1,41 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Thursday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": true,
+   "excerpt": "Thursday doesn't work anymore"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Tuesday",
+   "time_text": "morning",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Tuesday morning still good"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Friday",
+   "time_text": "2-5",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I can add Friday 2-5"
+  }
+ ],
+ "stats": {
+  "wall_s": 16.35,
+  "prompt_tokens": 1385,
+  "output_tokens": 159,
+  "prompt_s": 3.73,
+  "output_s": 12.52,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Thursday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": true, \"excerpt\": \"Thursday doesn't work anymore\"}, {\"person\": \"SENDER\", \"day_text\": \"Tuesday\", \"time_text\": \"morning\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Tuesday morning still good\"}, {\"person\": \"SENDER\", \"day_text\": \"Friday\", \"time_text\": \"2-5\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I can add Friday 2-5\"}]}",
+  "json_ok": true
+ }
+}

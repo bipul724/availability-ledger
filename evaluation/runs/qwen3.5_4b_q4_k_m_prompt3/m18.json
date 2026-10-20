@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Friday",
+   "time_text": "afternoon",
+   "status": "conditional",
+   "condition": "one or the other",
+   "replaces_earlier": false,
+   "excerpt": "Friday afternoon or Saturday morning — one or the other"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Saturday",
+   "time_text": "morning",
+   "status": "conditional",
+   "condition": "one or the other",
+   "replaces_earlier": false,
+   "excerpt": "Friday afternoon or Saturday morning — one or the other"
+  }
+ ],
+ "stats": {
+  "wall_s": 17.84,
+  "prompt_tokens": 1376,
+  "output_tokens": 127,
+  "prompt_s": 4.54,
+  "output_s": 13.2,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Friday\", \"time_text\": \"afternoon\", \"status\": \"conditional\", \"condition\": \"one or the other\", \"replaces_earlier\": false, \"excerpt\": \"Friday afternoon or Saturday morning — one or the other\"}, {\"person\": \"SENDER\", \"day_text\": \"Saturday\", \"time_text\": \"morning\", \"status\": \"conditional\", \"condition\": \"one or the other\", \"replaces_earlier\": false, \"excerpt\": \"Friday afternoon or Saturday morning — one or the other\"}]}",
+  "json_ok": true
+ }
+}

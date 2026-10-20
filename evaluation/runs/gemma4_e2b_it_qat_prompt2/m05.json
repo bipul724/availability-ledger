@@ -1,0 +1,41 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Monday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Can't do Monday"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Tuesday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "or Tuesday"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Friday",
+   "time_text": "evening",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Friday evening is fine though"
+  }
+ ],
+ "stats": {
+  "wall_s": 5.34,
+  "prompt_tokens": 1157,
+  "output_tokens": 154,
+  "prompt_s": 0.16,
+  "output_s": 5.12,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Monday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Can't do Monday\"}, {\"person\": \"SENDER\", \"day_text\": \"Tuesday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"or Tuesday\"}, {\"person\": \"SENDER\", \"day_text\": \"Friday\", \"time_text\": \"evening\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Friday evening is fine though\"}]}",
+  "json_ok": true
+ }
+}

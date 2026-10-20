@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Saturday",
+   "time_text": "afternoon",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Sam and I could both do Saturday afternoon"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.07,
+  "prompt_tokens": 1376,
+  "output_tokens": 61,
+  "prompt_s": 0.22,
+  "output_s": 1.83,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Saturday\", \"time_text\": \"afternoon\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Sam and I could both do Saturday afternoon\"}]}",
+  "json_ok": true
+ }
+}

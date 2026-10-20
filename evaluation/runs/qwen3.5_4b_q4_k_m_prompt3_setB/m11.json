@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Wednesday",
+   "time_text": "noon till 2",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Wednesday noon till 2"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Saturday",
+   "time_text": "morning",
+   "status": "conditional",
+   "condition": "only if you're still short",
+   "replaces_earlier": false,
+   "excerpt": "Saturday morning too, but only if you're still short"
+  }
+ ],
+ "stats": {
+  "wall_s": 13.02,
+  "prompt_tokens": 1377,
+  "output_tokens": 122,
+  "prompt_s": 3.58,
+  "output_s": 9.37,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Wednesday\", \"time_text\": \"noon till 2\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Wednesday noon till 2\"}, {\"person\": \"SENDER\", \"day_text\": \"Saturday\", \"time_text\": \"morning\", \"status\": \"conditional\", \"condition\": \"only if you're still short\", \"replaces_earlier\": false, \"excerpt\": \"Saturday morning too, but only if you're still short\"}]}",
+  "json_ok": true
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Tuesday",
+   "time_text": "morning",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Tuesday morning still good"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Friday",
+   "time_text": "2-5",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I can add Friday 2-5"
+  }
+ ],
+ "stats": {
+  "wall_s": 3.64,
+  "prompt_tokens": 1394,
+  "output_tokens": 113,
+  "prompt_s": 0.23,
+  "output_s": 3.39,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Tuesday\", \"time_text\": \"morning\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Tuesday morning still good\"}, {\"person\": \"SENDER\", \"day_text\": \"Friday\", \"time_text\": \"2-5\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I can add Friday 2-5\"}]}",
+  "json_ok": true
+ }
+}

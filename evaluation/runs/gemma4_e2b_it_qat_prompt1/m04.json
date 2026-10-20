@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Sam Okafor",
+   "day_text": "Saturday",
+   "time_text": "all day",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Count me in for Saturday, all day"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.16,
+  "prompt_tokens": 1009,
+  "output_tokens": 62,
+  "prompt_s": 0.15,
+  "output_s": 1.89,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Sam Okafor\", \"day_text\": \"Saturday\", \"time_text\": \"all day\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Count me in for Saturday, all day\"}]}",
+  "json_ok": true
+ }
+}

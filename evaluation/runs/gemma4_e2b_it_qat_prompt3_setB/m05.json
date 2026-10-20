@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Saturday",
+   "time_text": "afternoon",
+   "status": "conditional",
+   "condition": "depends on whether my car is fixed by then",
+   "replaces_earlier": false,
+   "excerpt": "Tentatively Saturday afternoon — depends on whether my car is fixed by then"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.59,
+  "prompt_tokens": 1382,
+  "output_tokens": 77,
+  "prompt_s": 0.18,
+  "output_s": 2.37,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Saturday\", \"time_text\": \"afternoon\", \"status\": \"conditional\", \"condition\": \"depends on whether my car is fixed by then\", \"replaces_earlier\": false, \"excerpt\": \"Tentatively Saturday afternoon — depends on whether my car is fixed by then\"}]}",
+  "json_ok": true
+ }
+}

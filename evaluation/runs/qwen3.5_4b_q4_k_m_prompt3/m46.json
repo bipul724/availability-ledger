@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "tomorrow",
+   "time_text": "10-11",
+   "status": "conditional",
+   "condition": "if you're short",
+   "replaces_earlier": false,
+   "excerpt": "Tomorrow morning I could pop in for an hour, maybe 10-11, if you're short."
+  }
+ ],
+ "stats": {
+  "wall_s": 10.24,
+  "prompt_tokens": 1384,
+  "output_tokens": 83,
+  "prompt_s": 3.73,
+  "output_s": 6.42,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"tomorrow\", \"time_text\": \"10-11\", \"status\": \"conditional\", \"condition\": \"if you're short\", \"replaces_earlier\": false, \"excerpt\": \"Tomorrow morning I could pop in for an hour, maybe 10-11, if you're short.\"}]}",
+  "json_ok": true
+ }
+}

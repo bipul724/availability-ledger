@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Jon Bauer",
+   "day_text": "Tuesday",
+   "time_text": "after 4",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": true,
+   "excerpt": "I CAN do Tuesday after all, but only after 4"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.78,
+  "prompt_tokens": 1194,
+  "output_tokens": 66,
+  "prompt_s": 0.36,
+  "output_s": 2.34,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Jon Bauer\", \"day_text\": \"Tuesday\", \"time_text\": \"after 4\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": true, \"excerpt\": \"I CAN do Tuesday after all, but only after 4\"}]}",
+  "json_ok": true
+ }
+}

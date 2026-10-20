@@ -1,0 +1,41 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Tuesday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I won't be around Tuesday"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Thursday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "or Thursday"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "Friday",
+   "time_text": "4 onwards",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Friday from 4 onwards is good"
+  }
+ ],
+ "stats": {
+  "wall_s": 5.09,
+  "prompt_tokens": 1386,
+  "output_tokens": 159,
+  "prompt_s": 0.23,
+  "output_s": 4.83,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Tuesday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I won't be around Tuesday\"}, {\"person\": \"SENDER\", \"day_text\": \"Thursday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"or Thursday\"}, {\"person\": \"SENDER\", \"day_text\": \"Friday\", \"time_text\": \"4 onwards\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Friday from 4 onwards is good\"}]}",
+  "json_ok": true
+ }
+}

@@ -1,0 +1,41 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "mornings",
+   "time_text": "9-12",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "mornings 9-12"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "afternoons",
+   "time_text": "1-5",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "afternoons 1-5"
+  },
+  {
+   "person": "SENDER",
+   "day_text": "evenings",
+   "time_text": "5-8",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "evenings 5-8"
+  }
+ ],
+ "stats": {
+  "wall_s": 9.23,
+  "prompt_tokens": 1188,
+  "output_tokens": 177,
+  "prompt_s": 3.18,
+  "output_s": 5.83,
+  "load_s": 0.04,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"mornings\", \"time_text\": \"9-12\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"mornings 9-12\"}, {\"person\": \"SENDER\", \"day_text\": \"afternoons\", \"time_text\": \"1-5\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"afternoons 1-5\"}, {\"person\": \"SENDER\", \"day_text\": \"evenings\", \"time_text\": \"5-8\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"evenings 5-8\"}]}",
+  "json_ok": true
+ }
+}

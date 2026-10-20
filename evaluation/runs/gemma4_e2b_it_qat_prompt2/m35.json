@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "Lena Fischer",
+   "day_text": "Wednesday",
+   "time_text": "evening",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I can do Wednesday evening"
+  }
+ ],
+ "stats": {
+  "wall_s": 3.54,
+  "prompt_tokens": 1177,
+  "output_tokens": 57,
+  "prompt_s": 0.42,
+  "output_s": 3.04,
+  "load_s": 0.02,
+  "raw": "{\"claims\": [{\"person\": \"Lena Fischer\", \"day_text\": \"Wednesday\", \"time_text\": \"evening\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I can do Wednesday evening\"}]}",
+  "json_ok": true
+ }
+}

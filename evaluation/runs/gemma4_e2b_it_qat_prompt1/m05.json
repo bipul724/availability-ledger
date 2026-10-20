@@ -1,0 +1,41 @@
+{
+ "claims": [
+  {
+   "person": "Jon Bauer",
+   "day_text": "Monday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "work is crazy",
+   "replaces_earlier": false,
+   "excerpt": "Can't do Monday"
+  },
+  {
+   "person": "Jon Bauer",
+   "day_text": "Tuesday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "work is crazy",
+   "replaces_earlier": false,
+   "excerpt": "or Tuesday"
+  },
+  {
+   "person": "Jon Bauer",
+   "day_text": "Friday",
+   "time_text": "evening",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Friday evening is fine though"
+  }
+ ],
+ "stats": {
+  "wall_s": 5.24,
+  "prompt_tokens": 1017,
+  "output_tokens": 162,
+  "prompt_s": 0.23,
+  "output_s": 4.92,
+  "load_s": 0.03,
+  "raw": "{\"claims\": [{\"person\": \"Jon Bauer\", \"day_text\": \"Monday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"work is crazy\", \"replaces_earlier\": false, \"excerpt\": \"Can't do Monday\"}, {\"person\": \"Jon Bauer\", \"day_text\": \"Tuesday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"work is crazy\", \"replaces_earlier\": false, \"excerpt\": \"or Tuesday\"}, {\"person\": \"Jon Bauer\", \"day_text\": \"Friday\", \"time_text\": \"evening\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Friday evening is fine though\"}]}",
+  "json_ok": true
+ }
+}
