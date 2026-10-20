@@ -1,8 +1,8 @@
-"""Score a finished availability sheet (CSV) against the manual reference.
+"""Score a record log (the app's "Export review log (CSV)") against the manual reference.
 
-Works for both conditions of the timing study, because both produce the same columns:
-  - a sheet typed by hand into fixtures/manual_entry_template.csv
-  - the app's "Export reviewed records (CSV)"
+Not for the timing study. Every row is replayed with replaces_earlier=False, so "Tuesday 10-12" followed by
+"Tuesday 2-4 instead" scores as both ranges. The timing study scores final-sheet files with
+evaluation/score_final.py (docs/specs/final-export.md).
 
     python3 -m evaluation.score_csv my_sheet.csv --set A
 """
