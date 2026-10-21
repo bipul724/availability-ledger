@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "T. Vekar",
+   "day_text": "Sunday",
+   "time_text": "10-11",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "Sunday for an hour, 10-11 works"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.05,
+  "prompt_tokens": 1399,
+  "output_tokens": 70,
+  "prompt_s": 0.21,
+  "output_s": 1.76,
+  "load_s": 0.01,
+  "raw": "{\"claims\": [{\"person\": \"T. Vekar\", \"day_text\": \"Sunday\", \"time_text\": \"10-11\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"Sunday for an hour, 10-11 works\"}]}",
+  "json_ok": true
+ }
+}

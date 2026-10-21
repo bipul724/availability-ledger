@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Saturday",
+   "time_text": "morning",
+   "status": "conditional",
+   "condition": "depends if the repair guy is done by then",
+   "replaces_earlier": false,
+   "excerpt": "maybe sat morning, depends if the repair guy is done by then"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.09,
+  "prompt_tokens": 1383,
+  "output_tokens": 75,
+  "prompt_s": 0.17,
+  "output_s": 1.82,
+  "load_s": 0.03,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Saturday\", \"time_text\": \"morning\", \"status\": \"conditional\", \"condition\": \"depends if the repair guy is done by then\", \"replaces_earlier\": false, \"excerpt\": \"maybe sat morning, depends if the repair guy is done by then\"}]}",
+  "json_ok": true
+ }
+}

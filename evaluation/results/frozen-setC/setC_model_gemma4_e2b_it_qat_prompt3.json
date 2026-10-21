@@ -1,0 +1,307 @@
+{
+ "set": "C",
+ "extractor": "model",
+ "model": "gemma4:e2b-it-qat",
+ "prompt_version": 3,
+ "messages_run": 24,
+ "wall_s": 94.1,
+ "speed": {
+  "fresh_calls": 23,
+  "median_s_per_message": 1.78,
+  "max_s_per_message": 56.07,
+  "output_tokens_per_s": 42.2,
+  "prompt_tokens_per_s": 3455.0,
+  "json_parse_failures": 0,
+  "first_load_s": 47.9
+ },
+ "memory": {
+  "samples": 45,
+  "ollama_rss_peak_mb": 1517,
+  "swap_used_start_mb": 5035.0,
+  "swap_used_peak_mb": 9175.5,
+  "free_pct_min": 4,
+  "pressure_level_share": {
+   "warn": 0.82,
+   "critical": 0.18
+  },
+  "swapout_pages_during_run": 555602,
+  "ollama_ps": [
+   {
+    "name": "gemma4:e2b-it-qat",
+    "size_mb": 1561,
+    "size_vram_mb": 1561,
+    "context_length": 4096
+   }
+  ]
+ },
+ "heldout": {
+  "messages": 24,
+  "duplicate_messages_excluded": 1,
+  "duplicate_units_excluded": 1,
+  "reference_units": 20,
+  "correct_units": 17,
+  "extraction_errors": 3,
+  "error_kinds": {
+   "outside_week_applied": 1,
+   "time_error": 1,
+   "ambiguity_guessed": 1
+  },
+  "silent_errors": 2,
+  "flagged_units": 6,
+  "flagged_but_correct": 5,
+  "effort_proxy": {
+   "manual_actions": 79,
+   "assisted_actions_full_review": 24,
+   "ratio_full_review": 0.3,
+   "assisted_actions_bulk_accept": 4,
+   "ratio_bulk_accept": 0.05
+  },
+  "errors": [
+   {
+    "msg": "m13",
+    "key": [
+     "Ishita Koshren",
+     "outside:2026-11-21"
+    ],
+    "kind": "outside_week_applied",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m19",
+    "key": [
+     "Eshani Vardek",
+     "2026-11-27"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "15:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m23",
+    "key": [
+     "?Taren Vekar|Tarin Vekar",
+     "2026-11-29"
+    ],
+    "kind": "ambiguity_guessed",
+    "silent": false,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "10:00",
+       "11:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   }
+  ],
+  "errors_per_message": {
+   "m01": 0,
+   "m02": 0,
+   "m03": 0,
+   "m04": 0,
+   "m06": 0,
+   "m07": 0,
+   "m08": 0,
+   "m09": 0,
+   "m10": 0,
+   "m11": 0,
+   "m12": 0,
+   "m13": 1,
+   "m14": 0,
+   "m15": 0,
+   "m16": 0,
+   "m17": 0,
+   "m18": 0,
+   "m19": 1,
+   "m20": 0,
+   "m21": 0,
+   "m22": 0,
+   "m23": 1,
+   "m24": 0
+  }
+ },
+ "all": {
+  "messages": 24,
+  "duplicate_messages_excluded": 1,
+  "duplicate_units_excluded": 1,
+  "reference_units": 20,
+  "correct_units": 17,
+  "extraction_errors": 3,
+  "error_kinds": {
+   "outside_week_applied": 1,
+   "time_error": 1,
+   "ambiguity_guessed": 1
+  },
+  "silent_errors": 2,
+  "flagged_units": 6,
+  "flagged_but_correct": 5,
+  "effort_proxy": {
+   "manual_actions": 79,
+   "assisted_actions_full_review": 24,
+   "ratio_full_review": 0.3,
+   "assisted_actions_bulk_accept": 4,
+   "ratio_bulk_accept": 0.05
+  },
+  "errors": [
+   {
+    "msg": "m13",
+    "key": [
+     "Ishita Koshren",
+     "outside:2026-11-21"
+    ],
+    "kind": "outside_week_applied",
+    "silent": true,
+    "expected": {
+     "open": [],
+     "unavailable": true,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   },
+   {
+    "msg": "m19",
+    "key": [
+     "Eshani Vardek",
+     "2026-11-27"
+    ],
+    "kind": "time_error",
+    "silent": true,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "15:00",
+       "20:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": {
+     "open": [],
+     "unavailable": false,
+     "unstated": [
+      "available"
+     ],
+     "unreadable": []
+    }
+   },
+   {
+    "msg": "m23",
+    "key": [
+     "?Taren Vekar|Tarin Vekar",
+     "2026-11-29"
+    ],
+    "kind": "ambiguity_guessed",
+    "silent": false,
+    "expected": {
+     "open": [
+      [
+       "available",
+       "10:00",
+       "11:00"
+      ]
+     ],
+     "unavailable": false,
+     "unstated": [],
+     "unreadable": []
+    },
+    "got": null
+   }
+  ],
+  "errors_per_message": {
+   "m01": 0,
+   "m02": 0,
+   "m03": 0,
+   "m04": 0,
+   "m06": 0,
+   "m07": 0,
+   "m08": 0,
+   "m09": 0,
+   "m10": 0,
+   "m11": 0,
+   "m12": 0,
+   "m13": 1,
+   "m14": 0,
+   "m15": 0,
+   "m16": 0,
+   "m17": 0,
+   "m18": 0,
+   "m19": 1,
+   "m20": 0,
+   "m21": 0,
+   "m22": 0,
+   "m23": 1,
+   "m24": 0
+  }
+ },
+ "ledger": {
+  "slot_agreement": 0.403,
+  "slots_compared": 144,
+  "missed_withdrawals": 4,
+  "withdrawals_total": 8,
+  "missed_withdrawal_list": [
+   "m20 Gauri Ransel 2026-11-29 09:00-10:15",
+   "m20 Gauri Ransel 2026-11-29 12:45-20:00",
+   "m21 Harit Senva 2026-11-23 09:00-13:00",
+   "m21 Harit Senva 2026-11-23 16:00-20:00"
+  ],
+  "incorrectly_resolved_conditions": 1,
+  "conditions_total": 2,
+  "condition_error_list": [
+   "Eshani Vardek 2026-11-27 15:00-20:00: resolution missed"
+  ],
+  "ambiguities_flagged": 2,
+  "ambiguities_total": 3,
+  "ambiguity_detail": {
+   "m13": false,
+   "m22": true,
+   "m23": true
+  },
+  "count_chart_abs_error_sum": 44,
+  "count_chart_max_error": 1,
+  "count_chart_slots_wrong": 44
+ },
+ "form_analysis": {
+  "final_records": 6,
+  "fit_checkbox_form": 2,
+  "need_free_text": 4,
+  "reasons": {
+   "partial hours do not match a shift box": 3,
+   "conditional offer needs free text": 1
+  }
+ }
+}

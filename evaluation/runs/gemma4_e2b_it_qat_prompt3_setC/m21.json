@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Monday",
+   "time_text": "1-4 pm",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "change my availability on monday to 1-4 pm"
+  }
+ ],
+ "stats": {
+  "wall_s": 1.73,
+  "prompt_tokens": 1382,
+  "output_tokens": 66,
+  "prompt_s": 0.16,
+  "output_s": 1.52,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Monday\", \"time_text\": \"1-4 pm\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"change my availability on monday to 1-4 pm\"}]}",
+  "json_ok": true
+ }
+}

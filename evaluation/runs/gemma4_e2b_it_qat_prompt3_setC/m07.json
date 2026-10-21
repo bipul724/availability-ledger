@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Friday",
+   "time_text": "after 3",
+   "status": "conditional",
+   "condition": "if my lab swap goes through",
+   "replaces_earlier": false,
+   "excerpt": "Fri after 3 if my lab swap goes through"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.46,
+  "prompt_tokens": 1380,
+  "output_tokens": 71,
+  "prompt_s": 0.26,
+  "output_s": 1.78,
+  "load_s": 0.17,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Friday\", \"time_text\": \"after 3\", \"status\": \"conditional\", \"condition\": \"if my lab swap goes through\", \"replaces_earlier\": false, \"excerpt\": \"Fri after 3 if my lab swap goes through\"}]}",
+  "json_ok": true
+ }
+}

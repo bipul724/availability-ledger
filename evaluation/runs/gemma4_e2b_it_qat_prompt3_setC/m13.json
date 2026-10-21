@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Sat 21 Nov",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "away that day",
+   "replaces_earlier": false,
+   "excerpt": "can't do Sat 21 Nov, away that day"
+  }
+ ],
+ "stats": {
+  "wall_s": 1.79,
+  "prompt_tokens": 1384,
+  "output_tokens": 71,
+  "prompt_s": 0.14,
+  "output_s": 1.62,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Sat 21 Nov\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"away that day\", \"replaces_earlier\": false, \"excerpt\": \"can't do Sat 21 Nov, away that day\"}]}",
+  "json_ok": true
+ }
+}

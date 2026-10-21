@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Monday",
+   "time_text": "morning",
+   "status": "unavailable",
+   "condition": "due to some urgent issues",
+   "replaces_earlier": false,
+   "excerpt": "I am cancelling my plan for the Monday morning"
+  }
+ ],
+ "stats": {
+  "wall_s": 1.78,
+  "prompt_tokens": 1385,
+  "output_tokens": 67,
+  "prompt_s": 0.22,
+  "output_s": 1.54,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Monday\", \"time_text\": \"morning\", \"status\": \"unavailable\", \"condition\": \"due to some urgent issues\", \"replaces_earlier\": false, \"excerpt\": \"I am cancelling my plan for the Monday morning\"}]}",
+  "json_ok": true
+ }
+}

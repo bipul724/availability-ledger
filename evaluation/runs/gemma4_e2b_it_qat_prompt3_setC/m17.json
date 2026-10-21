@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Wednesday",
+   "time_text": "",
+   "status": "unavailable",
+   "condition": "take me off Wednesday altogether pls",
+   "replaces_earlier": false,
+   "excerpt": "take me off Wednesday altogether pls"
+  }
+ ],
+ "stats": {
+  "wall_s": 1.57,
+  "prompt_tokens": 1376,
+  "output_tokens": 63,
+  "prompt_s": 0.14,
+  "output_s": 1.37,
+  "load_s": 0.0,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Wednesday\", \"time_text\": \"\", \"status\": \"unavailable\", \"condition\": \"take me off Wednesday altogether pls\", \"replaces_earlier\": false, \"excerpt\": \"take me off Wednesday altogether pls\"}]}",
+  "json_ok": true
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "person": "SENDER",
+   "day_text": "Tuesday",
+   "time_text": "2-5 pm",
+   "status": "available",
+   "condition": "",
+   "replaces_earlier": false,
+   "excerpt": "I can join you on Tuesday from 2-5 pm"
+  }
+ ],
+ "stats": {
+  "wall_s": 2.24,
+  "prompt_tokens": 1382,
+  "output_tokens": 67,
+  "prompt_s": 0.2,
+  "output_s": 1.76,
+  "load_s": 0.03,
+  "raw": "{\"claims\": [{\"person\": \"SENDER\", \"day_text\": \"Tuesday\", \"time_text\": \"2-5 pm\", \"status\": \"available\", \"condition\": \"\", \"replaces_earlier\": false, \"excerpt\": \"I can join you on Tuesday from 2-5 pm\"}]}",
+  "json_ok": true
+ }
+}
