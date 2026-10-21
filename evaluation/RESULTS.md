@@ -124,3 +124,18 @@ The duplicate (m05 repeats m03) was handled correctly by all readers.
 **COR-10 `phrase_not_in_message` flags:** rules 0; Gemma 4 and Gemma + rules 4 (m07 "Fri", m08 "sat", m11 "wed", m12 "thurs"). All 4 are harmless rewording of an abbreviated day; each suggestion is correct. 0 real problems, consistent with D-30 (flag only).
 
 **Speed and memory (Gemma run, fresh calls, measured with other apps open):** 23 calls, 0 JSON failures; median 1.78 s per message; slowest 56.1 s, which includes a 47.9 s cold model load (next slowest 2.46 s); output about 42 tokens/s; whole run 94 s. Ollama reports the model at 1,561 MB. System-wide during the run: lowest free memory 4%, pressure "warn" in 82% and "critical" in 18% of 45 samples, occupied swap grew by about 4.1 GB (5,035 → 9,176 MB, mostly the cold load), swap-out traffic about 8.5 GiB.
+
+### Set C, post-hoc after D-31 fixes (2026-10-21; not independent evidence)
+
+The frozen table above is set C's independent result and is unchanged. The fixes below (COR-13 to COR-17, D-31) were designed after seeing set C's errors and tested with invented messages, so every number here is **post-hoc**. Re-scored from the same cached Gemma outputs (0 fresh calls); `frozen-setC/` untouched.
+
+| Reader | Units right | Silent | Missed cancellations | Wrong conditions | Ambiguities flagged | Slot agreement | Chart slots wrong |
+|---|---|---|---|---|---|---|---|
+| Rules only | 15/20 → 17/20 | 5 → 3 | 4/8 → 0/8 | 1/2 → 0/2 | 1/3 | 0.433 → 1.0 | 32 → 0 |
+| Gemma 4 E2B only | 17/20 → 19/20 | 2 → 1 | 4/8 → 0/8 | 1/2 → 0/2 | 2/3 → 3/3 | 0.403 → 1.0 | 44 → 0 |
+| Gemma 4 E2B + rules | 17/20 → 19/20 | 2 → 1 | 2/8 → 0/8 | 1/2 → 0/2 | 2/3 → 3/3 | 0.527 → 1.0 | 26 → 0 |
+
+Which fix moved what (each fix scored in turn): **COR-13** (explicit dates) m13 is now outside-week and flagged for both Gemma readers; **COR-14** (firm follow-up) m19 settles Friday for all readers; **COR-15** (replacement cues) m20/m21 replace the earlier answers (the largest slot gain); **COR-16** (initial + surname) m23 becomes an ambiguity between the two Vekars for both Gemma readers; **COR-17** (rules negation forms) m15/m16 for the rules reader.
+
+Still wrong after the fixes: m19 for every reader (no time extracted, a unit-level error, though the sheet is now right); m13 for rules ("Sat" alone still reads as Sat 28 Nov, so the evidence gate now drops it as unsupported by the quote; the outside-week ambiguity is missed, silently); m23 for rules (coordinator messages are ignored). A perfect slot agreement on 24 fictional messages after fixing their own failures says little about new messages; an independent check would need a fresh set (EVAL-11, D-31).
+

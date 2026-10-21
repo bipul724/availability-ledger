@@ -931,9 +931,9 @@
   "ambiguity_detail": {
    "m18": true
   },
-  "count_chart_abs_error_sum": 62,
+  "count_chart_abs_error_sum": 68,
   "count_chart_max_error": 2,
-  "count_chart_slots_wrong": 58
+  "count_chart_slots_wrong": 64
  },
  "form_analysis": {
   "final_records": 11,

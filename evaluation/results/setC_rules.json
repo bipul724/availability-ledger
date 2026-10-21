@@ -10,21 +10,19 @@
   "duplicate_messages_excluded": 1,
   "duplicate_units_excluded": 1,
   "reference_units": 20,
-  "correct_units": 15,
-  "extraction_errors": 5,
+  "correct_units": 17,
+  "extraction_errors": 3,
   "error_kinds": {
-   "outside_week_applied": 1,
-   "missed_negation": 2,
-   "time_error": 1,
-   "missed_ambiguity_flag": 1
+   "missed_ambiguity_flag": 2,
+   "time_error": 1
   },
-  "silent_errors": 5,
+  "silent_errors": 3,
   "flagged_units": 1,
   "flagged_but_correct": 1,
   "effort_proxy": {
    "manual_actions": 79,
-   "assisted_actions_full_review": 28,
-   "ratio_full_review": 0.35,
+   "assisted_actions_full_review": 24,
+   "ratio_full_review": 0.3,
    "assisted_actions_bulk_accept": 1,
    "ratio_bulk_accept": 0.01
   },
@@ -35,7 +33,7 @@
      "Ishita Koshren",
      "outside:2026-11-21"
     ],
-    "kind": "outside_week_applied",
+    "kind": "missed_ambiguity_flag",
     "silent": true,
     "expected": {
      "open": [],
@@ -44,56 +42,6 @@
      "unreadable": []
     },
     "got": null
-   },
-   {
-    "msg": "m15",
-    "key": [
-     "Aavya Nelkar",
-     "2026-11-23"
-    ],
-    "kind": "missed_negation",
-    "silent": true,
-    "expected": {
-     "open": [],
-     "unavailable": true,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": {
-     "open": [
-      [
-       "available",
-       "09:00",
-       "12:00"
-      ]
-     ],
-     "unavailable": false,
-     "unstated": [],
-     "unreadable": []
-    }
-   },
-   {
-    "msg": "m16",
-    "key": [
-     "Bhavin Darsen",
-     "2026-11-24"
-    ],
-    "kind": "missed_negation",
-    "silent": true,
-    "expected": {
-     "open": [],
-     "unavailable": true,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": {
-     "open": [],
-     "unavailable": false,
-     "unstated": [
-      "available"
-     ],
-     "unreadable": []
-    }
    },
    {
     "msg": "m19",
@@ -161,8 +109,8 @@
    "m12": 0,
    "m13": 1,
    "m14": 0,
-   "m15": 1,
-   "m16": 1,
+   "m15": 0,
+   "m16": 0,
    "m17": 0,
    "m18": 0,
    "m19": 1,
@@ -178,21 +126,19 @@
   "duplicate_messages_excluded": 1,
   "duplicate_units_excluded": 1,
   "reference_units": 20,
-  "correct_units": 15,
-  "extraction_errors": 5,
+  "correct_units": 17,
+  "extraction_errors": 3,
   "error_kinds": {
-   "outside_week_applied": 1,
-   "missed_negation": 2,
-   "time_error": 1,
-   "missed_ambiguity_flag": 1
+   "missed_ambiguity_flag": 2,
+   "time_error": 1
   },
-  "silent_errors": 5,
+  "silent_errors": 3,
   "flagged_units": 1,
   "flagged_but_correct": 1,
   "effort_proxy": {
    "manual_actions": 79,
-   "assisted_actions_full_review": 28,
-   "ratio_full_review": 0.35,
+   "assisted_actions_full_review": 24,
+   "ratio_full_review": 0.3,
    "assisted_actions_bulk_accept": 1,
    "ratio_bulk_accept": 0.01
   },
@@ -203,7 +149,7 @@
      "Ishita Koshren",
      "outside:2026-11-21"
     ],
-    "kind": "outside_week_applied",
+    "kind": "missed_ambiguity_flag",
     "silent": true,
     "expected": {
      "open": [],
@@ -212,56 +158,6 @@
      "unreadable": []
     },
     "got": null
-   },
-   {
-    "msg": "m15",
-    "key": [
-     "Aavya Nelkar",
-     "2026-11-23"
-    ],
-    "kind": "missed_negation",
-    "silent": true,
-    "expected": {
-     "open": [],
-     "unavailable": true,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": {
-     "open": [
-      [
-       "available",
-       "09:00",
-       "12:00"
-      ]
-     ],
-     "unavailable": false,
-     "unstated": [],
-     "unreadable": []
-    }
-   },
-   {
-    "msg": "m16",
-    "key": [
-     "Bhavin Darsen",
-     "2026-11-24"
-    ],
-    "kind": "missed_negation",
-    "silent": true,
-    "expected": {
-     "open": [],
-     "unavailable": true,
-     "unstated": [],
-     "unreadable": []
-    },
-    "got": {
-     "open": [],
-     "unavailable": false,
-     "unstated": [
-      "available"
-     ],
-     "unreadable": []
-    }
    },
    {
     "msg": "m19",
@@ -329,8 +225,8 @@
    "m12": 0,
    "m13": 1,
    "m14": 0,
-   "m15": 1,
-   "m16": 1,
+   "m15": 0,
+   "m16": 0,
    "m17": 0,
    "m18": 0,
    "m19": 1,
@@ -342,21 +238,14 @@
   }
  },
  "ledger": {
-  "slot_agreement": 0.433,
-  "slots_compared": 134,
-  "missed_withdrawals": 4,
+  "slot_agreement": 1.0,
+  "slots_compared": 78,
+  "missed_withdrawals": 0,
   "withdrawals_total": 8,
-  "missed_withdrawal_list": [
-   "m15 Aavya Nelkar 2026-11-23 09:00-12:00",
-   "m16 Bhavin Darsen 2026-11-24 14:00-17:00",
-   "m21 Harit Senva 2026-11-23 09:00-13:00",
-   "m21 Harit Senva 2026-11-23 16:00-20:00"
-  ],
-  "incorrectly_resolved_conditions": 1,
+  "missed_withdrawal_list": [],
+  "incorrectly_resolved_conditions": 0,
   "conditions_total": 2,
-  "condition_error_list": [
-   "Eshani Vardek 2026-11-27 15:00-20:00: resolution missed"
-  ],
+  "condition_error_list": [],
   "ambiguities_flagged": 1,
   "ambiguities_total": 3,
   "ambiguity_detail": {
@@ -364,9 +253,9 @@
    "m22": true,
    "m23": false
   },
-  "count_chart_abs_error_sum": 38,
-  "count_chart_max_error": 2,
-  "count_chart_slots_wrong": 32
+  "count_chart_abs_error_sum": 0,
+  "count_chart_max_error": 0,
+  "count_chart_slots_wrong": 0
  },
  "form_analysis": {
   "final_records": 6,

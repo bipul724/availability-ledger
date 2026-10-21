@@ -16,15 +16,22 @@
  },
  "memory": {
   "samples": 1,
-  "ollama_rss_peak_mb": 8,
-  "swap_used_start_mb": 9967.12,
-  "swap_used_peak_mb": 9967.12,
-  "free_pct_min": 30,
+  "ollama_rss_peak_mb": 3,
+  "swap_used_start_mb": 5752.44,
+  "swap_used_peak_mb": 5752.44,
+  "free_pct_min": 35,
   "pressure_level_share": {
    "warn": 1.0
   },
   "swapout_pages_during_run": 0,
-  "ollama_ps": []
+  "ollama_ps": [
+   {
+    "name": "gemma4:e2b-it-qat",
+    "size_mb": 1561,
+    "size_vram_mb": 1561,
+    "context_length": 4096
+   }
+  ]
  },
  "dev": {
   "messages": 30,
@@ -716,18 +723,15 @@
   }
  },
  "ledger": {
-  "slot_agreement": 0.797,
-  "slots_compared": 710,
-  "missed_withdrawals": 7,
+  "slot_agreement": 0.811,
+  "slots_compared": 698,
+  "missed_withdrawals": 4,
   "withdrawals_total": 12,
   "missed_withdrawal_list": [
    "m28 Maria Lopez 2026-11-12 09:00-12:00",
    "m31 Zoe Martin 2026-11-12 09:00-12:00",
    "m45 Beth Carter 2026-11-10 17:00-20:00",
-   "m50 Priya Nair 2026-11-11 13:00-17:00",
-   "m32 Dev Mehta 2026-11-11 09:00-10:00",
-   "m37 Grace Kim 2026-11-12 12:00-13:00",
-   "m42 Lina Fisher 2026-11-09 13:00-14:00"
+   "m50 Priya Nair 2026-11-11 13:00-17:00"
   ],
   "incorrectly_resolved_conditions": 2,
   "conditions_total": 7,
@@ -743,9 +747,9 @@
    "m41": true,
    "m47": true
   },
-  "count_chart_abs_error_sum": 66,
+  "count_chart_abs_error_sum": 60,
   "count_chart_max_error": 2,
-  "count_chart_slots_wrong": 54
+  "count_chart_slots_wrong": 48
  },
  "form_analysis": {
   "final_records": 31,
