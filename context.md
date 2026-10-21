@@ -61,7 +61,7 @@ Preview tooling, outside the repo [V]: `week 3/.claude/launch.json` attaches the
 | `ledger/messages.py` | Parse pipe-format and WhatsApp exports; message IDs `m01…`; duplicates (same sender + normalised text within 24 h) |
 | `ledger/names.py` | Roster matching; similar-name flags; ambiguity, never guessed |
 | `ledger/resolve.py` | Day and time phrases → dates and times, using the message timestamp and the selected week (no model) |
-| `ledger/core.py` | Claim resolution, evidence gate, quote-day narrowing, ledger history, conflicts, issues (incl. `unanswered_change`, "check the wording"), counts |
+| `ledger/core.py` | Claim resolution, evidence gate, quote-day narrowing, ledger history, conflicts, issues (incl. `unanswered_change`, `cue_replacement`, "check the wording"), counts |
 | `ledger/model.py` | Ollama call with JSON schema; SYSTEM/EXAMPLES prompt v3 |
 | `ledger/rules.py` | Regex baseline reader |
 | `ledger/hybrid.py` | Model + rules cross-check (default reader) |

@@ -134,7 +134,7 @@ Adds: `person`, `person_state` (`resolved | ambiguous | unknown`), `person_candi
 |---|---|
 | `sheet` | `{person: {date: [{status, start, end, claims, review}]}}` — available and conditional segments only |
 | `history` | `{"Person|YYYY-MM-DD": [{msg, sent, claim, status, what, span}]}` in message order |
-| `issues` | items for "Needs a decision": kinds `who`, `date`, `outside`, `time`, `conflict`, `condition`, `check_wording` (COR-10, non-blocking, D-30), `unanswered_change` (COR-07a, warning only) |
+| `issues` | items for "Needs a decision": kinds `who`, `date`, `outside`, `time`, `conflict`, `condition`, `check_wording` (COR-10, non-blocking, D-30), `unanswered_change` (COR-07a, warning only), `cue_replacement` (COR-18, warning only: earlier time removed because of a change word) |
 | `review_notes` | `{"Person|date": [text]}` where an unresolved claim might affect that cell |
 | `counts` | 08:00–22:00 in 30-minute steps per day: `available` and `conditional` head-counts |
 

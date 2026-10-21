@@ -448,3 +448,33 @@ This supersedes the last line of the DOC-05 entry: the coding agent's D-31 repor
 **Found:** COR-15's cue words are matched against the whole message. Three invented messages removed an earlier answer that should have stayed, visible only in the day's history. Recorded as **D-32**; follow-up **COR-18** (warning only). The COR-14 regression on set B rules is accepted as documented.
 
 **Outcome:** D-31 accepted for commit.
+
+### COR-18: cue-only replacements are visible (2026-10-21 11:29 IST)
+
+**Changed:** `ledger/core.py` (in the replacement branch of `build_ledger`, a cue-only replacement records the removed segments and raises issue `cue_replacement`; the replacement itself is unchanged), `ui/app.js` (label "Earlier answer replaced — check", listed after possible missed changes), `tests/test_d31_fixes.py` (3 tests), `tests/browser/review_safeguards.mjs` (new final scenario), the COR-18 row. Not changed: message sets, saved runs, frozen results, the prompt. Not committed.
+
+**Checks:** the three D-32 cases failed before the change (no warning; their sheets already matched COR-15) and pass after; a reader-set `replaces_earlier` and "Also free Sat 6-8" raise none. Unit tests 84 OK on Python 3.15 and 3.12 (81 + 3). Browser: session_rerun 10/10, extraction_failures 14/14, csv_safety 4/4, sheet_display 28/28, review_safeguards 12/12; scratchpad final export 13/13, keyboard 18/18. Cache coverage verified (A 49/49, B 19/19 for Gemma and Qwen; C 23/23 Gemma); re-score of A/B and C made 0 fresh calls; **all 1,708 scoring values in the 13 result files are identical to HEAD**; the result files differ from HEAD only in run time and memory fields; fixtures, runs, frozen folders and `model.py` unchanged.
+
+**Frequency (informational, not a score):** cue_replacement issues per reader: set A rules 1, Gemma 8, Gemma + rules 1, Qwen 5, Qwen + rules 1; set B 0; set C rules 1, Gemma 2, Gemma + rules 1. On set C they point at m20/m21, the genuine corrections behind COR-15, so the warning also fires on correct replacements; it asks for a check rather than marking an error. Not judged per message on set A.
+
+**Not updated (per the assignment's scope):** the issue-kind lists in `docs/API.md` and `docs/ARCHITECTURE.md` do not yet mention `cue_replacement`.
+
+
+### Lead review of COR-18, 2026-10-21
+
+**Re-run by the lead:** 84 unit tests pass on Python 3.15.0 and 3.12.6. No diff under `fixtures/`, `evaluation/runs/`, `frozen/`, `frozen-setC/`, `tuning/` or `ledger/model.py`. The `ledger/core.py` change only records the removed time and adds the issue; the replacement logic is unchanged. The 10 changed result files differ only in machine-state fields (swap, free memory, Ollama RSS, `ollama_ps`); no scoring value changed, so they are not committed.
+
+**Set A warnings judged one by one** (cache only, model call disabled; scratch script, not in the repo). There are 16 warnings across the five readers:
+- **13 are real changes:**
+  - m29 for every reader: a conditional offer made firm by "shift got moved".
+  - m32, m37 and m42 for the model-only readers.
+  - m38 for both model-only readers (Gemma twice, Qwen once).
+- **3 are the D-32 pattern:**
+  - m28, Gemma and Qwen: "Change of plans … Tuesday morning still good".
+  - m44, Gemma: a repeat of m32's wording.
+  - In each, the reader restated the same day's time, so the removal had no effect on the final sheet. Gemma's m28 Tuesday is conditional, but that comes from Gemma's own claim, not from the removal.
+- **Result:** no warning marks a removal that damaged a sheet. Set B: 0 warnings. Set C: 1–2 (agent's count, not re-checked).
+
+**Not re-run:** browser checks (agent reports 12/12 for `review_safeguards.mjs`).
+
+**Docs:** `cue_replacement` added to `docs/API.md`, `docs/ARCHITECTURE.md` and the `context.md` repo map.
