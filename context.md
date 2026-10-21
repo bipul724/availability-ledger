@@ -1,274 +1,224 @@
-# Availability Ledger — persistent project context
+# Availability Ledger: project context (main handoff)
 
-**Read this file before modifying the project, then read [CLAUDE.md](CLAUDE.md).** This is the project's persistent handoff document and single starting point for understanding its purpose, verified state, decisions and next work across sessions and agents. Update it after any meaningful feature, dependency, API, architecture, evaluation, competition or status change.
+**Read this first, then [CLAUDE.md](CLAUDE.md).** Written 2026-10-21, about 11:10–11:30 IST (Asia/Kolkata), by the Claude **project-lead (planning) session** before a context compaction. The previous version is preserved in [docs/archive/context-2026-10-20.md](docs/archive/context-2026-10-20.md): it is outdated in places but holds extra detail.
 
-**Audit date:** 2026-10-20, Asia/Kolkata (IST); project-lead plan added 20:45 IST (see §9). **Scope:** current local working tree, prior source/competition/history research and the latest owner-requested all-document alignment. The working tree differs from committed HEAD 4c1f700. This latest task changes documentation only, including the comments-only .env.example; no application code or evaluation data is changed. Status and counts are snapshots to recheck.
+**Evidence labels used below:**
+- **[V]** verified in this pass (command output or file inspection).
+- **[R]** read from repository files or docs, not re-run in this pass.
+- **[C]** from the owner conversation only, not verifiable in the repo.
+- **[H]** historical: true when recorded, not re-checked.
 
-Use these labels: **Verified** = inspected evidence or a check run in this audit; **Implemented** = present in source, with verification scope stated; **Planned** = agreed backlog; **Proposed** = optional/not selected; **Unconfirmed** = evidence missing or conflicting. No implementation task was observed marked in progress. Actual source/tests establish behavior; official competition rules establish contest requirements. If either contradicts this file, investigate and update this file rather than changing code to satisfy stale prose. [PROGRESS.md](PROGRESS.md), [TASKS.md](TASKS.md) and the detailed documents remain supporting evidence; remaining limitations and decisions are listed below.
+If source code or a fresh check contradicts this file, trust the source and fix this file.
 
-## 1. Product, users and intended outcome
+---
 
-**Availability Ledger** is a local, single-user review tool for one volunteer coordinator reconciling a planning week for up to 20 volunteers. People send ordinary messages, then correct, cancel or qualify their offers. The coordinator otherwise has to reread the conversation and edit a spreadsheet. The costly failure is a silently missed cancellation or condition.
+## A. Project identity and purpose
 
-The tool accepts dated messages and a roster, proposes source-linked availability records, lets a person review them, maintains per-person/day history, and exports the reconciled final availability. **Availability is not shift assignment.** Assigning rotas, contacting volunteers, automated chat ingestion, accounts, collaboration and cloud synchronization are outside the current scope. Volunteers do not need to adopt a new app.
+- **Name:** Availability Ledger. Repository: public [github.com/bipul724/availability-ledger](https://github.com/bipul724/availability-ledger) (GitHub API, 2026-10-20: public, default branch `main`) [H]. Licence: MIT ([LICENSE](LICENSE), owner decision 2026-10-21) [V].
+- **Purpose [R]:** a local, single-user review tool for a volunteer coordinator. The coordinator pastes a week of dated chat messages and a roster (≤ 20 volunteers). The tool suggests **availability** records, each beside its source quote. It keeps per-person, per-day history (offers, corrections, cancellations, conditions) and exports a reconciled **final sheet built from accepted records only**. It records availability, **not shift assignments**.
+- **Core design [R]:** a local open model (Gemma 4 E2B through Ollama) only **copies phrases**. Ordinary Python decides people, dates, times, evidence, history and counts. A person reviews, and explicitly marks each message reviewed.
+- **Why it exists [C]:** built for the DEV **Hacktoberfest Open-Source AI Challenge, Week 3, "Slow and Steady"**: open-source AI at the core, a project that "rewards laziness". The owner chose this problem after an idea search in this session. Owner-supplied problem evidence: two Reddit threads, [r/nonprofit](https://www.reddit.com/r/nonprofit/comments/1apjpbc/volunteer_scheduling_help/) and [r/volunteer](https://www.reddit.com/r/volunteer/comments/1b2wrkl/way_of_scheduling_volunteers_where_they_can_pick/). **Neither could be read by any tool in this session** (Reddit is blocked for WebFetch and the browser pane), so problem demand is **unverified**.
+- **Non-goals [R]:** shift assignment, contacting volunteers, automated chat ingestion, accounts, collaboration, cloud sync, in-app voice.
+- **Hard constraints [C/R]:**
+  - ₹0 additional spending.
+  - Private messages stay local (only to Ollama on 127.0.0.1).
+  - Python standard library only, with vanilla JS/CSS and no external libraries (D-11).
+  - Human overrides win.
+  - Ambiguities are never guessed.
+  - Conditions stay conditional until settled.
+- **Who does what [C]:**
+  - **Owner** (GitHub `bipul724`) decides scope and commits and pushes **manually**. The owner prefers copy-paste commands in the form `git add <files> && git commit -m "<message>"`.
+  - **This Claude session** is the project lead and decision-maker. It plans, makes decisions (DECISIONS.md, D-23 onward) and writes docs. It implements only when the current request explicitly asks.
+  - **A separate coding agent session** implements assignments; the owner relays its reports here.
+  - **ChatGPT** (a separate service) wrote set C under D-29.
 
-**Core decision:** a local open model copies phrases; Python resolves identities, dates, times, evidence, corrections and counts. Expected benefits are less retyping and fewer silent errors while keeping messages local. **These are goals, not measured real-world outcomes.** The current stage is a validation prototype, not a public service.
+## B. Technology stack and environment
 
-**Problem evidence is weak:** the PRD cites one anecdotal [r/nonprofit scheduling post](https://www.reddit.com/r/nonprofit/comments/1apjpbc/volunteer_scheduling_help/); a previous reviewer could not reopen it. No coordinator interviews, real-user pilot or independent reference review are recorded. Fixtures and tests are fictional and were largely written by the same author as the rules/reference answers. See [PRD](docs/PRD.md).
-
-## 2. Agreed competition direction and technology roles
-
-**Owner objective:** maximize legitimate winning opportunities while preserving a useful coordinator product, local privacy and additional spending of ₹0. The owner selected a coherent multi-category planning direction; optional technologies are not implemented and this documentation request does not authorize activating them.
-
-Canonical full references:
-
-- [docs/COMPETITION.md](docs/COMPETITION.md): official rules/all 20 sponsor categories, date conflict, crowding sample, complete Week 1 award roster, selected winner/Week 2 project analysis, strategy, provider feasibility sources and unknowns. All detailed research previously in this section is preserved there.
-- [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md): each technology's role/current state, privacy and free-budget contracts, implementation evidence, rollout, stop conditions and remaining decisions.
-- [docs/DECISIONS.md](docs/DECISIONS.md): D-22 accepts the direction only; D-11 remains the current dependency/network boundary. [TASKS.md](TASKS.md) owns task status and dependencies.
-
-### Confirmed competition facts and unresolved dates
-
-The primary contest is [DEV Hacktoberfest Week 3](https://dev.to/challenges/hacktoberfest-week3-2026-10-19), theme **Slow and Steady**, with open-source AI at its core. Overall is $250; six featured awards are $200 each and fourteen partner awards $100 each: **21 awards/$2,850**. Sponsor categories are optional award opportunities, not separate product prompts. One genuine entry may qualify for multiple categories but can win only once. Writing quality is weighted most heavily; theme, creativity, technical execution and meaningful partner use also matter.
-
-Written rules say October 25, 11:59 PM PDT (**October 26, 12:29 PM IST**). Raw event API end_time remains October 25, 06:59Z (**October 25, 12:29 PM IST**), one day earlier despite agreeing prose. Use the earlier date as the internal planning target until clarified, not as the written deadline. The last pass could not reopen the written-rules URL; keep its earlier inspected value and the source conflict explicit. Check personal eligibility, actual new-project start within the window, final code accessibility and submission requirements before release.
-
-### Roles selected for planning
-
-| Technology | Proper role | State / gate |
+| Item | Value | Evidence |
 |---|---|---|
-| Gemma / local Ollama | Availability phrase extraction; Python reconciles; human reviews final availability. | Implemented. Preserve open/local core and truthful evidence. |
-| Copilot / GitHub Actions | Genuine needed development/review; separately evidenced CI automation. | Planned use, not verified. Check actual free access; never attribute another agent's work to Copilot. |
-| Entire | Real upcoming sessions, checkpoints and decisions. | Planned, no captured sessions verified. Verify supported agent; inspect/redact before sharing. |
-| Sentry Agent Tracing | Optional structural latency/error/token diagnostics and a genuine debugging finding. | Conditional proposal. Needs exact stdlib/network/privacy exception, fictional-first metadata allowlist, opt-in/default-off behavior and verified free hard stop. |
-| Render | Useful interactive fictional saved-output review/export demonstration. | Planned, not implemented/deployed. Label replay, exclude private uploads, verify free limits; remote host cannot use the Mac's localhost Ollama. |
-| bipulchamoli.tech | Domain/DNS address for that hosted demonstration. | Owner reports ownership; routing, promo acquisition and no-paid-renewal state unverified. A different project name is fine; prize eligibility still needs acquisition proof. |
-| ElevenLabs | Narrate the fictional demo video. | Planned artifact, not generated. Verify free credit/plan and output rights; in-app voice/transcription remains deferred. |
-| Backboard R-CLI | Optional bounded, useful development task with a compatible local model. | Proposed/untried. No Backboard runtime API, cloud memory or provider replacement is selected. |
+| Language/runtime | Python, standard library only; no `requirements.txt`, `pyproject` or `package.json` | [V] repo tree |
+| Python on this Mac | `/opt/homebrew/bin/python3` = **3.15.0**; also `python3.12` (`/Library/Frameworks/Python.framework/Versions/3.12`) | [V] |
+| Stated minimum | Python 3.10+ (README); only 3.15 and 3.12 have been run | [R] |
+| Server | `http.server.ThreadingHTTPServer`, always `127.0.0.1`, port = first CLI arg (default 8765) | [V] `server.py` |
+| Front end | `ui/index.html`, `ui/app.js`, `ui/style.css`; vanilla, no CDN | [R] |
+| Model runtime | Ollama **0.40.6** (Homebrew; installed 2026-10-20 with owner approval); URL fixed in `ledger/model.py` as `OLLAMA = "http://127.0.0.1:11434"` | [V] |
+| Default model | `DEFAULT_MODEL = "gemma4:e2b-it-qat"` (Apache 2.0; 4.3 GB download; about 1.56–1.59 GB reported by Ollama when loaded); `PROMPT_VERSION = 3` | [V] constants; [H] sizes |
+| Installed models (11:10 IST) | Only the `gemma4` manifest is in `~/.ollama/models`. `qwen3.5:4b-q4_K_M` (used for A/B comparisons) **is no longer installed**; its cached outputs remain in `evaluation/runs/` | [V] |
+| Ollama server | Answering on 127.0.0.1:11434 at about 11:10 IST | [V] |
+| Browser checks | `tests/browser/*.mjs` (optional): need **Node 22+** (this Mac: v22.11.0) and local Chrome (`CHROME=` overrides); install nothing | [V] node; [R] harness |
+| CI | `.github/workflows/tests.yml`: unit tests on push/PR to `main`, ubuntu-latest, Python 3.12, `permissions: contents: read`, no secrets. First run **"tests #1" on `56e38bd` passed in 9 s** (owner screenshot). Later runs not observed | [V] file; [C] run |
+| Hardware | Apple M2, **8 GB RAM**, macOS 26.6.2; memory pressure is a real constraint | [H] 2026-10-20 |
+| Environment variables | **None.** The app reads no env vars and loads no `.env` ([.env.example](.env.example) says so). The browser harness alone reads `CHROME` | [R] |
+| Hosting | **None.** No deployment, no public URL | [R] |
 
-Development tools, runtime diagnostics and demo-production tools are distinct. No new cloud database, auth, orchestration, hardware, fine-tuning or product voice is selected merely to enter a category. Conditional proposals may be dropped if they fail usefulness, compatibility, rights, privacy, budget or time gates. No optional installation, account, claim, integration, deployment or publication occurred in the documentation task.
+Preview tooling, outside the repo [V]: `week 3/.claude/launch.json` attaches the desktop app's browser pane to an **already running** server at `http://127.0.0.1:8765`. History [H]: when the preview tool launched `server.py` itself, the process hung in `getcwd()` (macOS Desktop-folder permission). The fix was to start the server from a shell and attach by URL.
 
-### Evidence-led recommendation and historical lessons
-
-Retain **overall + Gemma** as the strongest current implemented fit, not a proven best winning probability. Capture meaningful Entire/Copilot evidence through already-needed work. Sentry is a coherent extra technical opportunity only if real tracing/debugging fits its gates. Actions/narration are useful lightweight eligibility/presentation additions; Render improves judge access if a useful replay is feasible. Keep .tech conditional and R-CLI bounded.
-
-Verified [Week 1 results](https://dev.to/devteam/congrats-to-the-hacktoberfest-open-source-ai-challenge-touch-grass-winners-152c) list 17 awards/$2,450. Inspected winning posts report concrete use, model/code boundaries, engineering/debugging and candid evaluation limits; these attributes are not proven causes of selection. Week 2 advertised 18 awards/$2,550, but no official results announcement was located as of October 20. Dabba, Doorman and RuleDelta are comparison submissions, not verified winners. Dabba also handles cancellation messages and owner corrections; these are not unique claims for this ledger. Demonstrate review/history/export guarantees and actual coordinator value.
-
-No reliable per-category totals or judge scorecards were found. A 20-post convenience sample showed six explicit Gemma declarations and one Render declaration; incomplete declarations/feed ordering prevent extrapolation. New or unobserved categories are not established easier prizes. Exact sample IDs, limits, author-reported metrics and historical category changes are preserved in COMPETITION.md.
-
-**Core work first:** freeze unseen C before further behavior changes → visible extraction failures/evidence protection → both CSV exports protected → independent evaluation/coordinator validation and matched timing where feasible → truthful demonstration/write-up. Capture genuine development evidence during necessary work. Award category count must not displace correctness or the highest-weighted writing/evidence.
-
-
-## 3. What exists now
-
-| Area | State and evidence |
-|---|---|
-| Input | **Implemented:** pipe-format dated text and WhatsApp Android/iOS exports, continuation lines, day-first option, roster parsing and fictional demo. |
-| Readers | **Implemented:** Model + rules cross-check (default), Model only, Rules only. Gemma through Ollama is the only sponsor integration implemented. |
-| Resolution | **Implemented:** roster matching, date ambiguity/candidates, ranges/open-ended times/periods, quote/phrase checks, same-message time reuse. Some unsupported phrases remain a known gap. |
-| Reconciliation | **Implemented:** partial corrections, replacement cues, cancellations, conditions, conflicts, source-linked history and duplicate collapse. Extraction still misses some cancellations. |
-| Review UI | **Implemented:** accept/reject/edit/reset/add, eligible bulk acceptance, J/K/A/R/E/Esc, explicit message review with M, sheet/chart/issues/history. |
-| Confirmed export and scoring | **Implemented, Verified:** COR-01/EVAL-06; separate final-sheet and review-log exports; strict final-sheet scorer for both timing conditions. |
-| Four corrective fixes | **Implemented, Verified:** COR-11 atomic reruns, COR-12 dropped/rejected scope exclusion, EVAL-08 partial condition loss and duplicate metadata rejection. |
-| Visible extraction failures, formula protection | **Implemented, Verified (2026-10-20):** COR-03 per-message warnings and continued reading; COR-02 neutralises formula-like cells in both CSVs. Not committed yet. |
-| Save/reopen | **Planned**, not implemented (deferred, D-23). |
-| Hosted replay, narration, other sponsors | **Proposed/Planned**, not demonstrated; see category table. |
-
-**49 offline unit tests pass in the latest docs audit:** 21 in `tests/test_ledger.py`, 28 in `tests/test_export.py`. The optional browser rerun check passed in the earlier source audit; it was not rerun in this docs pass. Verification scope is in §10. No human timing study or real pilot has been run.
-
-## 4. Architecture and data flow
-
-The app uses **Python standard library**, `http.server.ThreadingHTTPServer`, and vanilla browser JavaScript/CSS with no external frontend libraries. There is no database, application package manager, SDK dependency, CDN, build step or deployment configuration.
-
-```mermaid
-flowchart LR
-    A[Dated messages + roster + planning week] --> B[Local parse API]
-    B --> C[Local Ollama model / rules / hybrid]
-    C --> D[Python resolution + provisional ledger]
-    D --> E[Human review + explicit message marks]
-    E --> D
-    E --> F[Accepted-only final export + strict scoring]
-```
-
-1. The browser loads the local page, queries installed Ollama models, and optionally loads fictional set A.
-2. `POST /api/parse` sorts messages, assigns IDs and marks duplicates.
-3. The browser requests extraction sequentially for each nonduplicate message; no earlier conversation is sent to the model.
-4. Every five messages, at the end, and after edits, the browser sends the full session to `POST /api/resolve`.
-5. Python resolves claims and builds the provisional ledger. Browser rendering shows quotes, issues, history, availability and headcounts.
-6. `POST /api/export` recomputes the accepted-only final sheet and writes its CSV. The review-log CSV is built separately in the browser.
-
-**State:** messages, raw claims/overrides, resolved claims, roster, calendar, review marks and counters live in browser memory and are processed transiently by the local server. No database, disk save, cookies for accounts or browser persistence is implemented. Reload loses work. Invalid settings, failed parsing or no dated messages preserve the previous session/export; a usable parse commits the new settings and resets the session together. A later extraction failure marks only that message with a warning and reading continues (COR-03).
-
-**Ollama:** fixed `http://127.0.0.1:11434`; default `gemma4:e2b-it-qat`; prompt `PROMPT_VERSION = 3` in `ledger/model.py`. Requests use a JSON schema, temperature 0, seed 7, context 4096, `think: false`, no streaming, 300-second timeout and no retry. The model receives planning week, sent time, sender and message text; it does not receive the roster. The UI can select an installed model. Qwen3.5 4B was an evaluated comparison, not an additional current requirement; installed models were not probed in this audit.
-
-## 5. Data structures and behavior to preserve
-
-- **Message:** `id, sent, sender, text, duplicate_of`. JSON timestamps are `YYYY-MM-DD HH:MM`. Sort is stable; IDs are `m01` etc.
-- **Raw claim:** `id, msg, n, source, review, said`, optional `override` and `hints`. `said` contains `person, day_text, time_text, status, condition, replaces_earlier, excerpt`. Sources include model/rules/user. Review is pending/accepted/rejected; the resolver may compute dropped.
-- **Resolved claim:** adds roster identity and candidates, resolved/candidate dates, time span/state, evidence state/span, flags and drop reason. Reviewer overrides control that same claim; later independent pending claims may still change the provisional ledger.
-- **Ledger:** `sheet, history, issues, review_notes, counts`. The sheet contains available/conditional segments; unavailable intervals are absent.
-- **Calendar/grid:** selected Monday through Sunday; internal 15-minute slots from 06:00 to 23:00 (**68 per person/day**). Default unstated availability is 09:00–20:00; periods are fixed. The chart counts 08:00–22:00 at half-hour steps.
-- **Dates/names:** ambiguous identity or dates are not guessed. Unique first-name prefixes can resolve; similar names remain flagged. Numeric dates use the planning week to disambiguate where possible.
-- **Times:** ranges, morning/afternoon/evening, open-ended phrases including “4 onwards”; “the same” can reuse a prior range within the same message only. Point times such as “at 9” remain unreadable.
-- **Corrections:** process chronologically. A later claim changes only covered time; `replaces_earlier` first clears that day's earlier answers. Same-message conflicts keep the cautious status and create an issue. Conditions remain conditional until actually settled.
-- **Duplicates:** same normalized sender/text within 24 hours of the earliest copy; no additional extraction or reapplication, with repeated history. Duplicate-review coverage comes from the original message.
-- **Coordinator handling:** a coordinator off the roster has self-claims dropped; a coordinator on the roster can volunteer normally. The optional API coordinator list is not exposed by the UI.
-
-**Important distinction:** the **in-app sheet/chart include pending claims**. The final export includes accepted claims only. A real quote paired with invented day/time words can still affect the provisional sheet; COR-10 must address that. See [architecture](docs/ARCHITECTURE.md) and [decisions](docs/DECISIONS.md), especially D-13 (superseded behavior) and D-21 (export/scoring).
-
-## 6. APIs and export/scoring contract
-
-| Route | Purpose |
-|---|---|
-| `GET /api/status` | Available Ollama models and default model. |
-| `GET /api/demo` | Fictional set A text/roster/calendar. |
-| `POST /api/parse` | Text, roster and day-first flag to parsed messages/roster. |
-| `POST /api/suggest` | One message plus roster/calendar/reader/model to pending claims and stats. |
-| `POST /api/resolve` | Whole session, claims and `reviewed_messages` to resolved claims, provisional ledger and `confirmed` summary. |
-| `POST /api/export` | Same session body to final-sheet summary, row count, filename and CSV text. |
-
-The calendar payload uses `week_start` and `timezone`. Resolve/export also support optional `coordinators`. Unknown reviewed IDs are ignored and reported as `unknown_reviewed`. Unknown endpoints return 404; exceptions in POST handling become HTTP 400 JSON errors, including server/model failures.
-
-The canonical file contract is [docs/specs/final-export.md](docs/specs/final-export.md); interfaces are in [docs/API.md](docs/API.md).
-
-- Final sheet uses accepted records (including reviewer additions), replayed through ordinary ledger rules. Pending/rejected/dropped claims do not add or cancel final availability.
-- **Message review is explicit.** Deciding all suggestions does not mark the message. M toggles the current card's message; messages without cards use their button. Combined acceptance/review is offered only for eligible pending suggestions with resolved identity/day and readable time; the approved informational-flag set is in the spec/UI.
-- **Complete** requires all nonduplicate messages marked, no pending claims and no blocking `who/date/time/conflict` issues. `condition` and `outside` issues do not block completeness. Complete does not mean every offer is unconditional.
-- Pending claims, blocking issues and accepted/pending claims of unreviewed messages mark affected cells `needs_review`. Dropped/rejected claims never define cell scope. Unknown scope keeps the entire file provisional until explicit review.
-- UTF-8 filename: `availability-final-<week>-<complete|provisional>.csv`. First line starts `# availability-final v1;` with `week, status, unreviewed, pending, blocking_issues`; unreviewed IDs are space-separated.
-- Columns: `volunteer,date,start,end,status,condition,cell_state,sources`. Rows describe available/conditional segments; absent availability has no row. An otherwise empty unresolved cell has a row with empty times/status. Claim IDs in sources are semicolon-separated.
-- Strict parsing rejects duplicate metadata keys, contradictory complete status, wrong roster/week, invalid enums, times outside 06:00–23:00 or off the 15-minute grid, and overlapping contradictory statuses.
-- `evaluation/score_final.py` reads final rows directly into slots. Provisional input is refused unless `--allow-provisional`; its report remains provisional and is not interchangeable with a complete result. Each unresolved cell contributes 68 disagreeing slots once and overrides any confirmed segments in that cell.
-- Withdrawal and condition metrics describe **final-state errors**, not recognition of a particular cancellation message. Partial condition loss is detected in this scorer.
-- `evaluation/final_sheet_template.csv` is for the manual study condition; fill its week and use provisional status for unresolved cells.
-- The review log is an audit trail, lacks replacement semantics and **cannot reconstruct the final sheet**. `evaluation/score_csv.py` remains unsuitable for timing. Both timing conditions must submit final-sheet CSVs.
-
-## 7. Repository map and development environment
+## C. Repository structure (verified tree, 2026-10-21)
 
 | Path | Responsibility |
 |---|---|
-| [server.py](server.py) | Local static files and JSON APIs. |
-| [ui/app.js](ui/app.js), [index.html](ui/index.html), [style.css](ui/style.css) | Browser session, review, keyboard, rendering and review-log export. |
-| [ledger/messages.py](ledger/messages.py), [names.py](ledger/names.py), [resolve.py](ledger/resolve.py) | Input/duplicates, roster matching, calendar/date/time rules. |
-| [ledger/core.py](ledger/core.py) | Evidence checks, resolved claims, ledger, history and counts. |
-| [ledger/model.py](ledger/model.py), [rules.py](ledger/rules.py), [hybrid.py](ledger/hybrid.py) | Local model prompt/call, regex baseline and cross-check. |
-| [ledger/export.py](ledger/export.py) | Confirmed sheet, CSV writer/strict reader; `_cell` is the final-export formula-protection hook. |
-| [tests/test_ledger.py](tests/test_ledger.py), [test_export.py](tests/test_export.py) | Offline regression tests. |
-| [tests/browser/session_rerun.mjs](tests/browser/session_rerun.mjs) | Optional real-browser failed/successful-rerun regression. |
-| [evaluation/run.py](evaluation/run.py), [compare.py](evaluation/compare.py), [fixture.py](evaluation/fixture.py) | Extraction/ledger evaluation, saved-table comparison, fictional data loader. |
-| `evaluation/results/frozen/`, `evaluation/results/tuning/`, `evaluation/runs/` | First-score evidence, tuning evidence and cached outputs; preserve unchanged. |
-| `fixtures/` | Fictional A/B messages, rosters, reference answers and older manual-entry log template; no set C present. |
-| [README.md](README.md), [PRD](docs/PRD.md), [DECISIONS](docs/DECISIONS.md) | Setup, requirements and rationale. |
-| [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md) | Universal discovery entrypoint and canonical detailed agent instructions. |
-| [COMPETITION](docs/COMPETITION.md), [INTEGRATIONS](docs/INTEGRATIONS.md) | Full source-backed contest/history research; agreed roles, contracts, gates and rollout. |
-| [TASKS.md](TASKS.md), [PROGRESS.md](PROGRESS.md), [RESULTS](evaluation/RESULTS.md), [TUNING](evaluation/TUNING.md), [MEASUREMENT](evaluation/MEASUREMENT.md) | Backlog, evidence, provenance and study protocol. |
+| `server.py` | Static files plus JSON API; `MAX_VOLUNTEERS = 20` |
+| `ledger/messages.py` | Parse pipe-format and WhatsApp exports; message IDs `m01…`; duplicates (same sender + normalised text within 24 h) |
+| `ledger/names.py` | Roster matching; similar-name flags; ambiguity, never guessed |
+| `ledger/resolve.py` | Day and time phrases → dates and times, using the message timestamp and the selected week (no model) |
+| `ledger/core.py` | Claim resolution, evidence gate, quote-day narrowing, ledger history, conflicts, issues (incl. `unanswered_change`, "check the wording"), counts |
+| `ledger/model.py` | Ollama call with JSON schema; SYSTEM/EXAMPLES prompt v3 |
+| `ledger/rules.py` | Regex baseline reader |
+| `ledger/hybrid.py` | Model + rules cross-check (default reader) |
+| `ledger/export.py` | Accepted-only final sheet, CSV writer/strict reader, formula neutralising (`_cell`) |
+| `ui/` | Browser session, review UI, keyboard, chart and sheet, both exports |
+| `tests/test_*.py` | Offline unit tests. `tests/browser/` holds optional headless-Chrome checks and `harness.mjs`. Details: [TESTING.md](TESTING.md) |
+| `evaluation/` | `run.py` (score readers), `compare.py`, `fixture.py` (sets A/B/C), `score_final.py` (final-sheet scorer), `score_csv.py` (review-log scorer, **not** for timing), `final_sheet_template.csv` |
+| `evaluation/results/` | Current tables; `frozen/` (A/B first scores), `frozen-setC/` (set C single score, read-only), `tuning/` (prompt v1–v3 dev runs) |
+| `evaluation/runs/` | Cached model outputs per model/prompt/set, so tables can be re-scored without model calls |
+| `fixtures/` | Fictional set A (`riverside_week.txt`, `roster.txt`, `reference.json`), set B (`setB_*`), set C (`setC_*` plus `setC.manifest`), manual template |
+| Docs | [README](README.md), [CLAUDE.md](CLAUDE.md), [AGENTS.md](AGENTS.md), [TASKS](TASKS.md), [PROGRESS](PROGRESS.md), [TESTING](TESTING.md), [docs/](docs/) (PRD, ARCHITECTURE, API, DECISIONS, INTEGRATIONS, COMPETITION, specs, prompts, archive), [evaluation/RESULTS](evaluation/RESULTS.md), [TUNING](evaluation/TUNING.md), [MEASUREMENT](evaluation/MEASUREMENT.md) |
 
-**Runtime:** README states Python 3.10+; this audit ran **Python 3.15.0 on macOS**. Earlier supported versions/platforms were not tested. The optional browser harness needs Node 22+ (tested v22.11.0) and local Google Chrome; it uses built-in APIs and installs nothing.
+## D. Architecture and data flow (implemented) [R; routes V]
 
-From this repository directory:
+1. The browser loads the page. `GET /api/status` lists installed Ollama models; `GET /api/demo` returns fictional set A.
+2. `POST /api/parse`: text, roster and day-first flag → sorted messages with IDs and `duplicate_of`.
+3. For each **non-duplicate** message, the browser calls `POST /api/suggest` (reader `hybrid`, `model` or `rules`). The model sees only the planning week, sent time, sender and text. A failure marks only that message with a warning and reading continues (COR-03).
+4. Every 5 messages, at the end and after edits: `POST /api/resolve` (whole session plus `reviewed_messages`) returns resolved claims, the provisional ledger and a `confirmed` summary.
+5. `POST /api/export` returns the **accepted-only** final-sheet CSV (complete or provisional). The review-log CSV is built in the browser.
+6. All state is in browser memory. No database, no persistence; a reload loses work.
 
-```bash
-python3 server.py                         # http://127.0.0.1:8765
-python3 server.py 8780                    # optional port
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
-PYTHONDONTWRITEBYTECODE=1 node tests/browser/session_rerun.mjs
-python3 -m evaluation.compare             # read saved current results
-python3 -m evaluation.compare frozen      # read first-scoring results
-python3 -m evaluation.score_final FILE.csv --set A
-```
+Contracts: [docs/API.md](docs/API.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/specs/final-export.md](docs/specs/final-export.md). No auth, database, migrations or telemetry.
 
-For a local demo, start the server, load fictional demo, choose **Rules only**, suggest records, review/mark messages, then export. Model modes additionally require an already installed/running Ollama and model; `ollama serve` starts that separate runtime. This documentation task did not install/download or run inference.
+## E. Feature inventory
 
-**Configuration:** port is a CLI argument; host is always `127.0.0.1`. The UI selects week, timezone label, reader/model and WhatsApp day-first parsing. Ollama URL/default model and calendar period hours are code constants. The application reads **no environment variables** and loads no `.env`; [.env.example](.env.example) is comments only. The optional browser harness alone reads `CHROME` to override its executable path; that is not application configuration.
+| Feature | Status | Evidence / limits |
+|---|---|---|
+| Parsing (pipe + WhatsApp), duplicates collapsed | COMPLETED AND VERIFIED | Unit tests at HEAD (66/66 [V]) |
+| Roster matching; similar names flagged; ambiguous names unresolved | IMPLEMENTED, NOT FULLY VERIFIED | Set C m23 "T. Vekar" → unknown; COR-16 change in the working tree, unreviewed (§G) |
+| Day/time resolution (relative days, next/this, numeric dates, ranges, periods, "4 onwards", same-message "the same", modifier restoration) | IMPLEMENTED, NOT FULLY VERIFIED | Set C m13 "Sat 21 Nov" → the planning week's Saturday (silent wrong day); COR-13 change in the working tree, unreviewed |
+| Readers: rules, model, hybrid (default) | COMPLETED AND VERIFIED (functionally) | Evaluated on A/B/C; accuracy limits in §G and RESULTS |
+| Evidence gate (quote/phrase checks, quote-day narrowing, coordinator self-claims dropped) | COMPLETED AND VERIFIED | Tests; D-06 |
+| COR-10 "check the wording" flag (no hold) | COMPLETED AND VERIFIED | D-30: a hold was built then reverted (28 held, all correct). Set C: 4 flags, all harmless rewording |
+| COR-07a "possible change not applied" warning | COMPLETED AND VERIFIED (behaviour); usefulness unproven | A/B: 13 warnings, all real (post-hoc). Set C: **0** warnings, so it missed C's failures by design |
+| Ledger: per-day history, partial corrections, replacements, conflicts, conditions | IMPLEMENTED, NOT FULLY VERIFIED | Set C: replacement cues missing (m20/m21); "definite now" doesn't settle a condition (m19). COR-14/COR-15 changes in the working tree, unreviewed |
+| COR-03 visible extraction failures | COMPLETED AND VERIFIED | Browser check 14/14 [H, agent report] |
+| COR-02 CSV formula neutralising (both exports) | COMPLETED AND VERIFIED | Unit + browser checks [H] |
+| UI-05 / UI-01 / UI-07 provisional display, layout, chart contrast | COMPLETED AND VERIFIED (headless Chrome only) | Safari, Firefox, screen readers and contrast untested (UI-02) |
+| COR-01 accepted-only final export, explicit message review; strict scorer (EVAL-06/08) | COMPLETED AND VERIFIED | `tests/test_export.py` |
+| COR-11 / COR-12 safe reruns, review scope | COMPLETED AND VERIFIED | Browser rerun check [H] |
+| GitHub Actions CI (INT-10) | COMPLETED AND VERIFIED | First run green [C screenshot] |
+| Session save/load (COR-04), roster-limit warning (COR-06), coordinator names in UI (COR-08), timezone use (COR-05), stop button (UI-03) | PLANNED, NOT IMPLEMENTED | Deferred (D-23) or P2 |
+| Human time saved | UNKNOWN: EVIDENCE INSUFFICIENT | Never measured; see [evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md) |
+| Real-world usefulness / demand | UNKNOWN: EVIDENCE INSUFFICIENT | No coordinator interviews or pilot |
+| Optional sponsor integrations (Sentry, Render, .tech, ElevenLabs, Entire, Copilot agent, R-CLI) | PLANNED, NOT IMPLEMENTED; deferred until after submission (D-23) | — |
 
-## 8. Evaluation evidence and honest limits
+## F. Decisions (canonical: [docs/DECISIONS.md](docs/DECISIONS.md))
 
-All recorded benchmark data is fictional. **Set A:** 50 messages, 30 development + 20 held-out (30 held-out reference units). **Set B:** 20 held-out messages, 35 units. Extraction metrics are split-specific; ledger cancellation/slot metrics use **all 50 A messages including dev**, and all 20 B messages.
+Key recent decisions:
+- **D-23:** the Week 3 entry targets **overall + Gemma**, with Actions CI as the only addition; everything else is deferred.
+- **D-24:** set C was frozen outside the repo by hash.
+- **D-25:** missed cancellations get a warning first; no vocabulary tuning.
+- **D-26:** duplicate-aware scoring.
+- **D-27:** documentation economy (TASKS row + one PROGRESS entry per task).
+- **D-28:** work that can't bias C may proceed before the freeze.
+- **D-29:** C may be written by an isolated AI (ChatGPT was used), with the owner editing at least 5 messages.
+- **D-30:** COR-10 is a flag only, not a hold.
+- **D-31:** fix C-revealed defects post-hoc (COR-13 to COR-17), and keep set C's first score as the headline.
 
-Selected Gemma + rules evidence, rechecked from saved tables:
+Earlier, D-01 to D-22 covered local model, Gemma default, Qwen comparison only, model copies and code decides, hybrid default, evidence gate, and so on. **D-13** (holding flagged suggestions) was superseded.
 
-| Snapshot | Held-out units correct | Silent errors | Whole-set missed withdrawals | Whole-set slot agreement |
-|---|---|---|---|---|
-| A first/frozen | 26/30 | 3 | 0/12 | 0.851 |
-| A current, post-hoc | 24/30 | 5 | 0/12 | 0.876 |
-| B first/frozen | 30/35 | 3 | 0/5 | 0.776 |
-| B current, post-hoc | 31/35 | 4 | 1/5 | 0.925 |
+Conversation-only history **[C]**:
+- The idea search first recommended "Let It Rot", then "Background Check" (camera-roll home inventory). The owner instead chose to test Availability Ledger.
+- A competitor check (2026-10-20) found:
+  - **Proximatic:** emailed replies → draft roster, on a Pro plan ($16/mo per organisation), web app.
+  - **SignUpGenius:** free with ads.
+  - **Google Forms:** free, edit-after-submit.
+  - **An n8n template:** form-based.
 
-Full rules/model/hybrid and Qwen comparisons: [RESULTS.md](evaluation/RESULTS.md) and [PROGRESS.md](PROGRESS.md). Current values derive from `evaluation/results/*.json`; frozen values from `evaluation/results/frozen/`.
+  Conclusion: the remaining gap is any-channel message history, local processing, quote-linked review and per-day history. **Not unprecedented.**
+- The rules baseline was strong on set A, which it was written against, but brittle on unseen wording (set B: 17/35 units).
+- Qwen 4B read better but caused heavy swapping on 8 GB, so Gemma E2B stays the default.
 
-Do not call current A/B results independent validation: cross-check design saw A held-out; later quote-day, modifier, duplicate and time changes saw held-out errors. B's first zero-missed-withdrawal hybrid result partly came from an unreadable earlier offer masking a missed cancellation. Duplicate references still count repeated units, so deduplication distorts extraction-unit scoring. Perfect reference-sheet scorer output tests the contract, not model accuracy.
+## G. Current state at handover (2026-10-21, about 11:15 IST)
 
-**Open EVAL-09:** `evaluation/run.py` still misses partial condition loss in its ledger metric. The timing scorer `score_final.py` is fixed; do not describe the older metric as fixed or silently revise historical numbers.
+- **Git [V]:** branch `main`. `HEAD = origin/main = c5a2e05` ("docs: record set C results, lead review and D-31 fix plan"). A clean copy of HEAD passes **66/66** unit tests on Python 3.15 and 3.12 [V].
+- **Working tree [V]: uncommitted coding-agent work on D-31, not yet reported or reviewed.**
+  - **Changed during this pass:** `ledger/resolve.py` (COR-13), `ledger/names.py` (COR-16), `ledger/rules.py` (COR-17), `ledger/core.py`, the new `tests/test_d31_fixes.py`, and 12 files in `evaluation/results/` (a re-score in progress).
+  - **Tests:** at 11:10 IST, 81 tests ran with 7 failing in the new D-31 tests; **at 11:13 IST all 81 passed** [V].
+  - **Protected paths:** fixtures, `frozen/`, `frozen-setC/`, `tuning/`, `runs/` and `ledger/model.py` were unchanged at 11:13 [V].
+  - **Treat this as unreviewed until the lead checks the agent's report.**
+- **This documentation pass** archived the old context, rewrote this file, added [TESTING.md](TESTING.md), and updated README, TASKS (REL-02, DOC-05) and PROGRESS. It did not touch code.
+- **Evaluation headline [V], set C:** independent, scored once at `56e38bd`, frozen in `evaluation/results/frozen-setC/`.
 
-**Human time saved is unmeasured.** Click/field proxies are not minutes. [MEASUREMENT.md](evaluation/MEASUREMENT.md) requires matched workloads (never 50-message A versus 20-message B), multiple participants, balanced condition/set order, equivalent final CSVs and the same scorer. Report active human time separately from unattended inference. The preset goal is assisted time at most 70% of manual, with agreement no more than 2 percentage points lower; it is a target, not a result. A fictional study tests mechanics; the protocol calls for a consented real-data round before real-world savings claims.
+  | Reader | Units right | Final-sheet slot agreement | Missed cancellations |
+  |---|---|---|---|
+  | Rules | 15/20 | 0.433 | 4/8 |
+  | Gemma 4 E2B | 17/20 | 0.403 | 4/8 |
+  | Gemma + rules | 17/20 | 0.527 | 2/8 |
 
-**Historical performance only:** saved prompt-v3 runs report Gemma median 2.45 s/message on A and 2.30 s on B; the earlier 50-message hybrid run was reported at 131 s. These were not remeasured. Ollama-reported model allocation (Gemma about 1.59 GB, Qwen 2.95 GB) is not total system memory. Fresh memory samples exist only for certain frozen/tuning calls; cache-replay snapshots do not measure inference memory. Qwen A's occupied swap grew about 1,242 MB; roughly 14.8 GiB was swap-out traffic. Gemma “2% free” and “4 GB first-load swap” have no backing file. Follow RESULTS provenance rather than repeating those notes as measurements.
+  Main lesson: **the model mostly read correctly; the deterministic reconciliation rules caused the bad sheets.** A/B results are post-hoc; their frozen first scores are in [evaluation/RESULTS.md](evaluation/RESULTS.md). Fictional data only; A/B fixtures, rules and references share one author.
+- **Set C provenance [V/C]:** written by ChatGPT; the owner rewrote m03, m04, m14, m15 and m21 and aligned duplicate m05. Manifest commit `688c50d`; hashes verified at scoring. A private copy also exists at `~/Documents/availability-setC/` (including `setC_notes.md`, **not** in the repo) [V, file listing only].
+- **Deployment:** none. **Runtime:** the app server was not running at 11:10 IST; Ollama was.
+- **Latest confirmed milestone:** EVAL-07 (set C scored once), committed and pushed (`deaefed`, `9327e30`, `c5a2e05`).
 
-## 9. Priorities, open issues and decisions
+## H. Outstanding work (canonical: [TASKS.md](TASKS.md))
 
-**Project-lead plan (2026-10-20, 20:45 IST; this supersedes the ordering below where they differ).** Canonical timeline: [TASKS.md § Order of work](TASKS.md#order-of-work). Decisions: [D-23–D-27](docs/DECISIONS.md#d-23-week-3-submission-scope-gemma-core-optional-actions-ci-other-integrations-deferred).
+**Deadline [R]:** the written rules say 25 Oct 11:59 PM PDT (**26 Oct 12:29 IST**), but the DEV event API end_time is **25 Oct 12:29 IST**. Plan for the earlier one. **Internal target: publish by Sat 24 Oct, 21:00 IST.**
 
-- **Week 3 scope (D-23):** overall + Gemma. Actions CI is optional and only if the core is finished by Thu 22 Oct 14:00 IST. Sentry, Render/.tech, ElevenLabs, Entire, Copilot agent work and R-CLI are deferred until after submission.
-- **Update 2026-10-21, 03:45 IST:** EVAL-07 done. Set C scored once (frozen in `evaluation/results/frozen-setC/`): Gemma + rules 17/20 units, final-sheet slot agreement 0.527, 2/8 cancellations missed. D-31: post-hoc fixes COR-13 to COR-17 next, then demo and post.
-- **Earlier update 2026-10-21:** licence (MIT), REL-06 and **EVAL-01** are done (set C manifest `688c50d`). COR-10 and COR-07a are unblocked.
-- **Owner actions tonight:** choose a licence (REL-01); commit and push the working tree, because the **public** GitHub repo is still at `4c1f700` without the export/scorer work (REL-06); write set C **outside the repo** following [the brief](docs/specs/eval-01-setC-brief.md), and commit only `fixtures/setC.manifest` (EVAL-01, D-24).
-- **Then (implementation agent):** COR-10, COR-03 → COR-07a (a warning for possibly missed cancellations, D-25) → COR-02 → EVAL-09, EVAL-10 (duplicate-aware scoring, D-26) → EVAL-07 (score C once) → UI-05 → UI-01 → demo → post. Publish by Sat 24 Oct 21:00 IST.
-- **Docs (D-27):** until submission, each task updates its TASKS row plus one dated PROGRESS entry; this file changes only when the plan or state changes.
+Mandatory, in order:
+1. **COR-13 to COR-17** (D-31; coding agent, in progress). Acceptance criteria are in the TASKS rows. Verify with the full unit suite, including `tests/test_d31_fixes.py`, then a cache-only re-score of A/B/C labelled **post-hoc**, never written into `frozen*/`. The lead reviews the agent's report before the owner commits.
+2. **DEP-03 demo recording.** The lead writes the script; the owner records a local video of a fictional workflow. It must show corrections/cancellations, review uncertainty, explicit review and the final CSV, and must not claim time savings.
+3. **REL-05 DEV post draft.** The lead drafts; the owner publishes. Required: tags `devchallenge` and `hf26challenge`, the template sections, an honest set C story, and "time saved unmeasured" unless EVAL-02 is done.
+4. **REL-04.** The owner confirms eligibility, that the project started inside the entry window, and the categories (overall + Gemma).
+5. **REL-02.** A final release check: a clean clone reproduces, the README matches, CI is green.
 
-**Prerequisite before further behavior changes:** EVAL-01 requires at least 20 new fictional set C messages and a handwritten reference to be frozen, unscored and committed before further behavior changes, without coding agents inspecting their contents. Arrange for a writer outside that implementation work to prepare them; this is the execution plan for preserving the unseen set. No set C files are present. This prerequisite is now explicit in the work order across TASKS, PRD and the agent guide. The already post-hoc A/B changes cannot be made independent retrospectively.
+Optional: **EVAL-11** set D (about 45 min of owner time) to test the fixes independently; **EVAL-03** coordinator conversations; **EVAL-02** timing pilot (≥ 2 participants). Deferred items are listed in TASKS.
 
-After that prerequisite, follow [TASKS.md](TASKS.md#order-of-work):
+## I. Known bugs and limitations
 
-1. COR-03/COR-10: expose extraction failures and prevent unsupported pending day/time suggestions affecting the sheet.
-2. COR-02: protect both CSV writers. If COR-07 is selected, use separately invented development examples without opening C.
-3. Fix EVAL-09 partial-condition accounting in the older evaluator before final C scoring/publication, preserving historical numbers and labelling corrected snapshots. Then EVAL-07 scores C once after planned behavior changes; record the exact code/scorer version.
-4. Coordinator feedback/authorized pilot (EVAL-03), independent reference review where feasible (EVAL-04), and matched timing (EVAL-02). Feedback can proceed in parallel; no time-saving claim until the study is actually run.
-5. Useful fictional demo and truthful submission/write-up; optional tools pass their gates. REL-03 documentation/evaluation labels are done; UI-05 remains a separate useful task.
+- **From set C, fixes in the working tree but unreviewed:**
+  - m13: an explicit date was mapped into the wrong week.
+  - m19: "definite now" leaves a condition conditional.
+  - m20/m21: replacements ("change … to", "only … now") not applied.
+  - m23: initial + surname → unknown person.
+  - The rules reader misses "cancelling" and "I'm out".
+- **Design limitations:**
+  - COR-07a fires only when no suggestion touched the day.
+  - The COR-10 flag compares exact words, so it also fires on harmless rewording.
+  - A merged accepted + pending segment shows wholly as pending (UI-06).
+  - Point times ("at 9") are unreadable.
+  - Failed extraction requests are not retried.
+  - The timezone field is unused.
+  - A reload loses review work.
+- **Performance [H]:** on the 8 GB Mac with other apps open, Gemma runs show memory pressure "warn" or "critical", up to about 4 GB of swap growth on a cold load, a median of about 1.8–3.4 s per message, and about 48 s for a cold load.
+- **Security:** local only, with no auth (single user on 127.0.0.1); CSV formulas are neutralised; no secrets or keys in the repo (grep in this pass found none [V]).
 
-Next-work review (DOC-02, 2026-10-20) reconfirmed EVAL-01 as the immediate next task; C remains absent. COR-03 now explicitly includes invented/stubbed browser coverage for a failure between successful extractions, invalid JSON/hybrid behavior, consistent new-session state and provisional export until explicit review. This is planned coverage, not an implemented fix.
+## J. Configuration, integrations, deployment
 
-The owner agreed to the layered direction in §2 and the integration plan, not to activation of every optional tool. This does not replace the correctness/evaluation order or authorize implementation by itself. Low-effort eligibility must not be presented as demonstrated winning strength.
+There are no environment variables or secrets. The only external runtime dependency is local Ollama; GitHub Actions runs on GitHub's free hosted runners. No deployment, nothing to migrate.
 
-Other **Planned** work: COR-04 session save/load; COR-06 roster-limit warning; COR-08 coordinator UI; UI-01 sheet overflow; UI-02 accessibility verification; stop/cancel support and richer failure statistics. COR-05 timezone behavior/removal and COR-09 repeat-after-intervening-cancellation semantics need decisions. Extraction failures are now visible per message (COR-03) and both CSV exports are formula-protected (COR-02); failed requests are not retried.
+Local run: `python3 server.py` → http://127.0.0.1:8765. Use "Rules only" without Ollama; the model readers need `ollama serve` and `gemma4:e2b-it-qat`.
 
-**Owner/external decisions:** project licence; actual development start and personal eligibility; organizer deadline clarification; .tech acquisition/renewal; final sponsor categories; optional host/replay; coordinator interviews/pilot and independent reference review. No evidence establishes demand or whether reviewing is faster than a signup form/manual entry.
+## K. Rules for future sessions
 
-### Current Git, deployment and documentation discrepancies
+Follow [CLAUDE.md](CLAUDE.md). In particular:
+- **Python standard library only.**
+- **Never edit** the fixtures, `setC.manifest`, `frozen/`, `frozen-setC/`, `tuning/` or `runs/`.
+- **Never change the prompt or `PROMPT_VERSION`** without a prompt task.
+- **Never tune on held-out data** (A held-out, B, C). Label post-hoc changes.
+- **Report regressions plainly.**
+- **The owner commits and pushes**; agents don't.
+- **₹0 budget.** No installs, accounts, deploys or publishing without an explicit owner request.
+- **Never claim time saved, or integrations that don't exist.**
 
-**Verified:** a local Git repository exists on `main`, tracking `origin/main`, at `4c1f700`; configured origin is [bipul724/availability-ledger](https://github.com/bipul724/availability-ledger). There are 21 local commits dated 2026-10-20 IST, starting at `6d18968` (11:26:38 IST). Public accessibility/current remote contents were not verified.
+Lessons learned:
+- **Holding flagged suggestions** back from the sheet failed twice (D-13: 15 correct vs 3 wrong; D-30: 28 vs 0). Don't retry it without new evidence.
+- **Agent guide drift:** the guide went stale twice and once told agents to commit set C. Update CLAUDE.md whenever the workflow changes.
+- **Evaluation runs:** model/hybrid runs make **fresh model calls on cache misses**, even without `--refresh`. Verify cache coverage first.
+- **Documentation volume:** keep docs lean (D-27).
 
-The current export/scorer/tests/browser fixes and many docs/results changes are uncommitted; several new files are untracked. **A clone of committed HEAD will not reproduce this working tree's features.** Do not discard, stage, commit or push that work as part of a documentation-only task. Git history timing is evidence of commits, not proof of initial project creation.
+## L. Immediate next action
 
-No licence file, public app deployment or deployment configuration is present. Proposed DEP-02 is a fictional-data-only replay on free hosting, clearly labelled as saved outputs rather than live inference; a local video is also a permitted demo path. Render is the selected planning option; no hosting account, service or deployment was activated in this audit.
+**Wait for, then review, the coding agent's D-31 report (COR-13 to COR-17).** Do not assume the work is finished or correct. When the report arrives:
+1. Run `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests` and confirm the count and that everything passes.
+2. Run `git diff --stat` and confirm no protected path changed: fixtures, `frozen*/`, `tuning/`, `runs/`, model prompt.
+3. Compare the new set C numbers with `evaluation/results/frozen-setC/` and confirm they are reported as **post-hoc**.
+4. Then give the owner grouped commit commands, and move on to the DEP-03 demo script and the REL-05 post draft.
 
-The all-doc alignment corrected stale Git absence, export-test counts, final-scorer status and omitted set C prerequisites. Complete competition detail was moved to COMPETITION.md rather than discarded. Current source/API behavior remains unchanged; future implementation must update the corresponding contracts and status when it actually lands.
-
-## 10. Verification and audit provenance
-
-| Check / provenance | Outcome and limit |
-|---|---|
-| Earlier source audit | Product/source/API/test/config/Git and saved evaluation evidence inspected. Historical server, browser and mutation-check reports remain in PROGRESS.md. No real .env/keys/pilot data read. |
-| Latest docs pass: offline unit tests | PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests: **49 passed**, 21 ledger + 28 export/scorer, Python 3.15.0/macOS. |
-| Latest docs pass: API input contract | 14 in-process reviewed_messages probes passed; tolerated falsy JSON values and rejection behavior documented exactly. No server/inference started. |
-| Earlier browser rerun check | 10 assertions passed for failed/successful reruns and exports. Earlier final-export/keyboard checks reported 13/18. Not rerun in this documentation pass. |
-| Saved evaluation evidence | Frozen/current scopes and labels retained; no evaluation.run writes, refreshed inference or benchmark-data changes. EVAL-09 remains open in the older evaluator. |
-| Competition research | Full Week 3 category/rule review plus Week 1 official awards and selected Week 2 submissions retained in COMPETITION.md; latest pass rechecked hub/Week 3 full details. No authoritative entrant counts; written deadline/API conflict remains. |
-| Documentation verification | 16 Markdown files and 261 local links/anchors checked without failures; all updated docs reread for status/contract consistency. Before/after hashes restrict this task to 17 Markdown/config files, including comments-only .env.example; source/data remain unchanged. |
-
-This pass did not install tools, create accounts, claim credits, instrument telemetry, alter application code, run new model inference, deploy or publish. Prior unit/browser checks do not establish new model accuracy, supported Python 3.10 behavior, accessibility, current installed models, public hosting, real-world usefulness or comparative winning odds. Detailed historical reports and current check provenance are in PROGRESS.md.
-
-## 11. Constraints and instructions for the next agent
-
-- Use [AGENTS.md](AGENTS.md) as the discovery entrypoint; read this handoff and [CLAUDE.md](CLAUDE.md), then the detailed spec/source for the assigned area. Verify the current working tree and task state before treating anything as missing or complete. Follow the owner's current assignment; a backlog is not permission to implement every item.
-- Preserve the product boundary, human overrides, explicit message review, ambiguity handling, conditional states, accepted-only export and model/code separation. Improvements are allowed when deliberate and documented.
-- Keep **Python standard library only** and no external frontend libraries/CDNs. A new dependency/service or architectural exception needs an explicit decision first.
-- Additional budget is **₹0**: existing local resources, free plans or sponsor credits only. No paid upgrades/top-ups/fallbacks/renewals. Installs, model downloads, accounts, credit claims, deployment and publishing need an explicit owner request. Optional features are off by default and stop/degrade when free allowances end.
-- Preserve `fixtures/*.txt`, `fixtures/*reference.json`, `evaluation/results/frozen/`, `evaluation/results/tuning/`, `evaluation/runs/`, and model `SYSTEM/EXAMPLES/PROMPT_VERSION` unless an explicitly authorized task changes the relevant contract. A prompt task bumps the version and records its rationale in TUNING.
-- Never tune against A held-out, B or unseen C. Use invented regression inputs; keep post-hoc labels and report regressions. evaluation.run writes current results even with cached outputs; missing caches trigger fresh calls, and --refresh forces them. Verify full cache coverage before cache-only checks; fresh calls/protected-cache writes need the appropriate existing authorization.
-- Never read, print or commit actual `.env` files, credentials or private message text. Fixtures remain fictional. A real pilot requires written owner confirmation of consent and prior anonymisation, storage outside version control, and local-only processing. Never copy pilot text into tests/docs/logs/issues/telemetry or external services; report aggregates.
-- No telemetry exists. Future Sentry work must follow INTEGRATIONS.md: opt-in/default-off, fictional-first metadata allowlist, no private content/identifiers/raw errors, no blocking core behavior on exporter/quota failure. In-app voice/transcription is deferred; narration is an external fictional demo artifact.
-- **Standing owner rule (2026-10-20): document every project task done, attempted or newly identified.** Before handing back work, update TASKS with actual status/new necessary work and dependencies, PROGRESS with dated outcomes and checks actually run (including not-run/failed checks and blockers), this handoff when material state/knowledge changes, and affected canonical docs. Follow CLAUDE.md for required fields. Do not leave material knowledge only in chat/memory or mistake new backlog entries for implementation permission. Preserve history with evidence links rather than raw transcripts.
-- Keep completed, in-progress, planned and proposed work distinct. Never promote a plan, successful schema parse, reference-generated CSV or click count into a deployed feature, model benchmark or measured time saving. Record uncertainty and source conflicts explicitly; recheck volatile competition requirements before submission.
-
-## 12. Project-lead handoff template
-
-The owner requested a Claude decision-making takeover prompt (DOC-03, 2026-10-20). Use [docs/prompts/claude-project-lead.md](docs/prompts/claude-project-lead.md) to start that session. It grants planning/judgment/documentation responsibility, preserves scoped implementation authorization, and begins with a verified audit plus the EVAL-01 writer brief. Creating the template does not start a Claude session or implement the planned work.
+If the agent hasn't reported, ask the owner for its status rather than inspecting half-finished files as if they were final.

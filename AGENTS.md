@@ -4,7 +4,7 @@ Read [context.md](context.md), then [CLAUDE.md](CLAUDE.md), before planning or c
 
 - Product requirements: [docs/PRD.md](docs/PRD.md).
 - Current implementation and evidence: [PROGRESS.md](PROGRESS.md); source wins over prose.
-- Next work and prerequisites: [TASKS.md](TASKS.md). Freeze unseen set C before further behavior changes.
+- Next work and prerequisites: [TASKS.md](TASKS.md). Set C has been frozen and scored once (2026-10-21); its frozen results are protected and all later changes are post-hoc. Test status and commands: [TESTING.md](TESTING.md).
 - Agreed technology roles, scope and evidence gates: [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md).
 - Verified competition rules, historical research, recommendations and unknowns: [docs/COMPETITION.md](docs/COMPETITION.md).
 - Architecture/API: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/API.md](docs/API.md).

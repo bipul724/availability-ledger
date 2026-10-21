@@ -115,10 +115,10 @@ The status line then shows review time and counts of accepts, edits, rejects, ad
 | Technology | Status |
 |---|---|
 | Gemma 4 E2B via local Ollama | **Implemented.** Phrase extraction, cross-checked by rules and reviewed by a person. |
-| GitHub Actions CI | **Workflow added** (`.github/workflows/tests.yml`, INT-10): unit tests on push and pull request to `main`, Python 3.12, no secrets or model. A real run has not been observed yet. |
+| GitHub Actions CI | **Workflow added** (`.github/workflows/tests.yml`, INT-10): unit tests on push and pull request to `main`, Python 3.12, no secrets or model. First run ("tests #1", commit `56e38bd`) passed. |
 | Everything else listed above | **Deferred** (D-23); not implemented. |
 
-**Work order ([TASKS.md](TASKS.md#order-of-work)):** done: licence (MIT), visible extraction failures (COR-03), CSV formula protection (COR-02), duplicate-aware and partial-condition evaluation metrics (EVAL-10, EVAL-09), provisional display and sheet fit (UI-05, UI-01), unseen fictional set C frozen (**EVAL-01**, manifest `fixtures/setC.manifest`, commit 688c50d), wording check for unsupported phrases (**COR-10**, flag only per D-30), possible-missed-change warning (**COR-07a**). Next: score set C once (**EVAL-07**) → demo recording (**DEP-03**) → submission post (**REL-05**, owner checks eligibility **REL-04**). Coordinator conversations (**EVAL-03**) run in parallel; the timing pilot (**EVAL-02**) only if at least two participants are available.
+**Work order ([TASKS.md](TASKS.md#order-of-work)):** done up to and including **EVAL-07**: set C written outside the repo, frozen by hash (`688c50d`), then scored once (2026-10-21). In progress: post-hoc fixes for the defects set C exposed (**COR-13 to COR-17**, D-31). Next: demo recording (**DEP-03**) → submission post (**REL-05**; the owner checks eligibility, **REL-04**). Coordinator conversations (**EVAL-03**) run in parallel; the timing pilot (**EVAL-02**) and a small fresh set D (**EVAL-11**) are optional.
 
 **Costs:** additional spending stays at **₹0**: existing resources, verified free plans or confirmed sponsor credits only, with no automatic upgrades, top-ups, paid fallbacks or renewals. CI runs on GitHub-hosted runners within the account's free allowance.
 
@@ -130,12 +130,14 @@ On fictional held-out messages (set A: 20 messages, 30 units; set B: 20 messages
 - Gemma alone: 20/30 and 28/35; it left 7 of 12 set A cancellations on the final sheet (a ledger figure computed over all 50 set A messages, dev included).
 - Gemma + rules: 26/30 and 30/35; no cancellations left on either final sheet (the set B result was partly luck).
 
-Changes made after reading held-out errors moved these numbers, some up and some down; they are labelled post-hoc and are not independent evidence. Two metric definitions were also corrected on 2026-10-20: duplicate messages are no longer counted as missed units (EVAL-10), and a condition interval that is only partly lost now counts as an error (EVAL-09); the before/after tables are in [PROGRESS.md](PROGRESS.md). The same author wrote the fixtures, references and rules. An independent fictional set C is planned (EVAL-01, EVAL-07). Human time saved has **not** been measured: the final-sheet export and strict scorer exist, but the timing study (matched workloads, several participants) has not been run ([evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md)).
+Changes made after reading held-out errors moved these numbers, some up and some down; they are labelled post-hoc and are not independent evidence. Two metric definitions were also corrected on 2026-10-20: duplicate messages are no longer counted as missed units (EVAL-10), and a condition interval that is only partly lost now counts as an error (EVAL-09); the before/after tables are in [PROGRESS.md](PROGRESS.md). The same author wrote the fixtures, references and rules. **Independent set C** (24 fictional messages written by an isolated ChatGPT session, 5 rewritten by the owner, scored once on 2026-10-21): Gemma + rules got 17/20 units right but only 0.527 final-sheet slot agreement with 2 of 8 cancellations missed. Rules alone scored 15/20 and 0.433; Gemma alone 17/20 and 0.403. The failures came mostly from deterministic reconciliation rules (explicit dates, replacement cues, settling conditions), not from the model ([evaluation/RESULTS.md](evaluation/RESULTS.md)). Fixes are in progress and will be post-hoc. Human time saved has **not** been measured: the final-sheet export and strict scorer exist, but the timing study (matched workloads, several participants) has not been run ([evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md)).
 
 ### Checks
 
+Full list, per-file counts and what has and hasn't been verified: [TESTING.md](TESTING.md).
+
 ```bash
-python3 -m unittest discover -s tests                 # 66 offline unit tests; no model, no network (CI runs these)
+python3 -m unittest discover -s tests                 # 66 offline unit tests at commit c5a2e05; no model, no network (CI runs these)
 python3 -m evaluation.compare                         # saved results; add "frozen" for first scoring
 python3 -m evaluation.run --set A --extractor rules   # re-score with the rules reader; writes evaluation/results/
 python3 -m evaluation.score_final my_final.csv --set A  # score a final-sheet CSV (timing study)
