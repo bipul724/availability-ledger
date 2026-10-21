@@ -7,7 +7,7 @@ Target length: about 2 min 30 s. Narration is about 330 words at a calm pace. Ev
 - **Shots 2–8:** the Render replay (DEP-02), which uses the saved Gemma outputs. They are deterministic, so the moments below appear exactly as described.
 - If the replay isn't deployed by Fri 23 Oct, record shots 2–8 locally with **Model + rules**. Do one dry run first, because live model output can differ from the saved outputs: if a moment below doesn't appear, skip it and its narration line.
 
-**The moments below** were checked against the saved Gemma 4 E2B outputs with the Model + rules reader on 2026-10-21. There are 67 suggestions from the 50 messages (one exact repeat is collapsed), and 11 items under Needs a decision. In shot 5, rejecting m48's suggestion was checked to turn Maria's Tuesday 09:00–12:00 from conditional back to available. Re-check on the replay before recording.
+**The moments below** were checked against the saved Gemma 4 E2B outputs with the Model + rules reader on 2026-10-21. There are 67 suggestions from the 50 messages (one exact repeat is collapsed), and 10 items under Needs a decision (confirmed on the live replay). In shot 5, rejecting m48's suggestion was checked to turn Maria's Tuesday 09:00–12:00 from conditional back to available. Re-check on the replay before recording.
 
 **Tools (₹0):**
 - macOS screen recording (Cmd+Shift+5).

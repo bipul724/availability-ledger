@@ -638,3 +638,24 @@ The lead wrote `docs/demo/script.md`: 8 shots, about 2 min 30 s, with narration 
 **Accepted.** Known and acceptable for a fictional replay: no request-size cap or rate limit. Without a card on file, Render suspends rather than bills.
 
 **Not verified:** a Render deploy, Python 3.12.6 availability there, wake-up time.
+
+
+### DEP-02 owner deployment walkthrough (2026-10-21)
+
+Provided dashboard guidance for the owner: New → Blueprint, connect bipul724/availability-ledger on main using root render.yaml, review one availability-ledger-replay web service on Free, then deploy and verify Live plus the exact public URL. Verified the local Blueprint specifies Python, a no-op build, python3 server.py, LEDGER_DEMO=1, PYTHON_VERSION=3.12.6 and /api/status health check. Its local commit is 96fdfa7; the GitHub branch contents were not checked remotely in this guidance task.
+
+Rechecked official Render Blueprint/free-service docs: https://render.com/docs/infrastructure-as-code and https://render.com/docs/free. Keep the workspace without a payment method; stop on a card requirement. Free compute does not by itself prevent bandwidth/build overage charges when a payment method exists. Initial build duration is variable; require Live and a working replay banner rather than promising 1–3 minutes.
+
+No account was operated, deployment triggered, URL verified, code changed, model called or application test rerun. DEP-02 remains pending its actual dashboard deployment and public verification. The owner can provide the URL or a screenshot of the step/error, excluding sensitive information.
+
+### DEP-02 deployed and checked live (2026-10-21)
+
+The owner deployed the Blueprint to https://availability-ledger-replay.onrender.com on Render's free plan. The lead checked it:
+- **API (curl):** home page 200 in 0.34 s (already awake); `/api/status` reports demo mode with `gemma4:e2b-it-qat`; pasted text to `/api/parse` refused with 403; replay banner present.
+- **Browser pane:** Suggest records filled all 50 message cards with no errors in about 25 s; suggestions are fetched one message at a time from India.
+  - Needs a decision showed the same 10 items as the local cache-only replay.
+  - Rejecting m48's suggestion removed its warning and returned Maria's Tuesday 09:00–12:00 to available (pending acceptance), matching demo shot 5.
+
+**Not checked live:** the CSV downloads (covered locally by `demo_mode.mjs`, 23/23) and cold-start wake time.
+
+**Docs:** README scope moved from D-23 to D-33, with the replay URL and an integration status table; demo script count corrected to 10 decision items.

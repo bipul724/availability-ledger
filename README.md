@@ -110,6 +110,8 @@ The status line then shows review time and counts of accepts, edits, rejects, ad
 
 ## Hosted replay (Render)
 
+**Live:** https://availability-ledger-replay.onrender.com (free instance: after 15 minutes without visitors it sleeps, and the first visit takes about a minute to wake it).
+
 `LEDGER_DEMO=1 python3 server.py` starts a **read-only replay** (DEP-02, D-33). It listens on `0.0.0.0:$PORT` and serves only fictional set A. Suggestions come from the saved Gemma 4 outputs in `evaluation/runs/gemma4_e2b_it_qat_prompt3/`, by message ID, and Ollama is never called. The paste box and file upload are hidden, and the server refuses (403) any message, roster, week or model it did not serve. Review, accept and reject, history, warnings, the chart and both CSV exports work as locally. A banner on every page says it is a replay and links here. Without `LEDGER_DEMO` nothing changes.
 
 **Deploying (owner steps, Render dashboard):**
@@ -124,16 +126,18 @@ The status line then shows review time and counts of accepts, edits, rejects, ad
 
 ## Week 3 scope, work order and costs
 
-**Scope ([D-23](docs/DECISIONS.md#d-23-week-3-submission-scope-gemma-core-optional-actions-ci-other-integrations-deferred)):** the DEV Hacktoberfest Week 3 entry targets **overall + Gemma**. The only addition is **GitHub Actions CI** running the offline unit tests. Everything else (Sentry, Render replay and `.tech` routing, ElevenLabs narration, Entire, Copilot agent work, Backboard R-CLI) is **deferred until after submission**; roles and gates for later are in [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md), competition rules in [docs/COMPETITION.md](docs/COMPETITION.md). An entry can win at most one prize, and only completed, genuine uses may be named.
+**Scope ([D-33](docs/DECISIONS.md#d-33-owner-override-of-d-23-add-copilot-actions-render-sentry-and-elevenlabs)):** the DEV Hacktoberfest Week 3 entry targets **overall + Gemma**, plus GitHub Copilot (through GitHub Actions automation), Render, Sentry Agent Tracing and ElevenLabs. Each one is named in the submission only if it is genuinely in use by then. Not planned for this entry: `.tech` routing, Entire, Copilot coding-agent work, Backboard R-CLI. Roles and gates: [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md); rules: [docs/COMPETITION.md](docs/COMPETITION.md). An entry can win at most one prize.
 
 | Technology | Status |
 |---|---|
 | Gemma 4 E2B via local Ollama | **Implemented.** Phrase extraction, cross-checked by rules and reviewed by a person. |
-| Render read-only replay | **Code added** (DEP-02, 2026-10-21): demo mode in `server.py`, [render.yaml](render.yaml). **Not deployed**; no public URL yet. |
-| GitHub Actions CI | **Workflow added** (`.github/workflows/tests.yml`, INT-10): unit tests on push and pull request to `main`, Python 3.12, no secrets or model. First run ("tests #1", commit `56e38bd`) passed. |
-| Everything else listed above | **Deferred** (D-23); not implemented. |
+| Render read-only replay | **Deployed** (DEP-02, 2026-10-21): https://availability-ledger-replay.onrender.com, from [render.yaml](render.yaml) on the free plan. |
+| GitHub Actions (Copilot category) | **Running** (`.github/workflows/tests.yml`, INT-10, INT-11): on every push and pull request, unit tests, a SHA-256 check that the frozen evidence is unchanged, and a re-score of sets A, B and C from saved outputs, with the score table in the job summary. No secrets or model. Run "tests #5" (`8c5f975`) passed. |
+| Sentry Agent Tracing | **Planned** (INT-03, opt-in, content-free); not implemented yet. |
+| ElevenLabs | **Planned** (INT-04): narration of the demo video; script in [docs/demo/script.md](docs/demo/script.md). |
+| Everything else listed above | **Deferred**; not implemented. |
 
-**Work order ([TASKS.md](TASKS.md#order-of-work)):** done up to and including **EVAL-07**: set C written outside the repo, frozen by hash (`688c50d`), then scored once (2026-10-21). In progress: post-hoc fixes for the defects set C exposed (**COR-13 to COR-17**, D-31). Next: demo recording (**DEP-03**) → submission post (**REL-05**; the owner checks eligibility, **REL-04**). Coordinator conversations (**EVAL-03**) run in parallel; the timing pilot (**EVAL-02**) and a small fresh set D (**EVAL-11**) are optional.
+**Work order ([TASKS.md](TASKS.md#order-of-work)):** done: set C scored once (EVAL-07, 2026-10-21); post-hoc fixes COR-13 to COR-18; GitHub Actions automation (INT-11); hosted replay (DEP-02). Next: Sentry tracing (**INT-03**) → narrated demo (**DEP-03**, **INT-04**) → submission post (**REL-05**; the owner checks eligibility, **REL-04**). A small fresh set D (**EVAL-11**) is optional.
 
 **Costs:** additional spending stays at **₹0**: existing resources, verified free plans or confirmed sponsor credits only, with no automatic upgrades, top-ups, paid fallbacks or renewals. CI runs on GitHub-hosted runners within the account's free allowance.
 
