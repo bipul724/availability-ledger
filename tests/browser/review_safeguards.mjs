@@ -44,5 +44,14 @@ await js(`document.querySelector('.card[data-id="m01.1"] button[data-act="accept
 fin = await exportFinal();
 check(/2026-11-10,14:00,16:00,available,,confirmed,m02.1/.test(fin.text) && /status=complete/.test(fin.text),
   "once accepted it is in the final export, and the open change warning does not block a complete file: " + fin.text.split("\n")[0]);
+// COR-18 (D-32): a replacement caused only by a change word in the message is listed for review; the sheet follows COR-15.
+await js(`window.__stubs = {}`);
+await setInputs(["2026-11-02 09:00 | Ana Example | Wednesday 10-12", "2026-11-04 09:00 | Ana Example | help move tables Wednesday 6-8 too"].join("\n"), "2026-11-09");
+await suggest();
+const cueIssues = await issues();
+check(/Earlier answer replaced — check: Ana Example Wed 11 Nov: m02 contains a change word, so it replaced the earlier answer \(10:00-12:00 available\)/.test(cueIssues),
+  "a cue-only replacement is listed with the removed time: " + cueIssues.split("\n").find((l) => /replaced/.test(l)));
+check(/18:00\s*–\s*20:00/.test(await sheetCell("2026-11-11")) && !/10:00/.test(await sheetCell("2026-11-11")), "the warning does not change the sheet (COR-15 replacement stands)");
+
 check(app.problems.length === 0, "no console errors or exceptions: " + JSON.stringify(app.problems));
 app.done();

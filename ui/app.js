@@ -416,8 +416,9 @@ function acceptClean() {
 
 function renderSummary() {
   const L = state.ledger;
-  const order = { conflict: 0, unanswered_change: 1, who: 2, date: 3, time: 4, check_wording: 5, condition: 6, outside: 7 };
-  const kindLabel = { unanswered_change: "Possible missed change", check_wording: "Check the wording" };  // COR-07a, COR-10 (D-30)
+  const order = { conflict: 0, unanswered_change: 1, cue_replacement: 2, who: 3, date: 4, time: 5, check_wording: 6, condition: 7, outside: 8 };
+  const kindLabel = { unanswered_change: "Possible missed change", cue_replacement: "Earlier answer replaced — check",  // COR-07a, COR-18
+    check_wording: "Check the wording" };  // COR-10 (D-30)
   const issues = [...L.issues].sort((a, b) => (order[a.kind] ?? 9) - (order[b.kind] ?? 9));
   $("issues").innerHTML = issues.map((i) => `<li><a href="#row-${esc(i.msg)}">${esc(i.msg)}</a> ` +
     `${kindLabel[i.kind] ? `<strong class="issue-kind">${kindLabel[i.kind]}:</strong> ` : ""}${esc(i.text)}</li>`).join("")

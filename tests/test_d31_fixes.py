@@ -121,6 +121,43 @@ class ReplacementCues(unittest.TestCase):
         self.assertEqual(sheet_day(msgs, claims, "2026-11-13")[0], [("09:00", "12:00", "available"), ("14:00", "16:00", "available")])
 
 
+class CueReplacementIsVisible(unittest.TestCase):
+    """COR-18 (D-32): a replacement that comes only from REPLACE_CUES raises a warning naming the removed time;
+    the sheet is exactly what COR-15 produces. Invented messages."""
+
+    first = msg("m1", 2, 9, "Sat 10-12 works")
+    first_claim = claim("m1", 1, "Saturday", "10-12", "Sat 10-12 works")
+
+    def run_case(self, text, claims):
+        msgs = [self.first, msg("m2", 4, 9, text)]
+        segs, L = sheet_day(msgs, [self.first_claim, *claims], "2026-11-14")
+        return segs, [i for i in L["issues"] if i["kind"] == "cue_replacement"]
+
+    def test_the_three_d32_cases_each_raise_the_warning(self):
+        cases = [("Moving my Fri slot to 2-4 instead. Also free Sat 6-8.",
+                  [claim("m2", 1, "Friday", "2-4", "Moving my Fri slot to 2-4 instead"), claim("m2", 2, "Saturday", "6-8", "Also free Sat 6-8")]),
+                 ("I can now also do Sat 6-8", [claim("m2", 1, "Saturday", "6-8", "I can now also do Sat 6-8")]),
+                 ("help move tables Sat 6-8 too", [claim("m2", 1, "Saturday", "6-8", "help move tables Sat 6-8 too")])]
+        for text, claims in cases:
+            with self.subTest(text=text):
+                segs, warn = self.run_case(text, claims)
+                self.assertEqual(segs, [("18:00", "20:00", "available")])  # COR-15 behaviour unchanged
+                self.assertEqual([(w["person"], w["date"], w["msg"]) for w in warn], [("Ana Example", "2026-11-14", "m2")])
+                self.assertEqual(warn[0]["removed"], [["10:00", "12:00", "available"]])
+                self.assertIn("10:00", warn[0]["text"])
+                self.assertIn("m2", warn[0]["text"])
+
+    def test_reader_set_replacement_raises_no_warning(self):
+        c = claim("m2", 1, "Saturday", "6-8", "Sat 6-8 instead")
+        c["said"]["replaces_earlier"] = True
+        segs, warn = self.run_case("Sat 6-8 instead", [c])
+        self.assertEqual((segs, warn), ([("18:00", "20:00", "available")], []))
+
+    def test_no_cue_adds_and_raises_no_warning(self):
+        segs, warn = self.run_case("Also free Sat 6-8", [claim("m2", 1, "Saturday", "6-8", "Also free Sat 6-8")])
+        self.assertEqual((segs, warn), ([("10:00", "12:00", "available"), ("18:00", "20:00", "available")], []))
+
+
 class InitialAndSurname(unittest.TestCase):
     """COR-16: an initial plus a surname matches roster entries with that surname and first initial."""
 

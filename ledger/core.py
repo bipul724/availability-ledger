@@ -387,11 +387,17 @@ def build_ledger(messages: list[Message], claims: list[dict], roster: list[str],
             replaces = c["replaces_earlier"] or (c.get("source") in ("model", "rules") and c["msg"] in cue_msgs
                                                  and c["time_state"] != "unstated" and c["status"] in ("available", "conditional"))
             if replaces and (c["msg"], key) not in cleared and any(s and s[2] != c["msg"] for s in slots):
+                removed = _segments([s if s and s[2] != c["msg"] else None for s in slots])
                 for i, s in enumerate(slots):
                     if s and s[2] != c["msg"]:
                         slots[i] = None
                 cleared.add((c["msg"], key))
                 hist.append({**event, "what": "replaced earlier answer for this day", "span": ""})
+                if not c["replaces_earlier"]:  # COR-18 (D-32): replaced only because of a cue word; make it visible
+                    gone = ", ".join(f"{g['start']}-{g['end']} {g['status']}" for g in removed)
+                    issue("cue_replacement", c, f"{c['person']} {date.fromisoformat(d):%a %d %b}: {c['msg']} contains a change word, "
+                          f"so it replaced the earlier answer ({gone}); check that the message really changes it",
+                          date=d, removed=[[g["start"], g["end"], g["status"]] for g in removed])
             changes: Counter = Counter()
             new = (c["status"], c["id"], c["msg"], _spec(c))
             for i in _slot_range(*span):
