@@ -17,7 +17,9 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
 | `tests/test_evaluation.py` | 5 | Duplicate-aware unit scoring (EVAL-10), partial condition loss (EVAL-09) |
 | `tests/test_review_safeguards.py` | 10 | COR-10 "check the wording" flag (no hold), COR-07a warning |
 
-**Working tree, 2026-10-21 (INT-11, uncommitted):** **91 tests pass** on Python 3.15.0 and 3.12.6. Since `c5a2e05`: `tests/test_d31_fixes.py` (COR-13 to COR-18, 18 tests) and `tests/test_cache_only.py` (INT-11, 7 tests: `--cache-only` never reaches the patched model call, `--out` refuses protected folders, the CI summary fails on any score difference or fresh call).
+**Working tree, 2026-10-21 (DEP-02, uncommitted):** **98 tests pass** on Python 3.15.0 and 3.12.6 (also with `TZ=UTC` on 3.12): `tests/test_demo_mode.py` adds 7 (demo routes over HTTP: pasted text, unserved or altered messages, other settings and other models refused; no model or Ollama call; replay claims identical to a local run fed the same saved outputs and to the cache-only evaluation reader; `LEDGER_DEMO=1` binds 0.0.0.0:$PORT, otherwise `PORT` is ignored).
+
+**INT-11 (committed `8c5f975`):** **91 tests pass** on Python 3.15.0 and 3.12.6. Since `c5a2e05`: `tests/test_d31_fixes.py` (COR-13 to COR-18, 18 tests) and `tests/test_cache_only.py` (INT-11, 7 tests: `--cache-only` never reaches the patched model call, `--out` refuses protected folders, the CI summary fails on any score difference or fresh call).
 
 **Working tree (uncommitted, 2026-10-21):** a new `tests/test_d31_fixes.py` for COR-13 to COR-17 brings the total to **81**. At 11:13 IST all 81 passed. That work is in progress and unreviewed (see [context.md §G](context.md#g-current-state-at-handover-2026-10-21-about-1115-ist)).
 
@@ -58,7 +60,8 @@ PYTHONDONTWRITEBYTECODE=1 node tests/browser/session_rerun.mjs
 | `extraction_failures.mjs` | Per-message failure warnings and continued reading (COR-03) | 14/14 |
 | `csv_safety.mjs` | Formula neutralising in both exports (COR-02) | 4/4 |
 | `sheet_display.mjs` | Pending vs accepted display at 1400 px and 390 px (UI-05/UI-01/UI-07) | 28/28 |
-| `review_safeguards.mjs` | "Check the wording" flag and the missed-change warning in the UI | 10/10 |
+| `review_safeguards.mjs` | "Check the wording" flag, the missed-change warning and the cue-replacement warning in the UI | 12/12 (re-run 2026-10-21, DEP-02) |
+| `demo_mode.mjs` | Hosted replay with `LEDGER_DEMO=1`: banner, hidden inputs, pasted text refused, Model only and Model + rules from saved outputs, accept/reject, both exports, no page overflow at 1400 and 390 px. Optional `[screenshot-dir]` | 23/23 (2026-10-21) |
 | `harness.mjs` | Shared helper, not a test | — |
 
 The agent also ran two checks kept in its own scratchpad, not in the repo: final export 13/13 and keyboard 18/18. They are not reproducible from the repo.

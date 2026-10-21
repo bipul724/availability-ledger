@@ -51,7 +51,7 @@ A local Git repository exists, on `main` tracking `origin/main` at the audited H
 python3 server.py [port]        # default port 8765; host is always 127.0.0.1
 ```
 
-1. `server.py` starts a `ThreadingHTTPServer` on `127.0.0.1:<port>`. The port is the first command-line argument; nothing is read from environment variables or `.env` files.
+1. `server.py` starts a `ThreadingHTTPServer` on `127.0.0.1:<port>`. The port is the first command-line argument; nothing is read from `.env` files. The only environment variables are for the hosted read-only replay (DEP-02): with `LEDGER_DEMO=1` it binds `0.0.0.0:$PORT`, serves fictional set A only and answers suggestions from saved Gemma outputs instead of Ollama ([API: demo mode](API.md#demo-mode-hosted-replay)).
 2. The browser loads `/` → `ui/index.html`, `app.js`, `style.css` (sent with `Cache-Control: no-store`).
 3. `app.js` calls `GET /api/status`, which asks Ollama at the hard-coded `http://127.0.0.1:11434/api/tags` for installed models (2 s timeout). If Ollama is unreachable the page says only "Rules only" will work.
 4. The coordinator loads the fictional demo (`GET /api/demo`) or pastes text, then clicks **Suggest records**.

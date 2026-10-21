@@ -574,3 +574,67 @@ The lead wrote `docs/demo/script.md`: 8 shots, about 2 min 30 s, with narration 
 - a real model error caught by review: m48 files Marta's offer under Maria. Rejecting it turns Maria's Tuesday 09:00–12:00 from conditional back to available.
 
 **Not done:** the recording and narration (owner, Sat 24 Oct). The replay (DEP-02) isn't built yet. A live local run may differ from the saved outputs, so do a dry run first.
+
+### DEP-02 / INT-02: read-only replay built, not deployed (2026-10-21, system clock 12:42 IST)
+
+**Changed:**
+- **`server.py`:** demo mode, on only when `LEDGER_DEMO=1`.
+  - It binds `0.0.0.0:$PORT`. Without `LEDGER_DEMO`, `PORT` is ignored and the host stays 127.0.0.1.
+  - Suggestions for `model`/`hybrid` come from `evaluation/runs/gemma4_e2b_it_qat_prompt3/<id>.json`, with `stats.saved = true`. The rules reader runs as normal.
+  - It returns 403 for:
+    - pasted text, or a roster that isn't the served one, on `/api/parse`;
+    - any message that is not a served set A message, unchanged, on `/api/suggest`, `/api/resolve` and `/api/export`;
+    - another roster, week, timezone or `coordinators`;
+    - any model other than `gemma4:e2b-it-qat`.
+  - `/api/status` answers without contacting Ollama and adds `"demo": true`.
+- **UI** (`ui/index.html`, `ui/app.js`, `ui/style.css`):
+  - A sticky banner with the exact wording from the brief, linking the repo.
+  - The paste box, roster box, file upload, demo button and day-first option are hidden; week and timezone are disabled.
+  - Set A loads on arrival, and the progress line says "Replayed N messages … from saved outputs".
+- **New files:** `render.yaml` and `tests/test_demo_mode.py` (7 tests).
+- **Browser checks:** a new `tests/browser/demo_mode.mjs` (23 checks). `tests/browser/harness.mjs` gains an optional `env` argument for `openApp`, so existing checks are unchanged.
+- **`render.yaml`:**
+  - Free plan, no region pinned.
+  - `buildCommand` is a no-op `echo`, because Render requires one for Python.
+  - `PYTHON_VERSION` is 3.12.6, because Render's default is 3.14.8, which isn't tested here.
+  - Health check `/api/status`; no secrets.
+- **Docs:**
+  - README: configuration, online behaviour, status row, and a "Hosted replay (Render)" deploy section with the free-tier facts read from render.com/docs/free.
+  - `docs/API.md`: a demo-mode section, the 403 error and the CLI row.
+  - The "reads no environment variables" statements corrected in ARCHITECTURE, `.env.example`, context.md and CLAUDE.md.
+  - The DEP-02 and INT-02 rows, and TESTING.md.
+
+**Not changed:** `ledger/`, fixtures, saved runs, results and the prompt. Not committed.
+
+**Checks run:**
+- **Unit tests:** 98 pass on Python 3.15.0 and 3.12.6, and with `TZ=UTC` on 3.12.
+- **`test_demo_mode.py`**, through real HTTP with `model.extract` and `available_models` patched to fail:
+  - Each of the 50 messages, for all three readers, gives the same claims as a non-demo run whose model call returns the same saved output.
+  - Model-only claims equal `evaluation.run`'s cache-only reader output.
+  - The refusals listed above return 403.
+  - A subprocess with `LEDGER_DEMO=1 PORT=n` prints `0.0.0.0:n` and serves; without it, `PORT` is not bound.
+- **Browser:** `demo_mode.mjs` 23/23 (load, pasted text refused, Model only 62 and Model + rules 67 suggestions, both with no failures, accept/mark/reject, sheet/chart/history/warnings, both exports, no horizontal scroll and a pinned banner at 1400 and 390 px, no console errors).
+- **Existing browser checks with demo mode off:** session_rerun 10/10, extraction_failures 14/14, csv_safety 4/4, sheet_display 28/28, review_safeguards 12/12.
+- **`render.yaml`:** parses (Ruby YAML).
+- **Screenshots** (viewport, 1400 and 390 px, top and scrolled) are in the agent's scratchpad, not the repo. `node tests/browser/demo_mode.mjs <dir>` writes them again.
+
+**Not verified:**
+- Any Render deploy, its free plan in the owner's dashboard, Python 3.12.6 availability there, and cold-start time. The README facts on sleep, hours and overage billing come from Render's docs page, not from a deploy.
+- The demo has no rate limiting. Each request is cheap and stateless, and nothing is stored.
+
+**Next:** the owner deploys (New → Blueprint, check Free and no payment method) and sends the URL; the lead checks it. Gate: Thu 22 Oct 22:00 IST.
+
+### Lead review of DEP-02 (2026-10-21)
+
+**Re-run by the lead:** 98 unit tests pass on Python 3.15 and 3.12. Checksums 17/17. No diff under `fixtures/`, `evaluation/` or `ledger/`.
+
+**Live probe** of `LEDGER_DEMO=1 PORT=18766` on Python 3.12:
+- `/api/status` reports demo and never contacts Ollama.
+- Requests refused with 403: pasted text; altered message text; another model; a path-like message id; another roster.
+- Served set A parses to 50 messages, and a hybrid suggest answers from saved outputs.
+
+**Code read:** every demo request is checked against the served set A data before any work; saved outputs are looked up only by ids that passed that check; the local default is unchanged. Screenshots at 1400 px and 390 px show the banner, repo link and Needs a decision list, matching the demo script's moments.
+
+**Accepted.** Known and acceptable for a fictional replay: no request-size cap or rate limit. Without a card on file, Render suspends rather than bills.
+
+**Not verified:** a Render deploy, Python 3.12.6 availability there, wake-up time.

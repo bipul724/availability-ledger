@@ -48,7 +48,7 @@ If source code or a fresh check contradicts this file, trust the source and fix 
 | Browser checks | `tests/browser/*.mjs` (optional): need **Node 22+** (this Mac: v22.11.0) and local Chrome (`CHROME=` overrides); install nothing | [V] node; [R] harness |
 | CI | `.github/workflows/tests.yml`: unit tests on push/PR to `main`, ubuntu-latest, Python 3.12, `permissions: contents: read`, no secrets. First run **"tests #1" on `56e38bd` passed in 9 s** (owner screenshot). Later runs not observed | [V] file; [C] run |
 | Hardware | Apple M2, **8 GB RAM**, macOS 26.6.2; memory pressure is a real constraint | [H] 2026-10-20 |
-| Environment variables | **None.** The app reads no env vars and loads no `.env` ([.env.example](.env.example) says so). The browser harness alone reads `CHROME` | [R] |
+| Environment variables | **None for local use.** The local app reads no env vars and loads no `.env` ([.env.example](.env.example) says so). The hosted replay reads `LEDGER_DEMO=1` and `PORT` (DEP-02). The browser harness reads `CHROME` | [R] |
 | Hosting | **None.** No deployment, no public URL | [R] |
 
 Preview tooling, outside the repo [V]: `week 3/.claude/launch.json` attaches the desktop app's browser pane to an **already running** server at `http://127.0.0.1:8765`. History [H]: when the preview tool launched `server.py` itself, the process hung in `getcwd()` (macOS Desktop-folder permission). The fix was to start the server from a shell and attach by URL.
@@ -193,7 +193,7 @@ Optional: **EVAL-11** set D (about 45 min of owner time) to test the fixes indep
 
 ## J. Configuration, integrations, deployment
 
-There are no environment variables or secrets. The only external runtime dependency is local Ollama; GitHub Actions runs on GitHub's free hosted runners. No deployment, nothing to migrate.
+There are no secrets; the only environment variables are the replay's `LEDGER_DEMO` and `PORT` (DEP-02). The only external runtime dependency is local Ollama; GitHub Actions runs on GitHub's free hosted runners. No deployment, nothing to migrate.
 
 Local run: `python3 server.py` → http://127.0.0.1:8765. Use "Rules only" without Ollama; the model readers need `ollama serve` and `gemma4:e2b-it-qat`.
 

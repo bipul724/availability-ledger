@@ -76,11 +76,11 @@ The page's **Model** list shows whatever Ollama has installed. If Ollama is not 
 
 ## Configuration
 
-There are no environment variables and no `.env` loading; [.env.example](.env.example) explains this. Configuration is:
+The local app reads no environment variables and loads no `.env`; [.env.example](.env.example) explains this. The one exception is the hosted replay: `LEDGER_DEMO=1` switches on demo mode, which then reads `PORT` (see [Hosted replay](#hosted-replay-render)). Configuration is:
 
 | Setting | Where |
 |---|---|
-| Port | first argument to `server.py` (default 8765); the host is always 127.0.0.1 |
+| Port | first argument to `server.py` (default 8765); the host is always 127.0.0.1. Demo mode only: `$PORT` on 0.0.0.0 |
 | Week (a Monday), timezone label, reader, model, day-first WhatsApp dates | the page |
 | Ollama address | fixed in `ledger/model.py` (`http://127.0.0.1:11434`) |
 | Default model | `DEFAULT_MODEL` in `ledger/model.py` |
@@ -106,7 +106,21 @@ The status line then shows review time and counts of accepts, edits, rejects, ad
 | Messages, roster, review decisions | retained in browser memory and processed transiently by the local Python server on 127.0.0.1; no application persistence |
 | Model calls | only to Ollama on 127.0.0.1 |
 | Telemetry, analytics, crash reports | none |
-| Hosted version | none; there is no public URL |
+| Hosted version | a read-only replay can be deployed from [render.yaml](render.yaml) (below); **none is deployed yet**, so there is no public URL |
+
+## Hosted replay (Render)
+
+`LEDGER_DEMO=1 python3 server.py` starts a **read-only replay** (DEP-02, D-33). It listens on `0.0.0.0:$PORT` and serves only fictional set A. Suggestions come from the saved Gemma 4 outputs in `evaluation/runs/gemma4_e2b_it_qat_prompt3/`, by message ID, and Ollama is never called. The paste box and file upload are hidden, and the server refuses (403) any message, roster, week or model it did not serve. Review, accept and reject, history, warnings, the chart and both CSV exports work as locally. A banner on every page says it is a replay and links here. Without `LEDGER_DEMO` nothing changes.
+
+**Deploying (owner steps, Render dashboard):**
+1. Sign in to Render and choose **New → Blueprint**.
+2. Connect this GitHub repository. Render reads [render.yaml](render.yaml): one free web service, Python 3.12.6, no install step, start command `python3 server.py` with `LEDGER_DEMO=1`, health check `/api/status`. There are no secrets to enter.
+3. Check that the plan shown is **Free** and that no payment method is required, then apply. The first deploy prints the service URL.
+
+**Free tier behaviour** ([render.com/docs/free](https://render.com/docs/free), read 2026-10-21):
+- **Sleep:** the service spins down after 15 minutes without traffic. The next visit wakes it, which takes about one minute, so open the URL once before a demo.
+- **Hours:** a workspace gets 750 free instance hours a month. After that, free services are suspended until the next month.
+- **Overages:** bandwidth and build-minute overages are **billed if a payment method is on file**. Without one, Render suspends the services for the rest of the month instead. For ₹0, add no payment method.
 
 ## Week 3 scope, work order and costs
 
@@ -115,6 +129,7 @@ The status line then shows review time and counts of accepts, edits, rejects, ad
 | Technology | Status |
 |---|---|
 | Gemma 4 E2B via local Ollama | **Implemented.** Phrase extraction, cross-checked by rules and reviewed by a person. |
+| Render read-only replay | **Code added** (DEP-02, 2026-10-21): demo mode in `server.py`, [render.yaml](render.yaml). **Not deployed**; no public URL yet. |
 | GitHub Actions CI | **Workflow added** (`.github/workflows/tests.yml`, INT-10): unit tests on push and pull request to `main`, Python 3.12, no secrets or model. First run ("tests #1", commit `56e38bd`) passed. |
 | Everything else listed above | **Deferred** (D-23); not implemented. |
 

@@ -27,9 +27,28 @@ Related: [ARCHITECTURE.md](ARCHITECTURE.md) for data structures and flow; [INTEG
 - Base URL: `http://127.0.0.1:<port>` (default 8765). The host is fixed to `127.0.0.1`; it is not reachable from other machines.
 - **Authentication: none.** Anyone who can open a connection to that port on the same machine can call every route.
 - Request bodies are JSON (the `Content-Type` header is not checked; `Content-Length` is used to read the body). An empty body is treated as `{}`.
-- Responses: JSON (`application/json`, UTF-8, non-ASCII kept), or the static files. Every response carries `Cache-Control: no-store`.
+- Responses: JSON (`application/json`, UTF-8, non-ASCII kept), or the static files. Every response carries `Cache-Control: no-store`. (In [demo mode](#demo-mode-hosted-replay) the host is `0.0.0.0` and the port is `$PORT`.)
 - **Errors.** Any exception raised while handling a POST returns **400** with `{"error": "<ExceptionType>: <message>"}`. This includes malformed JSON, missing fields, a `week_start` that is not a Monday, and Ollama being unreachable. There is no 500 response. Unknown POST path: **404** `{"error": "unknown endpoint"}`. Unknown GET path: **404** `text/plain` body `not found`.
 - No request logging, rate limiting, CORS headers or streaming.
+- **Demo mode** (`LEDGER_DEMO=1`, DEP-02): the hosted read-only replay. See [Demo mode](#demo-mode-hosted-replay); refused requests return **403** `{"error": "<reason>"}`.
+
+## Demo mode (hosted replay)
+
+Off unless the environment variable `LEDGER_DEMO` is exactly `1`. Then:
+
+- **Binding:** `0.0.0.0:$PORT` (falls back to the command-line port, then 8765). Without demo mode `PORT` is ignored and the host stays `127.0.0.1`.
+- **What it serves:** only fictional set A (`GET /api/demo`, unchanged). The page hides the paste box, roster box, file upload, demo button and day-first option, disables week and timezone, loads set A on arrival and shows the replay banner.
+- **`GET /api/status`** returns `{"models": ["gemma4:e2b-it-qat"], "default_model": "gemma4:e2b-it-qat", "demo": true}` without contacting Ollama. This is also Render's health check.
+- **`POST /api/parse`** returns 403 unless `text` and `roster` equal the served set A text and roster exactly and `day_first` is not set.
+- **`POST /api/suggest`** returns 403 unless:
+  - `message` equals one of the served set A messages (all five fields);
+  - `roster`, `week_start` and `timezone` equal the served ones;
+  - `coordinators` is absent;
+  - `model` is absent or `gemma4:e2b-it-qat`.
+
+  For `model` and `hybrid`, Gemma's claims come from `evaluation/runs/gemma4_e2b_it_qat_prompt3/<id>.json`, and `stats` is the saved one plus `"saved": true`. No model is called. The rules reader runs as normal. Claims are identical to a local run whose model call returns the same saved output (unit test).
+- **`POST /api/resolve`** and **`POST /api/export`** return 403 unless `messages` is a list of served messages (unchanged), with the served roster, week and timezone and no `coordinators`. Claims, review states and corrections are accepted as usual.
+- No other environment variable is read, and nothing is stored or logged.
 
 Observed error responses (fictional calls):
 
@@ -308,11 +327,12 @@ available_models() -> list[str]
 
 ## Command-line interface
 
-All commands run from the project folder. None read environment variables.
+All commands run from the project folder. Only demo mode reads environment variables (`LEDGER_DEMO`, `PORT`); the browser harness reads `CHROME`.
 
 | Command | Purpose | Notes |
 |---|---|---|
 | `python3 server.py [port]` | start the app | default 8765; host 127.0.0.1 |
+| `LEDGER_DEMO=1 PORT=10000 python3 server.py` | start the read-only replay (DEP-02) | host 0.0.0.0; fictional set A and saved Gemma outputs only; see [Demo mode](#demo-mode-hosted-replay) |
 | `python3 -m unittest discover -s tests` | 49 offline checks | no Ollama needed |
 | `node tests/browser/session_rerun.mjs` | optional browser check that a failed or rejected rerun keeps the reviewed session and its export | needs Node 22+ and a local Chrome; installs nothing |
 | `python3 -m evaluation.run --set A\|B --extractor rules\|model\|hybrid [--model NAME] [--only m02,m05] [--refresh] [--label X]` | score a reader against the fictional reference | model outputs cached per message in `evaluation/runs/<model>_prompt<v>[_setB]/`; a missing model cache also makes a fresh call without --refresh; --refresh forces new calls; writes `evaluation/results/set<S>_<extractor>[_<model>_prompt<v>][_<label>].json`. Since 2026-10-20 unit metrics exclude duplicate messages from both sides and report `duplicate_messages_excluded`/`duplicate_units_excluded` per split (EVAL-10), and the ledger's wrong-conditions count checks every slot of each condition interval (`…partly lost`, EVAL-09) |
@@ -333,7 +353,7 @@ These **cannot be called today**. They are listed so nobody mistakes them for ex
 
 ### Agreed integration boundaries (planned, no new interfaces yet)
 
-- **Local core:** preserve existing parse → suggest → resolve → explicit review → final export contracts. All optional services may be absent and the local workflow must still work. The app reads no environment variables or `.env` files; [.env.example](../.env.example) remains comments only.
+- **Local core:** preserve existing parse → suggest → resolve → explicit review → final export contracts. All optional services may be absent and the local workflow must still work. The local app reads no environment variables or `.env` files (demo mode alone reads `LEDGER_DEMO` and `PORT`); [.env.example](../.env.example) remains comments only.
 - **Copilot, GitHub Actions, Entire and optional Backboard R-CLI:** development/process tools, not runtime APIs. Capture genuine work with fictional inputs and inspect public artifacts for private data. No API route or provider-backed memory layer is implied.
 - **Sentry:** optional, opt-in structural diagnostics using fictional demonstrations, not message-content telemetry. Implementation would need an explicit dependency/network/privacy decision, a verified free allowance and a reviewed event schema/redaction test before any events leave the machine. No SDK, endpoint, environment variable or transport has been selected in this code.
 - **Render and .tech:** proposed judge-facing interactive fictional replay plus a domain pointing at hosting. A replay must be labelled as saved output, keep public input restricted to fictional data and document its actual export/review behavior; do not imply the present loopback-only server is already deployable or that the hosted site runs live Gemma. No replay route is final or implemented. Domain prize eligibility remains conditional on acquisition evidence.
