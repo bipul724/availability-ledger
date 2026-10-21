@@ -91,3 +91,36 @@ Four code changes were made on 2026-10-20: duplicate messages are collapsed, day
 
 Before further behavior changes, EVAL-01 requires an unseen fictional set C and handwritten reference to be frozen, unscored and committed without implementation agents inspecting it. EVAL-07 scores it once after the planned changes, recording the exact code version. No set C results or real-user time-saving result exists today. A future fictional replay, sponsor trace or demonstration video cannot supply that missing evidence. [MEASUREMENT.md](MEASUREMENT.md) specifies the separate human study and its local-only pilot boundary.
 
+## Set C: independent, scored once (2026-10-21, code 56e38bd + set registration)
+
+**Provenance.** Set C (24 fictional messages, 12-name roster, week of Mon 23 Nov 2026, every message held-out) was written by an isolated ChatGPT session; the owner rewrote 5 messages. Its files were frozen by hash in `fixtures/setC.manifest` (commit 688c50d) before any implementing agent saw them, and the copy used here matched the manifest (`shasum -a 256 -c`: all three OK). Code: HEAD 56e38bd plus one change, registering set C in `evaluation/fixture.py` and `evaluation/run.py`. Scored **once**, on 2026-10-21 at about 03:34–03:36 IST, with the rules reader, Gemma 4 E2B (`gemma4:e2b-it-qat`, prompt v3, 23 fresh calls, one per non-duplicate message) and Gemma + rules (reusing the same model outputs). Qwen was not run. Results are frozen read-only in `evaluation/results/frozen-setC/`. The EVAL-09 (partial condition loss) and EVAL-10 (duplicates excluded from unit counts) metric definitions apply. Nothing was tuned on set C before or after scoring; every change since 2026-10-20 (duplicates, day modifiers, time phrases, COR-03, COR-02, COR-10 flag only, COR-07a) is tested independently here for the first time. The same caveats as A/B apply: fictional messages, no independent reference review, and no human review in the scoring (all suggestions are pending).
+
+| Reader | Units right | Errors | Silent | Duplicate units excluded | Missed cancellations (final sheet) | Wrong conditions | Ambiguities flagged | Slot agreement | Chart slots wrong |
+|---|---|---|---|---|---|---|---|---|---|
+| Rules only | 15/20 | 5 | 5 | 1 | 4/8 | 1/2 | 1/3 | 0.433 | 32 |
+| Gemma 4 E2B only | 17/20 | 3 | 2 | 1 | 4/8 | 1/2 | 2/3 | 0.403 | 44 |
+| Gemma 4 E2B + rules | 17/20 | 3 | 2 | 1 | 2/8 | 1/2 | 2/3 | 0.527 | 26 |
+
+Unit metrics are per message; the other columns are final-sheet (ledger) metrics over all 24 messages. Effort proxy (clicks, not time): 0.35 / 0.30 / 0.30.
+
+**Why unit and sheet numbers diverge.** Unit scoring compares each message's days and times but not whether a suggestion replaces the person's earlier answer. Two corrections were read with the right times but not as replacements, so the old availability stayed on the sheet while the units counted as right.
+
+**Errors, by message (the honest record; nothing is tuned afterwards):**
+
+| Message | Readers | Visible? | What went wrong |
+|---|---|---|---|
+| m13 "can't do Sat 21 Nov, away that day" (sent 19 Nov) | all three | silent | Date resolution: "Sat" is read as the selected week's Saturday (28 Nov) and the explicit 21 Nov is discarded as outside the week, so an outside-week cancellation becomes a silent "unavailable" on Sat 28 Nov and the outside-week ambiguity is not raised. Likely bug in `ledger/resolve.py` (weekday plus explicit date); not fixed here. |
+| m15 "I am cancelling my plan for the Monday morning…" | rules | silent | The rules' negation word is `cancel`, which does not match "cancelling"; read as available, so Monday morning stays on the sheet. |
+| m16 "…i'm out all Tuesday, sorry" | rules | silent | "out" alone is not a rules negation word; read as an untimed confirmation, so Tuesday stays. |
+| m19 "lab swap went thru, Friday is definite now" | all three | silent | No time was extracted (the reference carries 15:00–20:00 forward), and the ledger treats an untimed follow-up on a day with an earlier answer as "confirmed earlier answer" without changing its status, so Friday stays **conditional** (the one wrong condition for every reader). |
+| m20 "Sunday only 10:15-12:45 now…" | Gemma only | silent (sheet) | Times right, but not marked as replacing the all-day Sunday offer, so 09:00–10:15 and 12:45–20:00 stay (2 missed cancellations). Gemma + rules fixes it through the "now" cue. |
+| m21 "Please change my availability on monday to 1-4 pm" | all three | silent (sheet) | Times right, but no reader marks it as a replacement ("change" is not one of the cue words), so 13:00–16:00 is laid over the earlier all-day Monday and 09:00–13:00 and 16:00–20:00 stay (2 missed cancellations, the largest source of slot disagreement). |
+| m23 coordinator relays "'T. Vekar': 'Sunday for an hour, 10-11 works'. which T tho" | all three | rules silent; Gemma flagged | Rules ignore coordinator messages, so the ambiguity is missed. Gemma proposes "T. Vekar", which matches no roster name as a whole and is too short a first name for prefix matching, so it becomes an **unknown** person (flagged, not applied) instead of an ambiguity between Taren and Tarin Vekar. |
+
+The duplicate (m05 repeats m03) was handled correctly by all readers.
+
+**COR-07a warnings:** 0 for every reader, so 0 real misses and 0 false alarms. No message in set C combined a change word with a day that still had open time and no suggestion touching that day. The warning could not catch C's actual failures by design: in m15/m16 (rules) a wrong-polarity suggestion touched the day, and in m20/m21 the correction touched the day without replacing the earlier answer; "change" is also not in the word list ("change of plans" is).
+
+**COR-10 `phrase_not_in_message` flags:** rules 0; Gemma 4 and Gemma + rules 4 (m07 "Fri", m08 "sat", m11 "wed", m12 "thurs"). All 4 are harmless rewording of an abbreviated day; each suggestion is correct. 0 real problems, consistent with D-30 (flag only).
+
+**Speed and memory (Gemma run, fresh calls, measured with other apps open):** 23 calls, 0 JSON failures; median 1.78 s per message; slowest 56.1 s, which includes a 47.9 s cold model load (next slowest 2.46 s); output about 42 tokens/s; whole run 94 s. Ollama reports the model at 1,561 MB. System-wide during the run: lowest free memory 4%, pressure "warn" in 82% and "critical" in 18% of 45 samples, occupied swap grew by about 4.1 GB (5,035 → 9,176 MB, mostly the cold load), swap-out traffic about 8.5 GiB.

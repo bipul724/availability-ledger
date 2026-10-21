@@ -374,3 +374,29 @@ Re-checked independently: 65 unit tests pass; no change to `model.py`, `rules.py
 ### Lead review of the D-30 revert (2026-10-21, about 03:25 IST)
 
 Re-checked: 66 unit tests pass; `ledger/export.py`, model, rules, hybrid, resolve, fixtures, runs and frozen/tuning results are unchanged against HEAD. Accepted. The agent-reported result JSON changes are memory-sample fields only, so the owner restores those files rather than committing noise. Next: owner commits and pushes, checks the first GitHub Actions run, then EVAL-07 after owner confirmation.
+
+### INT-10 verified on GitHub (2026-10-21, about 03:30 IST)
+
+The owner pushed; HEAD = origin/main = `56e38bd`, working tree clean. GitHub Actions 'tests #1' on `56e38bd` (main) passed in 9 s (owner screenshot). This is genuine Actions CI evidence; it is not evidence of Copilot authorship. Next: EVAL-07 once the owner starts Ollama and sends the scoring prompt.
+
+### EVAL-07: set C scored once (2026-10-21 03:38 IST)
+
+**Done (authorized fresh local Gemma calls on set C only; Qwen not run).** Copied the three set C files into `fixtures/` and ran `(cd fixtures && shasum -a 256 -c setC.manifest)`: `setC_messages.txt: OK`, `setC_roster.txt: OK`, `setC_reference.json: OK`. Only code change: set C registered in `evaluation/fixture.py` (`SETS`) and `evaluation/run.py` (`--set` choices). Ran once, in order: `python3 -m evaluation.run --set C --extractor rules`, `… --extractor model --model gemma4:e2b-it-qat` (23 fresh calls, 0 JSON failures, new cache `evaluation/runs/gemma4_e2b_it_qat_prompt3_setC/`), `… --extractor hybrid --model gemma4:e2b-it-qat` (0 fresh calls). All exited 0. Results copied to `evaluation/results/frozen-setC/` and made read-only; SHA-256: `setC_rules.json` 2dd5beeaf19bf4962f98c49422102fef6e3dc1bd54cdbeee6c10a871f6fa4771; `setC_model_gemma4_e2b_it_qat_prompt3.json` 75120c3e781076edf9447ba5faf4118efa8a7dea9333d45306a54c60026c8220; `setC_hybrid_gemma4_e2b_it_qat_prompt3.json` 47e4c01d38c33d3c6641175292fa1ca534dfaf7a8fa1dd5f1f5eb2345a77b0eb. No extraction, ledger, export or scoring logic changed; nothing tuned on C.
+
+**Headline (all fictional, held-out, scored without human review):** units right rules 15/20, Gemma 17/20, Gemma + rules 17/20; silent errors 5 / 2 / 2; missed cancellations on the final sheet 4/8, 4/8, 2/8; slot agreement 0.433, 0.403, 0.527. COR-07a raised 0 warnings (0 false alarms; it could not catch C's failures by design). COR-10 flagged 4 suggestions per Gemma reader, all harmless abbreviation rewording. Full table, error record, speed and memory: [RESULTS.md, Set C](evaluation/RESULTS.md#set-c-independent-scored-once-2026-10-21-code-56e38bd--set-registration).
+
+**Findings recorded, not fixed (per the assignment):** (1) m13 "Sat 21 Nov" resolves to Sat 28 Nov, silently, in all readers (`resolve.py` weekday + explicit date); (2) m19 an untimed "definite now" does not resolve a conditional offer (ledger confirmation rule); (3) m20/m21 corrections read with the right times but not as replacements, which unit scoring cannot see (largest source of slot disagreement); (4) m23 "T. Vekar" becomes an unknown person instead of an ambiguity between two roster names. Any fix is post-hoc with respect to set C.
+
+**Not verified / limits:** one run only (no variance estimate); memory figures were taken with other apps open and include a cold model load; 24 messages and 8 reference cancellations make every rate coarse.
+
+
+### Lead review of EVAL-07 (2026-10-21, about 03:45 IST)
+
+Re-checked independently:
+- `shasum -c setC.manifest` passes for all three files.
+- The frozen set C files are read-only.
+- Their values match the agent's table: Gemma + rules 17/20 units, slot agreement 0.527, 2/8 missed (both m21); Gemma only 0.403, 4/8 missed; rules 0.433, 4/8 missed.
+- 66 tests pass.
+- The only code change is the set registration (`evaluation/fixture.py` +1 line, `evaluation/run.py` choices).
+
+Accepted as the **headline independent result**. The lead's reading: the main failures are deterministic reconciliation rules (explicit dates, settling conditions, replacement cues, initial + surname), not the model. **D-31** schedules COR-13 to COR-17 as post-hoc fixes and an optional set D (EVAL-11); the timeline was revised in TASKS.

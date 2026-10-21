@@ -45,6 +45,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 | D-28 | Work that cannot bias set C may start before the C freeze | accepted (project lead, 2026-10-20) |
 | D-29 | Set C may be written by a fresh, isolated AI session if the owner cannot write it | accepted (project lead, 2026-10-21) |
 | D-30 | COR-10: flag unsupported phrases, do not hold them; keep COR-07a | accepted (project lead, 2026-10-21) |
+| D-31 | Fix the reconciliation defects set C exposed, labelled post-hoc; set C's first score stays the headline | accepted (project lead, 2026-10-21) |
 
 ---
 
@@ -288,3 +289,17 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 - **Decision:** option (b). Revert the hold. A `phrase_not_in_message` suggestion counts on the provisional sheet as before, keeps its visible flag, stays excluded from bulk accept (as before), and is listed under Needs a decision as a **non-blocking** "check the wording" item. The final export still takes accepted claims only, so nothing unreviewed reaches it.
 - **Rejected for now:** option (c), meaning-based time checking. It is plausible, but there is no observed failure to fix, it would be a new post-hoc design, and there is no time to validate it before EVAL-07.
 - **COR-07a kept:** 13 warnings on A/B, all real missed cancellations, 0 false alarms (post-hoc; word list fixed before the run). Its independent test is EVAL-07 on set C.
+
+### D-31 Fix the reconciliation defects set C exposed, labelled post-hoc; set C's first score stays the headline
+
+- **Date:** 2026-10-21, about 03:45 IST. **Status:** accepted.
+- **Evidence (independent, set C, scored once at `56e38bd`):** Gemma + rules scored 17/20 units but only **0.527** final-sheet slot agreement, with 2 of 8 cancellations missed. The lead re-checked this from `evaluation/results/frozen-setC/`. The causes are mostly **deterministic code**, not the model:
+  - **m13:** "Sat 21 Nov" was resolved to the planning week's Saturday, giving a silent wrong-day cancellation.
+  - **m19:** "definite now" with no time did not settle a conditional offer.
+  - **m20/m21:** corrections ("only … now", "change … to") were not applied as replacements.
+  - **m23:** "T. Vekar" (initial plus surname) became an unknown person instead of an ambiguity.
+  - **m15/m16 (rules only):** "cancelling" and "out" were missed.
+  COR-07a raised 0 warnings, because in each failure some suggestion had touched the day.
+- **Decision:** fix these as general rules, using invented development messages (COR-13 to COR-17). Every set C (and A/B) number after a fix is **post-hoc** and reported beside, never instead of, the frozen first score. The write-up leads with the frozen set C table and explains what the independent test found.
+- **Optional independent check:** if the owner has about 45 minutes, a small fresh **set D** (≥ 12 messages, the same isolated-writer process, D-24/D-29) scored once after the fixes (EVAL-11) would test them independently. Without it, the fixes are claimed only as post-hoc corrections plus unit tests.
+- **Why not stop here:** the defects produce silent wrong sheets, which is the product's core failure mode. They are cheap, deterministic fixes, and the time to submission allows them.

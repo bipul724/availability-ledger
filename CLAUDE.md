@@ -32,7 +32,7 @@ This direction authorizes documentation and planning, not installation, account 
 ## Commands (re-verified 2026-10-21)
 
 ```bash
-python3 -m unittest discover -s tests           # 56 checks (2026-10-21), offline, < 1 s
+python3 -m unittest discover -s tests           # 66 checks (2026-10-21), offline, < 1 s
 node tests/browser/session_rerun.mjs            # optional browser check (Node 22+, local Chrome)
 python3 -m evaluation.score_final FILE.csv --set A   # final-sheet scorer (timing study)
 python3 server.py [port]                         # http://127.0.0.1:8765
@@ -50,14 +50,14 @@ Model/hybrid evaluation makes fresh calls when a cache file is missing, even wit
 ## Rules
 
 - **Python standard library only.** No pip packages, no CDN or JS libraries, no network calls except to local Ollama. Changing this needs a decision in DECISIONS.md first.
-- **Do not edit** `fixtures/*.txt`, `fixtures/*reference.json`, `evaluation/results/frozen/`, `evaluation/results/tuning/`, `evaluation/runs/`.
+- **Do not edit** `fixtures/*.txt`, `fixtures/*reference.json`, `fixtures/setC.manifest`, `evaluation/results/frozen/`, `evaluation/results/frozen-setC/`, `evaluation/results/tuning/`, `evaluation/runs/`.
 - **Do not change** `SYSTEM`, `EXAMPLES` or `PROMPT_VERSION` in `ledger/model.py` unless the task is a prompt change; any prompt change bumps `PROMPT_VERSION` and gets a row in TUNING.md.
-- **Never tune on held-out messages** (set A held-out ids in `fixtures/reference.json` `split.heldout`; all of set B). Write new test cases with your own invented messages. Label any change made after seeing held-out errors as post-hoc.
+- **Never tune on held-out messages** (set A held-out ids in `fixtures/reference.json` `split.heldout`; all of sets B and C). Write new test cases with your own invented messages. Label any change made after seeing held-out errors as post-hoc.
 - **Keep the model/code boundary.** The model copies words; dates, times, history and counts are code.
 - **Preserve history and review behaviour:** later answers change only the times they mention; ambiguous people/dates are never guessed; conditionals stay conditional until a later message settles them; a reviewer's decision (`review`, `override`) controls **that same claim** and is never overwritten by automatic checks, but other claims, including later pending ones, still change the provisional sheet; rejected suggestions never reach the sheet or export; only accepted records reach the final-sheet export, and a message counts as reviewed only when the reviewer marks it (never inferred).
 - **Tests:** any change to parsing, resolution, ledger or review semantics needs a unit test with invented messages, and all existing tests must pass. Re-run the cached evaluation and report held-out regressions plainly; never hide one by editing fixtures or scoring.
 - **Scope:** read the current assignment before acting. Backlog items and proposed sponsor uses are not automatic implementation permission. Check `git status` first and preserve unrelated uncommitted work. The owner commits and pushes; agents do not commit or push unless asked.
-- **Evaluation gate (D-24, D-28):** set C is written by the owner and kept **outside the repository** (`~/Documents/availability-setC/`). Only `fixtures/setC.manifest` (SHA-256 hashes) is committed. Never search for, open or ask about C. Changes to what extraction proposes or what lands on the sheet (COR-10, COR-07a) wait for the manifest; work that changes neither may proceed. Implement with invented development cases, then run EVAL-07 once after the planned changes. Existing A/B changes remain post-hoc.
+- **Evaluation status (D-24, D-31):** set C was frozen by hash, then **scored once on 2026-10-21 at `56e38bd` (EVAL-07)**. It is now in `fixtures/` and its first score is frozen in `evaluation/results/frozen-setC/`, which is the headline independent result. Every later change is **post-hoc** for A, B and C alike: report it beside the frozen numbers, never instead of them. Fix behaviour with invented development messages, not by fitting C's wording. An optional fresh set D (EVAL-11) would follow the same isolation rules as C.
 - **Budget: ₹0.** Do not install software, download models, create accounts, claim credits, purchase, deploy or publish without the owner's explicit request. No paid fallbacks or auto-renewals. Optional services must be opt-in and fail safe.
 - **Secrets and data:** never read, print or commit `.env` files or keys. The app reads no environment variables today ([.env.example](.env.example)). Fixtures are fictional; keep it that way.
 - **Real messages:** do not read real messages, with one exception: data for an approved pilot (TASKS EVAL-03). Allowed only when the owner has confirmed in writing that the people involved consented, the data was anonymised before it reached you, it is kept outside version control (never committed, never added to `fixtures/`), and it is processed locally only. Never copy pilot text into docs, tests, logs, issues, telemetry or any external service; report only aggregate results.
@@ -66,7 +66,7 @@ Model/hybrid evaluation makes fresh calls when a cache file is missing, even wit
 
 ## Work order
 
-Follow [TASKS.md § Order of work](TASKS.md#order-of-work), which is canonical. As of 2026-10-21: COR-01/02/03, EVAL-06/08/09/10, UI-01/05, REL-01/03/06 are done; **EVAL-01 (set C manifest)** is awaited from the owner; then COR-10 → COR-07a → EVAL-07 (score C once) → demo and write-up. Per D-27, each task updates its TASKS row and one dated PROGRESS entry. Genuine development evidence may accompany this necessary work; optional integrations do not replace correctness or coordinator validation.
+Follow [TASKS.md § Order of work](TASKS.md#order-of-work), which is canonical. As of 2026-10-21 03:45 IST: everything through EVAL-07 is done (set C scored once). Next: the post-hoc fixes COR-13 → COR-17 (D-31), then the demo (DEP-03) and the post (REL-05). Per D-27, each task updates its TASKS row and one dated PROGRESS entry.
 
 ## Mandatory documentation for every task
 
