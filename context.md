@@ -106,12 +106,14 @@ Contracts: [docs/API.md](docs/API.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.
 | Session save/load (COR-04), roster-limit warning (COR-06), coordinator names in UI (COR-08), timezone use (COR-05), stop button (UI-03) | PLANNED, NOT IMPLEMENTED | Deferred (D-23) or P2 |
 | Human time saved | UNKNOWN: EVIDENCE INSUFFICIENT | Never measured; see [evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md) |
 | Real-world usefulness / demand | UNKNOWN: EVIDENCE INSUFFICIENT | No coordinator interviews or pilot |
-| Optional sponsor integrations (Sentry, Render, .tech, ElevenLabs, Entire, Copilot agent, R-CLI) | PLANNED, NOT IMPLEMENTED; deferred until after submission (D-23) | — |
+| Sponsor integrations for this submission: Actions automation (INT-11), Render replay (DEP-02), Sentry tracing (INT-03), ElevenLabs narration (INT-04) | PLANNED, NOT IMPLEMENTED (D-33, 2026-10-21; each has a dated gate) | [briefs](docs/prompts/d33-integrations.md) |
+| Other sponsor integrations (.tech, Entire, Copilot coding agent, R-CLI) | PLANNED, NOT IMPLEMENTED; deferred (D-23) | — |
 
 ## F. Decisions (canonical: [docs/DECISIONS.md](docs/DECISIONS.md))
 
 Key recent decisions:
-- **D-23:** the Week 3 entry targets **overall + Gemma**, with Actions CI as the only addition; everything else is deferred.
+- **D-23:** the Week 3 entry targeted **overall + Gemma**, with Actions CI as the only addition. **Overridden in part by D-33** (owner, 2026-10-21): also Copilot (via Actions), Render, Sentry and ElevenLabs, each dropped if it misses its gate.
+- **D-32:** COR-15 accepted; cue-only replacements raise a warning (COR-18, done). **D-33:** see above; deadline planning unchanged (25 Oct 12:29 IST).
 - **D-24:** set C was frozen outside the repo by hash.
 - **D-25:** missed cancellations get a warning first; no vocabulary tuning.
 - **D-26:** duplicate-aware scoring.
@@ -213,12 +215,12 @@ Lessons learned:
 - **Evaluation runs:** model/hybrid runs make **fresh model calls on cache misses**, even without `--refresh`. Verify cache coverage first.
 - **Documentation volume:** keep docs lean (D-27).
 
-## L. Immediate next action
+## L. Immediate next action (updated 2026-10-21, about 13:00 IST)
 
-**Wait for, then review, the coding agent's D-31 report (COR-13 to COR-17).** Do not assume the work is finished or correct. When the report arrives:
-1. Run `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests` and confirm the count and that everything passes.
-2. Run `git diff --stat` and confirm no protected path changed: fixtures, `frozen*/`, `tuning/`, `runs/`, model prompt.
-3. Compare the new set C numbers with `evaluation/results/frozen-setC/` and confirm they are reported as **post-hoc**.
-4. Then give the owner grouped commit commands, and move on to the DEP-03 demo script and the REL-05 post draft.
+D-31 and COR-18 are reviewed, accepted and committed (`13e5527`). The owner chose to add four categories (D-33).
+
+1. The owner gives the coding agent brief 1 (INT-11) from [docs/prompts/d33-integrations.md](docs/prompts/d33-integrations.md). The lead reviews the report the same way as D-31: tests, protected paths, then the diff. Then briefs 2 and 3, one at a time, each by its D-33 gate.
+2. Meanwhile, the lead writes the DEP-03 demo script with ElevenLabs narration text, then the REL-05 post draft.
+3. The owner does the account steps (Render, Sentry, ElevenLabs offer) and never pastes keys into chat.
 
 If the agent hasn't reported, ask the owner for its status rather than inspecting half-finished files as if they were final.

@@ -312,3 +312,28 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 - **Decision:** keep COR-15 (it fixed real set C and set A misses) and add **COR-18**: when a replacement comes only from `REPLACE_CUES` (the reader did not set `replaces_earlier`), raise a review issue naming the time that was removed. Warning only: sheet, chart, export and scores unchanged. Narrowing the cue to the claim's own sentence is deferred: it would change scores again and would need fresh data to judge.
 - **COR-14 regression on set B rules (chart slots wrong 58 → 64):** accepted and documented, not fixed. The cause is the rules reader's missing negation word in a held-out message; any fix designed from it would be tuning on held-out data.
 - **Set D (EVAL-11), if run:** the brief should ask for a few messages that use "now", "move", "change" or "instead" without changing an earlier answer.
+
+### D-33 Owner override of D-23: add Copilot (Actions), Render, Sentry and ElevenLabs
+
+- **Date:** 2026-10-21, about 13:00 IST. **Status:** accepted (owner request; plan by the project lead).
+- **Owner request:** enter as many categories as possible by adding Render, Sentry, ElevenLabs and GitHub Copilot to the existing system.
+- **Official routes** (HF26 hub, read 2026-10-21):
+  - **Copilot:** "automate your project with GitHub Actions" is a listed route.
+  - **Render:** "host an agent's front end".
+  - **Sentry Agent Tracing:** show setup, performance (latency, tokens, cost), what you found and how you debugged it, with traces or screenshots.
+  - **ElevenLabs:** "generate narration for your demo".
+- **Deadline unchanged:** the event API says 25 Oct 06:59 UTC (12:29 IST); the written rules say 25 Oct 11:59 PM PDT (26 Oct 12:29 IST). Plan for the earlier one. Internal publish target stays Sat 24 Oct 21:00 IST.
+- **Scope per category (smallest genuine use):**
+  - **INT-11 Copilot via Actions:** extend CI with a protected-files integrity check and a cache-only re-score that writes the score table to the job summary. Needs a new `--cache-only` flag that fails on a cache miss instead of calling the model.
+  - **DEP-02/INT-02 Render:** a read-only hosted replay of fictional set A with saved Gemma outputs. Demo mode is on only via an env var: no paste box, no model calls, a banner saying it is a replay. The local default (127.0.0.1, live model) is unchanged.
+  - **INT-03 Sentry:** opt-in tracing (off unless `SENTRY_DSN` is set), using the optional `sentry-sdk` package. One span per model call with model name, duration, load time and token counts, plus spans for resolve, ledger and export. No message text, names, quotes, prompts or replies; an allowlist scrubber is tested with invented sensitive strings. `ledger/model.py` and the prompt are not changed: spans wrap the call sites. Real traces on fictional data; the finding is whatever the traces show.
+  - **INT-04 ElevenLabs:** narration of the demo video from the lead's script, made in the owner's account with a stock voice. No code and no runtime dependency.
+- **D-11 exception:** the core stays standard-library only. `sentry-sdk` is optional (`requirements-tracing.txt`), imported only when `SENTRY_DSN` is set. Tracing sends content-free timing metadata to Sentry's cloud, and the post says so.
+- **Order and gates:**
+  - **Wed 21:** INT-11.
+  - **Thu 22:** DEP-02 Render; deployed by 22:00 IST.
+  - **Fri 23:** INT-03 Sentry; real traces by 18:00 IST.
+  - **Sat 24 morning:** record and narrate.
+  - **Sat 24 evening:** post.
+  - Any category that misses its gate is dropped from the post, not rushed. Core quality and the write-up come first.
+- **Owner-only steps:** create accounts (Render, Sentry, ElevenLabs), redeem offers, enter keys in dashboards or a local `.env`, deploy, and confirm free-tier terms (no card, no paid fallback). Keys are never committed or pasted into chat.
