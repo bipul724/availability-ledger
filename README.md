@@ -105,7 +105,7 @@ The status line then shows review time and counts of accepts, edits, rejects, ad
 |---|---|
 | Messages, roster, review decisions | retained in browser memory and processed transiently by the local Python server on 127.0.0.1; no application persistence |
 | Model calls | only to Ollama on 127.0.0.1 |
-| Telemetry, analytics, crash reports | none by default. Opt-in Sentry tracing only when you set `SENTRY_DSN` and install the optional `sentry-sdk`: timings, token counts and model name, never content ([below](#opt-in-tracing-sentry)) |
+| Telemetry, analytics, crash reports | none by default. Opt-in Sentry tracing only when you set `SENTRY_DSN` and install the optional `sentry-sdk`: client-side allowlisted operational metadata with content excluded; received-cloud privacy observations and limits are documented [below](#opt-in-tracing-sentry) |
 | Hosted version | the read-only replay at https://availability-ledger-replay.onrender.com (fictional set A, saved outputs; below) |
 
 ## Hosted replay (Render)
@@ -134,12 +134,14 @@ read -rs SENTRY_DSN && export SENTRY_DSN        # paste your project's DSN; it s
 .venv/bin/python server.py                      # prints "Sentry tracing on: ..." when it is active
 ```
 
+For this owner, hidden-input attempts did not reliably activate tracing; the working private clipboard alternative and its copy-overwrite pitfall are in the [Sentry handoff](docs/SENTRY_HANDOFF.md). Do not print the DSN to diagnose startup.
+
 **What is sent**, for each run of **Suggest records**:
 - One agent span (`invoke_agent availability-reader`) with the reader, model name, prompt version and number of messages.
 - One `chat <model>` span per model call: duration, Ollama's load time, prompt and output time, input/output token counts, whether the reply was valid JSON, the number of suggestions, the message's **position** in the run, and an error category (the exception's class name) if the call failed.
 - Spans for the hybrid merge, resolve, ledger build and export, with their durations and counts.
 
-**Never sent:**
+**Excluded by the application before transmission:**
 - message text, quotes or excerpts;
 - names, rosters, message IDs;
 - prompts or model replies;
@@ -147,6 +149,8 @@ read -rs SENTRY_DSN && export SENTRY_DSN        # paste your project's DSN; it s
 - request bodies, host name or user details.
 
 Two allowlists in `ledger/tracing.py` guard what leaves the process. The SDK's `before_send_transaction` hook (`scrub()`) rebuilds each transaction and its spans. A wrapper around the SDK's transport (`clean_envelope()`) rebuilds every envelope item just before it is sent, including the model-call spans the SDK sends as separate streamed items, and drops every other item type. Either one alone stops a leak. The SDK's default integrations are off. Tests with invented names, phone numbers and addresses check both layers ([TESTING.md](TESTING.md#opt-in-tracing-int-03)).
+
+**Received-data boundary:** Sentry can enrich received records beyond the application payload. Earlier owner traces exposed `user.geo` values. After project IP/sensitive-field settings, a new fictional trace showed four geo values as `[Filtered]` on inspected chat/parent attributes, with no content in the chat Input/Output tabs. This verifies that bounded check, not every stored payload or retroactive removal. Setup/clipboard instructions, exact evidence, free-plan/trial distinctions and remaining checks are in the [Sentry handoff](docs/SENTRY_HANDOFF.md). Startup saying tracing is on proves initialization, not delivery.
 
 - **Not traced:** the hosted replay, which makes no model calls and ignores `SENTRY_DSN`, and the app without the DSN or the package.
 - **Cost:** inference is local, so there is no per-token charge ($0 per token). Sentry's free plan limits apply; this app sends a few hundred spans per run.
@@ -160,11 +164,11 @@ Two allowlists in `ledger/tracing.py` guard what leaves the process. The SDK's `
 | Gemma 4 E2B via local Ollama | **Implemented.** Phrase extraction, cross-checked by rules and reviewed by a person. |
 | Render read-only replay | **Deployed** (DEP-02, 2026-10-21): https://availability-ledger-replay.onrender.com, from [render.yaml](render.yaml) on the free plan. |
 | GitHub Actions (Copilot category) | **Running** (`.github/workflows/tests.yml`, INT-10, INT-11): on every push and pull request, unit tests, a SHA-256 check that the frozen evidence is unchanged, and a re-score of sets A, B and C from saved outputs, with the score table in the job summary. No secrets or model. Run "tests #5" (`8c5f975`) passed. |
-| Sentry Agent Tracing | **Code added** (INT-03, 2026-10-21): opt-in, content-free tracing ([above](#opt-in-tracing-sentry)). **No real traces recorded yet** (owner step). |
+| Sentry Agent Tracing | **Real delivery verified** (INT-03, 2026-10-21/22): four 300 s timeouts identified, later successful retry received, and targeted geo redaction verified on a separate fictional trace. Wider privacy/account checks remain open; [handoff](docs/SENTRY_HANDOFF.md). |
 | ElevenLabs | **Planned** (INT-04): narration of the demo video; script in [docs/demo/script.md](docs/demo/script.md). |
 | Everything else listed above | **Deferred**; not implemented. |
 
-**Work order ([TASKS.md](TASKS.md#order-of-work)):** done: set C scored once (EVAL-07, 2026-10-21); post-hoc fixes COR-13 to COR-18; GitHub Actions automation (INT-11); hosted replay (DEP-02). In progress: Sentry tracing (**INT-03**: code done, real traces next) → narrated demo (**DEP-03**, **INT-04**) → submission post (**REL-05**; the owner checks eligibility, **REL-04**). A small fresh set D (**EVAL-11**) is optional.
+**Work order ([TASKS.md](TASKS.md#order-of-work)):** done: set C scored once (EVAL-07, 2026-10-21); post-hoc fixes COR-13 to COR-18; GitHub Actions automation (INT-11); hosted replay (DEP-02). In progress: Sentry tracing (**INT-03**: real delivery/finding verified; scoped privacy/account checks remain) → narrated demo (**DEP-03**, **INT-04**) → submission post (**REL-05**; the owner checks eligibility, **REL-04**). A small fresh set D (**EVAL-11**) is optional.
 
 **Costs:** additional spending stays at **₹0**: existing resources, verified free plans or confirmed sponsor credits only, with no automatic upgrades, top-ups, paid fallbacks or renewals. CI runs on GitHub-hosted runners within the account's free allowance.
 
@@ -211,6 +215,7 @@ Model and hybrid evaluation use per-message caches in `evaluation/runs/`, but a 
 | [docs/specs/final-export.md](docs/specs/final-export.md) | final-sheet CSV format and scoring contract |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | why it is built this way |
 | [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md) | agreed technology roles, current status, privacy/budget gates and evidence |
+| [docs/SENTRY_HANDOFF.md](docs/SENTRY_HANDOFF.md) | Sentry setup, evidence, lessons, privacy/billing limits and remaining checks |
 | [docs/COMPETITION.md](docs/COMPETITION.md) | verified challenge rules, category eligibility, Week 1/2 research and strategy |
 | [TASKS.md](TASKS.md) | backlog |
 | [PROGRESS.md](PROGRESS.md) | current status and evidence |

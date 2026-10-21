@@ -116,40 +116,18 @@ CI runs the suite without `sentry-sdk`, so the 8 SDK tests are skipped there. Ru
 
 ## Record real traces
 
-**Owner step**, on the owner's machine, with the owner's Sentry project. The agent never sees the DSN. Fictional demo week, live Gemma, cold start.
+**Current evidence, 2026-10-22:** owner-operated fictional runs have reached Sentry. Setup/delivery no longer needs proving by another full demo. See the [Sentry handoff](docs/SENTRY_HANDOFF.md) for exact trace IDs, timeouts, successful retry, bounded privacy test, commands, screenshots/log provenance and limits. Earlier unit/leak-test results above remain dated historical checks, not fresh tests of the provider's received payloads.
 
-**Once in Sentry:**
-- Use the free Developer plan with no payment method, and keep on-demand/pay-as-you-go spend at $0.
-- Create a project with platform **Python** and copy its DSN from *Project settings → Client Keys (DSN)*.
+- Initial run: UI 1,616 s; trace c26d2afd, 49 calls / four 300 s TimeoutErrors.
+- Successful traced retry: UI 86 s; trace 969d7ee9, 1.42 min / 49 calls / 0 errors. The separate 85 s retry is local evidence only; tracing startup/delivery was not verified.
+- Post-setting one-message trace bc88af7a: root 16.39 s, inspected chat/parent geo values `[Filtered]`, chat Input/Output tabs show no content. Remaining surfaces/raw payloads were not all inspected.
+- Owner confirmed stopping Python/Ollama and unsetting DSN. This is conversation evidence, not a process/environment check.
 
-```bash
-cd "/Users/bipulchamoli/Desktop/week 3/availability-ledger"
-.venv/bin/python -c "import sentry_sdk; print(sentry_sdk.VERSION)"   # 2.72.0. If .venv is missing:
-#   python3 -m venv .venv && .venv/bin/pip install -r requirements-tracing.txt
-ollama stop gemma4:e2b-it-qat          # unload Gemma so the first call includes the cold load
-ollama ps                              # should list no gemma4 model
-read -rs SENTRY_DSN && export SENTRY_DSN   # paste the DSN, press Enter (not echoed, not in shell history)
-.venv/bin/python server.py             # expect "Sentry tracing on: ..." and then http://127.0.0.1:8765
-```
+For a separately authorized future check, the owner uses **Settings → Projects → python → Client Keys (DSN)** privately; the agent must never inspect the DSN, clipboard or secret environment. The local `.venv` already had SDK 2.72.0; do not reinstall or redownload merely to repeat setup. The handoff documents the working owner-only `pbpaste` export and its clipboard-overwrite pitfall. Require the tracing-on startup line, then verify the matching received trace; the startup line alone is insufficient.
 
-**In the browser** at http://127.0.0.1:8765:
-1. Click **Load fictional demo**.
-2. Choose Reader **Model + rules cross-check** and Model **gemma4:e2b-it-qat**.
-3. **Cold run:** click **Suggest records**. Wait for "Read 50 messages in N s" and note N.
-4. **Warm run:** click **Suggest records** once more. The model is loaded now, which gives a warm run to compare.
-5. Click **Accept all suggestions without warnings**, mark two messages reviewed, then **Export final sheet (CSV)**. This adds resolve and export spans.
-6. Stop the server with **Ctrl+C**, which sends any spans still waiting. Then run `unset SENTRY_DSN`.
+**Bounded privacy procedure:** preserve existing real configuration entries, verify IP prevention/sensitive-field settings, allow the documented propagation interval, then use at most one invented message when a new event is actually needed. Inspect the matching chat and parent attributes and content tabs. Record filtered values versus absent keys precisely, exclude personal values from evidence, and keep uninspected surfaces explicit. Prefer inspecting existing traces over additional inference.
 
-The app writes nothing to `evaluation/runs/` in this flow.
-
-**Screenshots for the post** (Sentry, the project above):
-1. **Explore → Agents** (the agents dashboard): the `availability-reader` agent, its runs, LLM calls and token totals.
-2. **The cold run's trace** (`invoke_agent availability-reader`, from step 3): the whole waterfall, showing the first `chat gemma4:e2b-it-qat` span next to the later ones, and the ledger spans.
-3. **One `chat` span's attributes:** `gen_ai.usage.input_tokens` / `output_tokens`, `ledger.load_s`, `ledger.prompt_s`, `ledger.output_s`, `ledger.message_position`. This shows that only metadata is there.
-4. **The warm run's trace** (step 4), at the same zoom as 2.
-5. **The model calls listed by duration** (Explore → Traces, or the agent's LLM calls table, filtered to `span.op:gen_ai.chat`, sorted slowest first). Include any failed or invalid-JSON call (`ledger.json_ok:false`, `error.type`) if one exists.
-
-Then send the lead the screenshots and the two N values. The finding is whatever the traces show, for example cold load against per-message inference against ledger time. "No problem found" is a valid result. Cost: local inference, **$0 per token**; no energy or hardware cost is claimed.
+A controlled cold/warm or memory comparison remains a separate experiment, **not performed by these owner runs**. Restarting services/closing apps and warming the model changed several conditions. Do not ask the owner to repeat two 50-message runs by default or publish a causal speedup from this history. The app's `$0` token estimate is not a billing/hardware/energy audit. Actual free-plan, trial and paid-checkout observations and official retention/exhaustion policies are in the handoff; do not activate payment/PAYG to test limits.
 
 ## Not tested
 

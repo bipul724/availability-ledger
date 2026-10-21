@@ -1,18 +1,35 @@
 # Competition strategy and historical evidence
 
-> **Week 3 scope (2026-10-20, [D-23](DECISIONS.md#d-23-week-3-submission-scope-gemma-core-optional-actions-ci-other-integrations-deferred)):** the entry targets overall + Gemma, with Actions CI optional. Everything else here is deferred until after submission. The content below is kept as research and longer-term direction.
+> **Current category audit (2026-10-22, D-33 supersedes D-23):** five evidence-backed target categories including Overall: Overall, Gemma, Render, GitHub Copilot via GitHub Actions, and Sentry Agent Tracing. ElevenLabs is the sixth planned target, not yet evidenced. These are potential categories for the future submission, not organizer-confirmed entries. See the current portfolio below; historical research remains dated.
 
-**Verified-source cutoff: 2026-10-20 (IST).** This is the canonical competition research and strategy record. Official source statements, author-reported project evidence, our recommendations and unresolved account/eligibility questions are different kinds of evidence. Recheck changing rules, offers and account state before use or submission.
+**Research cutoff:** original strategy/history 2026-10-20 (IST); current category wording and count rechecked against official Week 3/hub pages on 2026-10-22. This is the canonical competition research and strategy record. Official source statements, author-reported project evidence, our recommendations and unresolved account/eligibility questions are different kinds of evidence. Recheck changing rules, offers and account state before use or submission.
 
 Read [INTEGRATIONS.md](INTEGRATIONS.md) for the agreed roles, scope, rollout and evidence gates; [../context.md](../context.md) for the project handoff. The owner agreed to pursue a coherent multi-category direction. This selects a planning direction; it does not install or implement the optional integrations below.
 
 **Owner's objective:** maximize legitimate winning opportunities for this project, retaining Gemma while adding useful eligible categories. Category priority must reflect genuine fit, evidence, effort and the ₹0 constraint. Do not substitute a crowded-category guess for research.
 
+### Current category portfolio — 2026-10-22
+
+**Count: 5 evidence-backed targets = Overall + 4 sponsor categories; 6 planned if ElevenLabs narration is completed.** This is our evidence assessment, not a claim that an entry has been published or eligibility approved. Personal eligibility, final evidence packaging/demo/post and unresolved integration checks still apply.
+
+| Category | Existing project evidence | Current limit |
+|---|---|---|
+| Overall | Working open-model availability review/export project and fictional evaluation | Overall consideration comes with a valid submission; post/demo and personal eligibility remain open |
+| Best Use of Gemma | Local gemma4:e2b-it-qat extraction, saved evaluation and owner live runs | Preserve fictional-data/frozen/post-hoc limits; do not claim measured human time savings |
+| Best Use of Render | Deployed interactive fictional saved-output replay, deployment/live-check records | State replay clearly; this audit did not recheck uptime |
+| Best Use of GitHub Copilot | GitHub Actions unit/integrity/cache-only-rescore automation, prior green-run evidence | Official wording explicitly permits Actions. No Copilot coding-agent/CLI/review use is claimed; Actions is not an extra category |
+| Best Use of Sentry Agent Tracing | Received live fictional traces, four timeout finding, successful retry, targeted privacy check | Include redacted trace screenshots/finding in the post; INT-03 remains in progress for the explicit limits in [SENTRY_HANDOFF](SENTRY_HANDOFF.md) |
+| Best Use of ElevenLabs — planned sixth | Demo/narration script exists | No generated narration or used-in-video evidence recorded; rights/free allowance and final artifact still need verification |
+
+Entire, .tech, Backboard and other unused sponsors are not included. Owning a domain, using Codex/Claude or possessing an account is not qualifying tool-use evidence. No new integration, submission or external activation is authorized by this count.
+
+**Official wording rechecked:** [Week 3](https://dev.to/challenges/hacktoberfest-week3-2026-10-19) names Gemma, Render, GitHub Actions under Copilot, demo narration under ElevenLabs, and traces/screenshots with performance/debugging findings under Sentry. [HF26 hub](https://dev.to/challenges/hf26) says a valid submission is considered for Overall and qualifying partners, with one win per challenge. Event 81 / Slow and Steady is listed for Oct 19–25, 2026 and shown Live in the hub on this check; the earlier precise deadline conflict below remains unresolved. DevRelay gateway tools were unavailable; official HTML was the fallback. The raw event API could not be fetched in this pass, so no fresh full_details/API timestamp verification is claimed.
+
 ### Primary contest and prize structure — verified
 
 The contest is [Hacktoberfest Open-Source AI Challenge: Week 3](https://dev.to/challenges/hacktoberfest-week3-2026-10-19), DEV event 81, active on the 2026-10-20 research date. **Slow and Steady** is its theme; the shared prompt is to build with open-source AI at the core. Sponsor categories are optional awards, not separate prompts. **Overall** is the $250 prize. The **20 optional sponsor-specific categories** comprise six featured prizes of $200 and fourteen partner prizes of $100.
 
-**One entry may enter every genuinely used category; only one prize can be won per challenge.** List actual qualifying categories in the post. Multiple category eligibility broadens consideration; it does not stack prizes or establish higher odds. Personal eligibility and a published project entry remain unconfirmed. Gemma is the only sponsor technology implemented in this working tree; retaining it incurs almost no extra integration work.
+**One entry may enter every genuinely used category; only one prize can be won per challenge.** List actual qualifying categories in the post. Multiple category eligibility broadens consideration; it does not stack prizes or establish higher odds. Personal eligibility and a published project entry remain unconfirmed. The original 2026-10-20 snapshot had only Gemma implemented; the 2026-10-22 portfolio above supersedes that implementation snapshot.
 
 Writing quality receives the highest judging weight; other criteria cover theme relevance, creativity, execution and applicable partner use. The local coordinator workflow fits effort-saving automation, but the value and technical role must be demonstrated. Sources: [Week 3 rules](https://dev.to/page/hacktoberfest-week3-2026-10-19-contest-rules), [HF26 hub](https://dev.to/challenges/hf26), and the event API's full details.
 
@@ -35,7 +52,7 @@ The API's prose agrees with written rules while its timestamp is one day earlier
 
 ### All 20 sponsor categories: fit screening
 
-Exact names and requirements were checked against the [Week 3 category list](https://dev.to/challenges/hacktoberfest-week3-2026-10-19) and [hub descriptions](https://dev.to/challenges/hf26). **Fit/effort judgments are our strategy, not organizer rankings.** None of the additional uses below has been implemented or entered.
+Exact names and requirements were checked against the [Week 3 category list](https://dev.to/challenges/hacktoberfest-week3-2026-10-19) and [hub descriptions](https://dev.to/challenges/hf26). **Fit/effort judgments are our strategy, not organizer rankings.** This was the original 2026-10-20 fit screen; implementation status is now superseded by the current portfolio above, not by the historical effort estimates below.
 
 | Official category | Prize | Qualifying use, summarized | Fit and remaining work |
 |---|---:|---|---|
@@ -143,7 +160,7 @@ No new product voice, cloud database, orchestration stack or fine-tuning is sele
 - **Entire / R-CLI:** [Entire source](https://github.com/entireio/cli) and [R-CLI source](https://github.com/Backboard-io/Backboard-R-CLI) are MIT-licensed development tools. Entire supports specific agents (including Claude Code/Codex/Copilot CLI), not every Copilot IDE workflow. R-CLI supports custom local endpoints including Ollama without Backboard login; this model/task combination remains untested. Existing agent access and any installation need owner confirmation. Inspect session contents before sharing; redaction is not a guarantee.
 - **Render:** [official FAQ](https://render.com/docs/faq) says free instances can still incur bandwidth/build charges if a payment method exists; without one, charge-triggering services are disabled instead. Confirm the account has the required no-paid-fallback behavior before deployment. Hosted code cannot use the Mac's localhost Ollama; replay must be explicit.
 - **DigitalOcean:** [App Platform pricing](https://docs.digitalocean.com/products/app-platform/details/pricing/) includes three free static-only apps with 1 GiB/app outbound allowance, then billed transfer. This is a real hosting alternative, but no verified hard-stop/no-billing route was established for this account. Keep it conditional under ₹0; do not deploy on a “free” label alone.
-- **Sentry:** a free Developer plan exists, but the exact usable tracing allowance/account setup is unconfirmed here. No SDK is installed; adding external tracing needs a documented stdlib/network exception and checks that no names/messages/prompts/responses leave the device. Use fictional data for evidence. [Official manual AI example](https://github.com/getsentry/llm-manual-agent-monitoring-example).
+- **Sentry:** the original Oct 20 feasibility screen preceded installation. Current evidence (Oct 21/22): SDK 2.72.0 implemented under D-33, real traces/finding received, public Developer Free / 1 user / 5M spans verified, and targeted geo redaction checked. Full scopes, trial/paid distinctions and remaining privacy/account checks: [Sentry handoff](SENTRY_HANDOFF.md). [Official manual AI example](https://github.com/getsentry/llm-manual-agent-monitoring-example).
 - **.tech:** ownership of `bipulchamoli.tech` alone does not meet the promo-acquisition condition. The offer advertises $29.99 renewal after the free first year; acquisition and disabled paid renewal remain to be verified.
 - **Ultramarine:** the official category advertises $5 of promo credit, but account redemption/remaining credit was not verified. Do not claim use or zero marginal cost without actual usage/cost evidence. No credits, sponsor skills, software or accounts were claimed/installed/created in this task.
 
