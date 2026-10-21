@@ -1,0 +1,610 @@
+{
+  "about": "Reference for FICTIONAL set C, written by an isolated ChatGPT session and edited by the owner.",
+  "week_start": "2026-11-23",
+  "timezone": "Asia/Kolkata",
+  "conventions": {
+    "periods": {
+      "morning": [
+        "09:00",
+        "12:00"
+      ],
+      "afternoon": [
+        "13:00",
+        "17:00"
+      ],
+      "evening": [
+        "17:00",
+        "20:00"
+      ],
+      "all day": [
+        "09:00",
+        "20:00"
+      ]
+    },
+    "open_ended": "'after 3' runs to 20:00; 'until 12' starts at 09:00",
+    "unstated_time": "available with no time and no earlier answer for that day = 09:00-20:00 (flagged); with an earlier answer = confirmation, retain earlier hours; when a condition is confirmed, record the inherited interval with status available; unavailable with no time = whole day",
+    "bare_weekday": "the selected week's day, unless sent during that week after the day has passed",
+    "next_weekday": "resolved only when 'the next one to occur' and 'the one in next week' are the same date"
+  },
+  "split": {
+    "heldout": [
+      "m01",
+      "m02",
+      "m03",
+      "m04",
+      "m05",
+      "m06",
+      "m07",
+      "m08",
+      "m09",
+      "m10",
+      "m11",
+      "m12",
+      "m13",
+      "m14",
+      "m15",
+      "m16",
+      "m17",
+      "m18",
+      "m19",
+      "m20",
+      "m21",
+      "m22",
+      "m23",
+      "m24"
+    ]
+  },
+  "messages": {
+    "m01": {
+      "category": [
+        "unrelated"
+      ],
+      "claims": []
+    },
+    "m02": {
+      "category": [
+        "availability"
+      ],
+      "claims": [
+        {
+          "person": "Aavya Nelkar",
+          "dates": [
+            "2026-11-23"
+          ],
+          "start": "09:00",
+          "end": "12:00",
+          "status": "available"
+        }
+      ]
+    },
+    "m03": {
+      "category": [
+        "partial"
+      ],
+      "claims": [
+        {
+          "person": "Bhavin Darsen",
+          "dates": [
+            "2026-11-24"
+          ],
+          "start": "14:00",
+          "end": "17:00",
+          "status": "available",
+          "note": "Tuesday from 2-5 pm explicitly means 14:00-17:00 in the selected week."
+        }
+      ]
+    },
+    "m04": {
+      "category": [
+        "availability"
+      ],
+      "claims": [
+        {
+          "person": "Charvi Lodhan",
+          "dates": [
+            "2026-11-25"
+          ],
+          "start": "13:00",
+          "end": "17:00",
+          "status": "available",
+          "note": "Wednesday afternoon means 13:00-17:00 in the selected week."
+        }
+      ]
+    },
+    "m05": {
+      "category": [
+        "duplicate"
+      ],
+      "claims": [
+        {
+          "person": "Bhavin Darsen",
+          "dates": [
+            "2026-11-24"
+          ],
+          "start": "14:00",
+          "end": "17:00",
+          "status": "available",
+          "note": "Tuesday from 2-5 pm explicitly means 14:00-17:00 in the selected week."
+        }
+      ]
+    },
+    "m06": {
+      "category": [
+        "availability"
+      ],
+      "claims": [
+        {
+          "person": "Devansh Kethra",
+          "dates": [
+            "2026-11-26"
+          ],
+          "start": "17:00",
+          "end": "20:00",
+          "status": "available"
+        }
+      ]
+    },
+    "m07": {
+      "category": [
+        "conditional",
+        "partial"
+      ],
+      "claims": [
+        {
+          "person": "Eshani Vardek",
+          "dates": [
+            "2026-11-27"
+          ],
+          "start": "15:00",
+          "end": "20:00",
+          "status": "conditional",
+          "note": "Depends on the lab swap being approved; settled by m19."
+        }
+      ]
+    },
+    "m08": {
+      "category": [
+        "conditional"
+      ],
+      "claims": [
+        {
+          "person": "Farhan Molvi",
+          "dates": [
+            "2026-11-28"
+          ],
+          "start": "09:00",
+          "end": "12:00",
+          "status": "conditional",
+          "note": "Depends on the repair being finished in time; never settled."
+        }
+      ]
+    },
+    "m09": {
+      "category": [
+        "availability"
+      ],
+      "claims": [
+        {
+          "person": "Gauri Ransel",
+          "dates": [
+            "2026-11-29"
+          ],
+          "start": "09:00",
+          "end": "20:00",
+          "status": "available"
+        }
+      ]
+    },
+    "m10": {
+      "category": [
+        "availability"
+      ],
+      "claims": [
+        {
+          "person": "Harit Senva",
+          "dates": [
+            "2026-11-23"
+          ],
+          "start": null,
+          "end": null,
+          "status": "available",
+          "note": "No time stated and no earlier Monday answer: infer 09:00-20:00 for the sheet."
+        }
+      ]
+    },
+    "m11": {
+      "category": [
+        "similar_names"
+      ],
+      "claims": [
+        {
+          "person": "Tarin Vekar",
+          "dates": [
+            "2026-11-25"
+          ],
+          "start": "17:00",
+          "end": "20:00",
+          "status": "available"
+        }
+      ]
+    },
+    "m12": {
+      "category": [
+        "similar_names",
+        "partial"
+      ],
+      "claims": [
+        {
+          "person": "Taren Vekar",
+          "dates": [
+            "2026-11-26"
+          ],
+          "start": "09:00",
+          "end": "12:00",
+          "status": "available"
+        }
+      ]
+    },
+    "m13": {
+      "category": [
+        "outside_week"
+      ],
+      "claims": [
+        {
+          "person": "Ishita Koshren",
+          "dates": null,
+          "start": null,
+          "end": null,
+          "status": "unavailable",
+          "date_state": "outside_week",
+          "date_candidates": [
+            "2026-11-21"
+          ],
+          "note": "Explicit Saturday 21 November is before the selected week."
+        }
+      ]
+    },
+    "m14": {
+      "category": [
+        "unrelated"
+      ],
+      "claims": []
+    },
+    "m15": {
+      "category": [
+        "cancellation"
+      ],
+      "claims": [
+        {
+          "person": "Aavya Nelkar",
+          "dates": [
+            "2026-11-23"
+          ],
+          "start": "09:00",
+          "end": "12:00",
+          "status": "unavailable",
+          "note": "Cancels the Monday morning offer in m02; does not state whole-day unavailability."
+        }
+      ]
+    },
+    "m16": {
+      "category": [
+        "cancellation"
+      ],
+      "claims": [
+        {
+          "person": "Bhavin Darsen",
+          "dates": [
+            "2026-11-24"
+          ],
+          "start": null,
+          "end": null,
+          "status": "unavailable"
+        }
+      ]
+    },
+    "m17": {
+      "category": [
+        "cancellation"
+      ],
+      "claims": [
+        {
+          "person": "Charvi Lodhan",
+          "dates": [
+            "2026-11-25"
+          ],
+          "start": null,
+          "end": null,
+          "status": "unavailable"
+        }
+      ]
+    },
+    "m18": {
+      "category": [
+        "cancellation"
+      ],
+      "claims": [
+        {
+          "person": "Devansh Kethra",
+          "dates": [
+            "2026-11-26"
+          ],
+          "start": null,
+          "end": null,
+          "status": "unavailable"
+        }
+      ]
+    },
+    "m19": {
+      "category": [
+        "confirmation"
+      ],
+      "claims": [
+        {
+          "person": "Eshani Vardek",
+          "dates": [
+            "2026-11-27"
+          ],
+          "start": "15:00",
+          "end": "20:00",
+          "status": "available",
+          "note": "Confirms m07 after the lab swap was approved. The 15:00-20:00 hours are inherited from m07, not restated in m19; only the status changes from conditional to available."
+        }
+      ]
+    },
+    "m20": {
+      "category": [
+        "correction",
+        "partial"
+      ],
+      "claims": [
+        {
+          "person": "Gauri Ransel",
+          "dates": [
+            "2026-11-29"
+          ],
+          "start": "10:15",
+          "end": "12:45",
+          "status": "available",
+          "replaces_earlier": true
+        }
+      ]
+    },
+    "m21": {
+      "category": [
+        "correction",
+        "partial"
+      ],
+      "claims": [
+        {
+          "person": "Harit Senva",
+          "dates": [
+            "2026-11-23"
+          ],
+          "start": "13:00",
+          "end": "16:00",
+          "status": "available",
+          "replaces_earlier": true,
+          "note": "Change my availability on monday to 1-4 pm clearly replaces m10; the new range is 13:00-16:00."
+        }
+      ]
+    },
+    "m22": {
+      "category": [
+        "ambiguous_date"
+      ],
+      "claims": [
+        {
+          "person": "Kavish Dovra",
+          "dates": null,
+          "start": null,
+          "end": null,
+          "status": "unavailable",
+          "date_state": "ambiguous",
+          "date_candidates": [
+            "2026-11-27",
+            "2026-12-04"
+          ],
+          "note": "Sent Monday 23 November: the next Friday to occur is 27 November; Friday in next week is 4 December."
+        }
+      ]
+    },
+    "m23": {
+      "category": [
+        "similar_names",
+        "third_party",
+        "partial"
+      ],
+      "claims": [
+        {
+          "person": null,
+          "dates": [
+            "2026-11-29"
+          ],
+          "start": "10:00",
+          "end": "11:00",
+          "status": "available",
+          "person_candidates": [
+            "Tarin Vekar",
+            "Taren Vekar"
+          ],
+          "note": "Forwarded reply signed T. Vekar could be Tarin Vekar or Taren Vekar; assign to neither pending clarification."
+        }
+      ]
+    },
+    "m24": {
+      "category": [
+        "unrelated"
+      ],
+      "claims": []
+    }
+  },
+  "withdrawals": [
+    {
+      "msg": "m15",
+      "person": "Aavya Nelkar",
+      "date": "2026-11-23",
+      "start": "09:00",
+      "end": "12:00",
+      "kind": "cancel"
+    },
+    {
+      "msg": "m16",
+      "person": "Bhavin Darsen",
+      "date": "2026-11-24",
+      "start": "14:00",
+      "end": "17:00",
+      "kind": "cancel"
+    },
+    {
+      "msg": "m17",
+      "person": "Charvi Lodhan",
+      "date": "2026-11-25",
+      "start": "13:00",
+      "end": "17:00",
+      "kind": "cancel"
+    },
+    {
+      "msg": "m18",
+      "person": "Devansh Kethra",
+      "date": "2026-11-26",
+      "start": "17:00",
+      "end": "20:00",
+      "kind": "cancel"
+    },
+    {
+      "msg": "m20",
+      "person": "Gauri Ransel",
+      "date": "2026-11-29",
+      "start": "09:00",
+      "end": "10:15",
+      "kind": "narrow"
+    },
+    {
+      "msg": "m20",
+      "person": "Gauri Ransel",
+      "date": "2026-11-29",
+      "start": "12:45",
+      "end": "20:00",
+      "kind": "narrow"
+    },
+    {
+      "msg": "m21",
+      "person": "Harit Senva",
+      "date": "2026-11-23",
+      "start": "09:00",
+      "end": "13:00",
+      "kind": "narrow"
+    },
+    {
+      "msg": "m21",
+      "person": "Harit Senva",
+      "date": "2026-11-23",
+      "start": "16:00",
+      "end": "20:00",
+      "kind": "narrow"
+    }
+  ],
+  "conditions": [
+    {
+      "msgs": [
+        "m07",
+        "m19"
+      ],
+      "person": "Eshani Vardek",
+      "date": "2026-11-27",
+      "start": "15:00",
+      "end": "20:00",
+      "expected_final": "available"
+    },
+    {
+      "msgs": [
+        "m08"
+      ],
+      "person": "Farhan Molvi",
+      "date": "2026-11-28",
+      "start": "09:00",
+      "end": "12:00",
+      "expected_final": "conditional"
+    }
+  ],
+  "ambiguities": [
+    {
+      "msg": "m13",
+      "kind": "outside_week",
+      "expect": "Ishita Koshren is unavailable on 2026-11-21, outside the selected week; do not place this on 2026-11-28."
+    },
+    {
+      "msg": "m22",
+      "kind": "date",
+      "expect": "Unavailable on either 2026-11-27 or 2026-12-04; keep both candidates and apply to neither without clarification."
+    },
+    {
+      "msg": "m23",
+      "kind": "person",
+      "expect": "Sunday 2026-11-29 10:00-11:00 offer belongs to either Tarin Vekar or Taren Vekar; apply to neither without clarification."
+    }
+  ],
+  "expected_sheet": {
+    "Aavya Nelkar": {},
+    "Bhavin Darsen": {},
+    "Charvi Lodhan": {},
+    "Devansh Kethra": {},
+    "Eshani Vardek": {
+      "2026-11-27": [
+        [
+          "15:00",
+          "20:00",
+          "available"
+        ]
+      ]
+    },
+    "Farhan Molvi": {
+      "2026-11-28": [
+        [
+          "09:00",
+          "12:00",
+          "conditional"
+        ]
+      ]
+    },
+    "Gauri Ransel": {
+      "2026-11-29": [
+        [
+          "10:15",
+          "12:45",
+          "available"
+        ]
+      ]
+    },
+    "Harit Senva": {
+      "2026-11-23": [
+        [
+          "13:00",
+          "16:00",
+          "available"
+        ]
+      ]
+    },
+    "Ishita Koshren": {},
+    "Kavish Dovra": {},
+    "Tarin Vekar": {
+      "2026-11-25": [
+        [
+          "17:00",
+          "20:00",
+          "available"
+        ]
+      ]
+    },
+    "Taren Vekar": {
+      "2026-11-26": [
+        [
+          "09:00",
+          "12:00",
+          "available"
+        ]
+      ]
+    }
+  }
+}

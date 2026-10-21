@@ -15,6 +15,7 @@ FIXTURES = ROOT / "fixtures"
 SETS = {
     "A": ("riverside_week.txt", "roster.txt", "reference.json"),
     "B": ("setB_toolshed.txt", "setB_roster.txt", "setB_reference.json"),
+    "C": ("setC_messages.txt", "setC_roster.txt", "setC_reference.json"),
 }
 
 

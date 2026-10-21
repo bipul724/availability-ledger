@@ -333,7 +333,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--extractor", choices=["rules", "model", "hybrid"], default="rules")
     ap.add_argument("--model", default=model_mod.DEFAULT_MODEL)
-    ap.add_argument("--set", default="A", choices=["A", "B"], help="A = original 50 (dev + held-out), B = fresh held-out")
+    ap.add_argument("--set", default="A", choices=["A", "B", "C"], help="A = original 50 (dev + held-out), B = fresh held-out, C = independent, scored once")
     ap.add_argument("--only", default="", help="comma-separated message ids (small benchmark)")
     ap.add_argument("--refresh", action="store_true", help="ignore cached model outputs")
     ap.add_argument("--label", default="", help="suffix for the results file")

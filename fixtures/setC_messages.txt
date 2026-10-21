@@ -1,0 +1,27 @@
+# FICTIONAL TEST SET C. Moonbridge Moth Survey Club does not exist; every name, message and event is invented.
+# Selected week: Monday 2026-11-23 to Sunday 2026-11-29, timezone Asia/Kolkata.
+# Format: YYYY-MM-DD HH:MM | Sender | Message
+2026-11-16 08:10 | Pranika Selven (coordinator) | nov 23-29 moth-count rota coming up. maps + spare batteries are in the blue crate
+2026-11-16 09:07 | Aavya Nelkar | Monday morning works for me
+2026-11-16 10:13 | Bhavin Darsen | I can join you on Tuesday from 2-5 pm
+2026-11-16 18:42 | Charvi Lodhan | I can come in Wednesday afternoon
+2026-11-17 08:02 | Bhavin Darsen | I can join you on Tuesday from 2-5 pm
+2026-11-17 09:28 | Devansh Kethra | Thursday evening yep
+2026-11-17 10:28 | Eshani Vardek | Fri after 3 if my lab swap goes through
+2026-11-17 12:04 | Farhan Molvi | maybe sat morning, depends if the repair guy is done by then
+2026-11-18 08:46 | Gauri Ransel | sunday all day for me 👍
+2026-11-18 11:17 | Harit Senva | I'm free Monday
+2026-11-18 19:03 | Tarin Vekar | can cover wed evening
+2026-11-19 07:52 | Taren Vekar | thurs until 12 works, then gotta run
+2026-11-19 10:36 | Ishita Koshren | can't do Sat 21 Nov, away that day
+2026-11-19 17:14 | Ishita Koshren | do we have to bring our own torches or you will provide us with the spares?
+2026-11-20 08:31 | Aavya Nelkar | I am cancelling my plan for the Monday morning due to some urgent issues
+2026-11-20 12:09 | Bhavin Darsen | got called in at work. i'm out all Tuesday, sorry
+2026-11-20 20:26 | Charvi Lodhan | take me off Wednesday altogether pls
+2026-11-21 09:43 | Devansh Kethra | Thursday's a no now, can't come at all
+2026-11-21 15:08 | Eshani Vardek | lab swap went thru, Friday is definite now
+2026-11-22 10:24 | Gauri Ransel | Sunday only 10:15-12:45 now, kid's match moved
+2026-11-22 16:37 | Harit Senva | Please change my availability on monday to 1-4 pm
+2026-11-23 09:21 | Kavish Dovra | i'm not free next friday
+2026-11-24 13:46 | Pranika Selven (coordinator) | got a reply signed 'T. Vekar': 'Sunday for an hour, 10-11 works'. which T tho
+2026-11-26 18:05 | Kavish Dovra | found the red clipboards, left them by the kit cupboard 👍
