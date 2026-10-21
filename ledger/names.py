@@ -51,6 +51,12 @@ def match_person(text: str, sender: str, roster: list[str]) -> PersonMatch:
     if not words:
         return PersonMatch("unknown")
     first = words[0]
+    if len(first) == 1 and len(words) > 1:  # COR-16: "T. Vekar" / "T Vekar" = first initial + surname
+        cands = [r for rn, r in by_norm.items() if rn.split()[-1] == words[-1] and rn.split()[0].startswith(first)]
+        if len(cands) == 1:
+            return PersonMatch("resolved", cands[0], similar=similar_names(cands[0], roster))
+        if cands:
+            return PersonMatch("ambiguous", None, candidates=cands)
     last_initial = words[1][0] if len(words) > 1 else None
     exact, prefix = [], []
     for rn, r in by_norm.items():

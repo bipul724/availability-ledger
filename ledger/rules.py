@@ -22,7 +22,8 @@ TIME = re.compile(
     rf"|\b(?:after|from|until|till|before)\s+{_T}"
     r"|\b(?:all day|mornings?|afternoons?|evenings?|tonight)\b", re.I)
 NEG = re.compile(r"\b(?:can'?t|can’t|cannot|can not|won'?t|not|no good|doesn'?t work|isn'?t|unavailable"
-                 r"|busy|away|off|out of town|drop out|cancel)\b", re.I)
+                 r"|busy|away|off|out of town|drop out|cancel(?:s|led|ed|ling|ing|lation)?"
+                 r"|i'?m out|i’m out|i am out|out all day)\b", re.I)  # COR-17: word forms; "out" only in these phrases
 COND = re.compile(r"\b(?:if|might|maybe|possibly|probably|not sure|either|one or the other|depending|unless"
                   r"|will confirm)\b", re.I)
 REPLACE = re.compile(r"\b(?:instead|correction|actually|change of plans|update|now)\b", re.I)

@@ -32,6 +32,11 @@ CHANGE_WORDS = re.compile(
     r"|won'?t|no longer|not any ?more|pull(?:ing)? out|back(?:ing)? out|bail(?:s|ed|ing)?|count me out"
     r"|withdraw(?:s|n|ing)?|unable|not able|miss(?:ing)?|rain ?check|change of plans?)\b")
 
+# COR-15 (D-31): general-English cues that a later message changes the day's earlier answer ("change", "instead",
+# "now" (covering "only ... now"), "move", "switch", "make it"). Code, not the prompt. Motivated by set C m20/m21, so
+# every A/B/C effect is post-hoc. Applied only to model and rules claims that state a time.
+REPLACE_CUES = re.compile(r"\b(?:chang(?:e|es|ed|ing)|instead|now|mov(?:e|es|ed|ing)|switch(?:es|ed|ing)?|make it)\b")
+
 _PUNCT = {"’": "'", "‘": "'", "“": '"', "”": '"', "–": "-", "—": "-"}
 
 
@@ -285,6 +290,7 @@ def build_ledger(messages: list[Message], claims: list[dict], roster: list[str],
     sent = {m.id: m.sent.strftime("%a %d %b %H:%M") for m in messages}
     live = [c for c in claims if c.get("review") not in ("rejected", "dropped") and c["msg"] in order]
     live.sort(key=lambda c: (order[c["msg"]], -_spec(c), c.get("n", 0)))
+    cue_msgs = {m.id for m in messages if REPLACE_CUES.search(_norm(m.text))}
 
     state: dict[tuple, list] = {}
     history: dict[tuple, list] = {}
@@ -365,10 +371,22 @@ def build_ledger(messages: list[Message], claims: list[dict], roster: list[str],
             span = _span(c, cal, slots)
             event = {"msg": c["msg"], "sent": sent[c["msg"]], "claim": c["id"], "status": c["status"]}
             if span is None:
-                hist.append({**event, "what": "confirmed earlier answer", "span": ""})
-                applied.setdefault(c["id"], []).append((key, ""))
+                # COR-14: a firm, untimed follow-up settles a day that so far holds only conditional time from earlier
+                # messages; with any available time already there it is just a confirmation.
+                cond = [i for i, s in enumerate(slots) if s and s[0] == "conditional" and s[2] != c["msg"]]
+                if c["status"] == "available" and cond and not any(s and s[0] == "available" for s in slots):
+                    for i in cond:
+                        slots[i] = ("available", c["id"], c["msg"], _spec(c))
+                    done = f"{_hhmm(SLOT_START + cond[0] * SLOT)}-{_hhmm(SLOT_START + (cond[-1] + 1) * SLOT)}"
+                    hist.append({**event, "what": "condition resolved", "span": done})
+                    applied.setdefault(c["id"], []).append((key, done))
+                else:
+                    hist.append({**event, "what": "confirmed earlier answer", "span": ""})
+                    applied.setdefault(c["id"], []).append((key, ""))
                 continue
-            if c["replaces_earlier"] and (c["msg"], key) not in cleared and any(s and s[2] != c["msg"] for s in slots):
+            replaces = c["replaces_earlier"] or (c.get("source") in ("model", "rules") and c["msg"] in cue_msgs
+                                                 and c["time_state"] != "unstated" and c["status"] in ("available", "conditional"))
+            if replaces and (c["msg"], key) not in cleared and any(s and s[2] != c["msg"] for s in slots):
                 for i, s in enumerate(slots):
                     if s and s[2] != c["msg"]:
                         slots[i] = None

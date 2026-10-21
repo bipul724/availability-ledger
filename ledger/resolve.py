@@ -78,6 +78,11 @@ _WD_INDEX = {"mo": 0, "tu": 1, "we": 2, "th": 3, "fr": 4, "sa": 5, "su": 6}
 _MONTHS = {m: i for i, m in enumerate(
     ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
 _MONTH_RE = r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*"
+_MONTH_ALT = "|".join(_MONTHS)  # jan|feb|...|dec
+
+
+_WD_NC = "(?:" + _WD[1:]  # the same weekday pattern without a capturing group
+_WD_BEFORE = rf"(?:(?P<wd>{_WD_NC})\s*,?\s+)?"  # an optional weekday word right before an explicit date
 
 
 def _wd(token: str) -> int:
@@ -142,16 +147,33 @@ def resolve_day(text: str, sent: datetime, cal: Calendar) -> DayResolution:
     consume(r"\bthis weekend\b", lambda m: atoms.add(this_mon + timedelta(days=5), this_mon + timedelta(days=6)))
     consume(r"\b(the |over the |at the )?weekend\b", lambda m: atoms.add(cal.week_dates[5], cal.week_dates[6]))
 
+    # COR-13: an explicit date wins over a weekday word next to it. An agreeing weekday adds no second date; a
+    # contradicting one leaves both readings open. An explicit date outside the week stays outside it.
+    def dated(token: str | None, d: date, text: str):
+        if not token or _wd(token) == d.weekday():
+            atoms.add(d)
+            return
+        other = cal.week_start + timedelta(days=_wd(token))
+        atoms.either([d, other], f"'{text}': {d:%d %b} is a {d:%A}, not a {other:%A}")
+
     # numeric dates such as 11/12 or 11/12/2026
     def numeric(m):
-        a, b = int(m[1]), int(m[2])
-        year = int(m[3]) + (2000 if m[3] and len(m[3]) == 2 else 0) if m[3] else today.year
+        a, b = int(m["a"]), int(m["b"])
+        year = int(m["y"]) + (2000 if m["y"] and len(m["y"]) == 2 else 0) if m["y"] else today.year
         readings = []
         for month, day, label in ((a, b, "M/D"), (b, a, "D/M")):
             try:
                 readings.append((date(year, month, day), label))
             except ValueError:
                 pass
+        if m["wd"] and readings:
+            agreeing = sorted({d for d, _ in readings if d.weekday() == _wd(m["wd"])})
+            if len(agreeing) == 1:  # the weekday also tells M/D from D/M
+                atoms.add(agreeing[0])
+                return
+            if not agreeing and len({d for d, _ in readings}) == 1:
+                dated(m["wd"], readings[0][0], m[0].strip())
+                return
         in_week = sorted({d for d, _ in readings if cal.in_week(d)})
         if len(in_week) == 1:
             atoms.add(in_week[0])
@@ -160,32 +182,32 @@ def resolve_day(text: str, sent: datetime, cal: Calendar) -> DayResolution:
         elif readings:
             atoms.add(*sorted({d for d, _ in readings}))
 
-    consume(r"\b(\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?\b", numeric)
+    consume(rf"\b{_WD_BEFORE}(?P<a>\d{{1,2}})/(?P<b>\d{{1,2}})(?:/(?P<y>\d{{2,4}}))?\b", numeric)
 
-    def month_day(month_token: str, day_token: str):
-        month, day = _MONTHS[month_token[:3]], int(day_token)
+    def month_day(m):
+        month, day = _MONTHS[m["mon"][:3]], int(m["day"])
         try:
             d = date(today.year, month, day)
         except ValueError:
             return
         if d < today - timedelta(days=180):
             d = date(today.year + 1, month, day)
-        atoms.add(d)
+        dated(m["wd"], d, m[0].strip())
 
-    consume(rf"\b(\d{{1,2}})(?:st|nd|rd|th)?\s+(?:of\s+)?{_MONTH_RE}\b", lambda m: month_day(m[2], m[1]))
-    consume(rf"\b{_MONTH_RE}\s+(\d{{1,2}})(?:st|nd|rd|th)?\b", lambda m: month_day(m[1], m[2]))
+    consume(rf"\b{_WD_BEFORE}(?:the\s+)?(?P<day>\d{{1,2}})(?:st|nd|rd|th)?\s+(?:of\s+)?(?P<mon>{_MONTH_ALT})[a-z]*\b", month_day)
+    consume(rf"\b{_WD_BEFORE}(?P<mon>{_MONTH_ALT})[a-z]*\s+(?P<day>\d{{1,2}})(?:st|nd|rd|th)?\b", month_day)
 
     def ordinal(m):
-        day = int(m[1])
+        day = int(m["day"])
         y, mo = today.year, today.month
         if day < today.day:
             y, mo = (y + 1, 1) if mo == 12 else (y, mo + 1)
         try:
-            atoms.add(date(y, mo, day))
+            dated(m["wd"], date(y, mo, day), m[0].strip())
         except ValueError:
             pass
 
-    consume(r"\b(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\b", ordinal)
+    consume(rf"\b{_WD_BEFORE}(?:the\s+)?(?P<day>\d{{1,2}})(?:st|nd|rd|th)\b", ordinal)
 
     # weekday ranges: thu-sat, thursday to saturday
     def wd_range(m):
