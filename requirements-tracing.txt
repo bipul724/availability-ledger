@@ -1,0 +1,4 @@
+# Optional, for opt-in Sentry tracing only (INT-03, D-33). The app runs without it.
+# Install into the project virtualenv, never globally:
+#   python3 -m venv .venv && .venv/bin/pip install -r requirements-tracing.txt
+sentry-sdk==2.72.0

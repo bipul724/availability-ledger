@@ -21,7 +21,7 @@ from pathlib import Path
 
 from ledger import hybrid
 from ledger import model as model_mod
-from ledger import rules
+from ledger import rules, tracing
 from ledger.core import _mins, _slot_range, build_ledger, effective_units, final_slots, resolve_all
 
 from .fixture import ROOT, load, reference_claims
@@ -98,16 +98,18 @@ class CacheMissError(RuntimeError):
     """--cache-only and a model output is not saved: fail instead of calling the model (INT-11)."""
 
 
-def run_extractor(kind, messages, roster, cal, model_name, only=None, refresh=False, set_name="A", cache_only=False):
+def run_extractor(kind, messages, roster, cal, model_name, only=None, refresh=False, set_name="A", cache_only=False,
+                  trace=tracing.OFF):
     if kind == "hybrid":
-        model_raw, stats = run_extractor("model", messages, roster, cal, model_name, only, refresh, set_name, cache_only)
+        model_raw, stats = run_extractor("model", messages, roster, cal, model_name, only, refresh, set_name, cache_only, trace)
         rules_raw, _ = run_extractor("rules", messages, roster, cal, model_name, only, refresh, set_name)
-        return hybrid.merge([m for m in messages if not only or m.id in only], model_raw, rules_raw, roster, cal), stats
+        with tracing.stage(trace, "hybrid_merge"):
+            return hybrid.merge([m for m in messages if not only or m.id in only], model_raw, rules_raw, roster, cal), stats
     week = f"Monday {cal.week_start:%d %B} to Sunday {cal.week_end:%d %B %Y}"
     tag = re.sub(r"[^a-z0-9.]+", "_", model_name.lower()) + f"_prompt{model_mod.PROMPT_VERSION}" + \
         ("" if set_name == "A" else f"_set{set_name}")
     raw, stats = [], {}
-    for msg in messages:
+    for position, msg in enumerate(messages, 1):
         if only and msg.id not in only:
             continue
         if msg.duplicate_of:
@@ -123,7 +125,9 @@ def run_extractor(kind, messages, roster, cal, model_name, only=None, refresh=Fa
                 raise CacheMissError(f"no saved model output for message {msg.id} (set {set_name}): "
                                      f"{_shown(cache)} is missing and --cache-only forbids a model call")
             else:
-                said, st = model_mod.extract(msg, week, model_name)
+                with tracing.model_call(trace, model_name, position) as span:  # fresh calls only (INT-03)
+                    said, st = model_mod.extract(msg, week, model_name)
+                    tracing.record_stats(span, st, model_name, len(said))
                 cache.parent.mkdir(parents=True, exist_ok=True)
                 cache.write_text(json.dumps({"claims": said, "stats": st}, indent=1, ensure_ascii=False))
                 print(f"  {msg.id} {st['wall_s']:>5.1f}s  claims={len(said)}  {msg.text[:60]}")
@@ -369,45 +373,52 @@ def main():
     sampler = MemorySampler() if uses_model and not args.cache_only else None
     if sampler:
         sampler.start()
-    t0 = time.time()
-    try:
-        raw, stats = run_extractor(args.extractor, messages, roster, cal, args.model, only, args.refresh, args.set,
-                                   args.cache_only)
-    except CacheMissError as e:
-        if sampler:
-            sampler.stop()
-        sys.exit(f"error: {e}")
-    wall = time.time() - t0
-    loaded = ollama_ps() if sampler else []
-    memory = sampler.stop() if sampler else None
+    tracing.init()  # opt-in (SENTRY_DSN); a no-op otherwise
+    with tracing.transaction("gen_ai.invoke_agent", f"invoke_agent {tracing.AGENT}", gen_ai__agent__name=tracing.AGENT,
+                             ledger__reader=args.extractor, ledger__message_count=len(messages),
+                             **({} if args.extractor == "rules" else {"gen_ai__request__model": args.model,
+                                                                     "ledger__prompt_version": model_mod.PROMPT_VERSION})) as trace:
+        t0 = time.time()
+        try:
+            raw, stats = run_extractor(args.extractor, messages, roster, cal, args.model, only, args.refresh, args.set,
+                                       args.cache_only, trace)
+        except CacheMissError as e:
+            if sampler:
+                sampler.stop()
+            sys.exit(f"error: {e}")
+        wall = time.time() - t0
+        loaded = ollama_ps() if sampler else []
+        memory = sampler.stop() if sampler else None
 
-    heldout = set(ref["split"]["heldout"])
-    all_ids = [m.id for m in messages if not only or m.id in only]
-    report = {"set": args.set, "extractor": args.extractor, "model": args.model if args.extractor != "rules" else None,
-              "prompt_version": model_mod.PROMPT_VERSION if args.extractor != "rules" else None,
-              "messages_run": len(all_ids), "wall_s": round(wall, 1)}
-    if uses_model:
-        fresh = [s for s in stats.values() if not s.get("cached")]
-        report["speed"] = {
-            "fresh_calls": len(fresh),
-            "median_s_per_message": statistics.median([s["wall_s"] for s in fresh]) if fresh else None,
-            "max_s_per_message": max([s["wall_s"] for s in fresh], default=None),
-            "output_tokens_per_s": round(sum(s["output_tokens"] or 0 for s in fresh) / max(1e-9, sum(s["output_s"] for s in fresh)), 1) if fresh else None,
-            "prompt_tokens_per_s": round(sum(s["prompt_tokens"] or 0 for s in fresh) / max(1e-9, sum(s["prompt_s"] for s in fresh)), 1) if fresh else None,
-            "json_parse_failures": sum(1 for s in stats.values() if not s.get("json_ok", True)),
-            "first_load_s": max((s["load_s"] for s in fresh), default=None),
-        }
-    if sampler:
-        report["memory"] = {**memory, "ollama_ps": loaded}
-    for name, ids in (("dev", [i for i in all_ids if i not in heldout]), ("heldout", [i for i in all_ids if i in heldout]),
-                      ("all", all_ids)):
-        if ids:
-            _, s = score(messages, roster, cal, ref, raw, ids)
-            report[name] = s
-    if not only:
-        resolved, _ = score(messages, roster, cal, ref, raw, all_ids)
-        _, report["ledger"] = ledger_checks(messages, roster, cal, ref, resolved)
-        report["form_analysis"] = form_analysis(ref)
+        heldout = set(ref["split"]["heldout"])
+        all_ids = [m.id for m in messages if not only or m.id in only]
+        report = {"set": args.set, "extractor": args.extractor, "model": args.model if args.extractor != "rules" else None,
+                  "prompt_version": model_mod.PROMPT_VERSION if args.extractor != "rules" else None,
+                  "messages_run": len(all_ids), "wall_s": round(wall, 1)}
+        if uses_model:
+            fresh = [s for s in stats.values() if not s.get("cached")]
+            report["speed"] = {
+                "fresh_calls": len(fresh),
+                "median_s_per_message": statistics.median([s["wall_s"] for s in fresh]) if fresh else None,
+                "max_s_per_message": max([s["wall_s"] for s in fresh], default=None),
+                "output_tokens_per_s": round(sum(s["output_tokens"] or 0 for s in fresh) / max(1e-9, sum(s["output_s"] for s in fresh)), 1) if fresh else None,
+                "prompt_tokens_per_s": round(sum(s["prompt_tokens"] or 0 for s in fresh) / max(1e-9, sum(s["prompt_s"] for s in fresh)), 1) if fresh else None,
+                "json_parse_failures": sum(1 for s in stats.values() if not s.get("json_ok", True)),
+                "first_load_s": max((s["load_s"] for s in fresh), default=None),
+            }
+        if sampler:
+            report["memory"] = {**memory, "ollama_ps": loaded}
+        with tracing.stage(trace, "score"):  # resolves every claim, then scores units
+            for name, ids in (("dev", [i for i in all_ids if i not in heldout]), ("heldout", [i for i in all_ids if i in heldout]),
+                              ("all", all_ids)):
+                if ids:
+                    _, s = score(messages, roster, cal, ref, raw, ids)
+                    report[name] = s
+        if not only:
+            with tracing.stage(trace, "build_ledger"):  # reference and predicted ledgers, then sheet checks
+                resolved, _ = score(messages, roster, cal, ref, raw, all_ids)
+                _, report["ledger"] = ledger_checks(messages, roster, cal, ref, resolved)
+            report["form_analysis"] = form_analysis(ref)
     out_dir.mkdir(parents=True, exist_ok=True)
     name = f"set{args.set}_{args.extractor}" + ("" if args.extractor == "rules" else
                                                  "_" + re.sub(r"[^a-z0-9.]+", "_", args.model.lower()) + f"_prompt{model_mod.PROMPT_VERSION}")
@@ -419,6 +430,7 @@ def main():
             brief[split] = {k: v for k, v in report[split].items() if k not in ("errors", "errors_per_message")}
     print(json.dumps(brief, indent=1, ensure_ascii=False, default=list))
     print(f"\nwrote {_shown(out)}")
+    tracing.flush()
 
 
 if __name__ == "__main__":

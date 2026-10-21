@@ -138,13 +138,16 @@ async function run() {
     $("workspace").hidden = false;
     await resolveNow();  // clear the previous session's cards, sheet and chart before reading
     const t0 = performance.now();
+    // Optional tracing (INT-03) groups one run's requests: a random token plus positions, never message content.
+    const run = { id: (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)), index: 0,
+      total: state.messages.filter((m) => !m.duplicate_of).length };
     for (const [i, msg] of state.messages.entries()) {
       $("progress").textContent = `Reading message ${i + 1} of ${state.messages.length}…`;
       if (!msg.duplicate_of) {  // a repeat of an earlier message is not read again
         try {  // one failed message must not stop the others (COR-03)
           const out = await api("/api/suggest", {
             message: msg, roster: state.roster, week_start: state.week, timezone: state.tz,
-            extractor: $("extractor").value, model: $("model").value,
+            extractor: $("extractor").value, model: $("model").value, run: { ...run, index: ++run.index },
           });
           state.claims.push(...out.claims);
           if (out.stats?.json_ok === false) state.failures.set(msg.id, { kind: "reply", rulesOnly: out.claims.length > 0 });
