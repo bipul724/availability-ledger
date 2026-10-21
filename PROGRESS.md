@@ -557,3 +557,20 @@ These are the current, post-hoc numbers; the frozen first scores are unchanged.
 **Decision on the agent's extra gate:** kept. The re-score fails if any score differs from the committed results, so committed results always match the code. Consequence for every future scoring change: re-score locally (cache-only) and commit the result files in the same push. CI checks only the Gemma and rules files, so Qwen result files must be re-scored by hand when scoring changes.
 
 **Not verified:** a run on GitHub itself (owner to push and send a screenshot of the run and its job summary).
+
+### INT-11 verified on GitHub (2026-10-21, about 12:00 IST)
+
+Run "tests #5" on `8c5f975`, checked by the lead through the public GitHub API: conclusion success, 06:27:39–06:27:53 UTC. Unit tests, "Protected evidence unchanged" and "Cache-only re-score" all passed, every step green. The owner will keep screenshots of the run and its job summary for the post.
+
+### DEP-03 / INT-04: demo script and narration written (2026-10-21)
+
+The lead wrote `docs/demo/script.md`: 8 shots, about 2 min 30 s, with narration text for ElevenLabs.
+
+**Checked:** the script's moments were checked in-process against the saved Gemma 4 E2B outputs with Model + rules on set A (0 model calls). They are:
+- Maria's Thursday cancellation (m28);
+- Kofi's condition settled (m13 → m29), which raises the COR-18 warning;
+- "this Saturday" outside the week (m26);
+- "next Tuesday" ambiguous (m41);
+- a real model error caught by review: m48 files Marta's offer under Maria. Rejecting it turns Maria's Tuesday 09:00–12:00 from conditional back to available.
+
+**Not done:** the recording and narration (owner, Sat 24 Oct). The replay (DEP-02) isn't built yet. A live local run may differ from the saved outputs, so do a dry run first.
