@@ -659,3 +659,168 @@ The owner deployed the Blueprint to https://availability-ledger-replay.onrender.
 **Not checked live:** the CSV downloads (covered locally by `demo_mode.mjs`, 23/23) and cold-start wake time.
 
 **Docs:** README scope moved from D-23 to D-33, with the replay URL and an integration status table; demo script count corrected to 10 decision items.
+
+### INT-03: opt-in Sentry tracing implemented; real traces pending (2026-10-21, system clock 18:59 IST)
+
+**Docs used for span names:** Sentry "Set Up" for agent monitoring (docs.sentry.io/product/agents/getting-started/), which points to the Python manual-instrumentation page (docs.sentry.io/platforms/python/agent-tracing/manual-instrumentation). Span names and ops follow that page:
+- agent run: op `gen_ai.invoke_agent`, name `invoke_agent availability-reader`;
+- model call: op `gen_ai.chat`, name `chat <model>`;
+- attributes: `gen_ai.operation.name`, `gen_ai.agent.name`, `gen_ai.provider.name`, `gen_ai.request.model`, `gen_ai.response.model` and `gen_ai.usage.{input,output,total}_tokens`;
+- on failure: `error.type`.
+
+The `gen_ai.input/output.messages` and `gen_ai.system_instructions` attributes are deliberately never set. That page notes that `send_default_pii`/`data_collection` do not filter manually set attributes, so our own allowlist does it.
+
+**Installed (owner-approved):** `python3 -m venv .venv`, then `.venv/bin/pip install -r requirements-tracing.txt`, giving `sentry-sdk==2.72.0` (the newest on PyPI on 2026-10-21), plus its dependencies `certifi` 2026.10.19 and `urllib3` 2.8.0. `.venv/` was already in `.gitignore`. Nothing was installed globally.
+
+**Changed:**
+- **New `ledger/tracing.py`:**
+  - It is a no-op without `SENTRY_DSN` or without an importable `sentry_sdk`, and then never imports it.
+  - Init settings:
+    - `traces_sample_rate=1.0`, `send_default_pii=False`, `data_collection` all off;
+    - default and auto-enabled integrations off;
+    - `max_breadcrumbs=0`, and `before_breadcrumb` drops all;
+    - `before_send` drops every error event;
+    - no local variables, stack traces or source context;
+    - no sessions, client reports or logs; no trace propagation;
+    - fixed release, environment and server name.
+  - `before_send_transaction` rebuilds each transaction from an allowlist:
+    - fields, trace context and sampling context;
+    - span keys;
+    - span-data keys with value types;
+    - strings only as identifiers (`^[A-Za-z0-9_.:/-]{1,100}$`);
+    - span and transaction names only of our own forms.
+
+    The SDK (2.64+) sends `gen_ai` spans as separate v2 items, copied from the already-scrubbed transaction, so they are covered (checked in the SDK source).
+  - Handles with a no-op `OFF`, and a `Runs` registry: one agent span across a browser run's requests.
+- **`server.py`:**
+  - `/api/suggest` joins the page's run and wraps the model call (`gen_ai.chat`) and the hybrid merge.
+  - `/api/resolve` and `/api/export` add `ledger.resolve`, `ledger.confirmed_export`, `ledger.build_ledger` and `ledger.export` to the open run, or else to a `ledger request` transaction.
+  - `tracing.init()` runs only after the demo branch, so the Render replay is never traced. Spans are flushed on shutdown.
+  - `ledger/model.py` is not changed.
+- **`evaluation/run.py`:** one agent transaction per run, a chat span per fresh model call (cached reads make none), and `ledger.hybrid_merge`, `ledger.score` and `ledger.build_ledger`.
+- **`ui/app.js`:** each suggest request carries `run: {id: random, index, total}`, which the server ignores when tracing is off.
+- **New files:** `requirements-tracing.txt`, `tests/test_tracing.py`.
+- **Docs:**
+  - README: a new "Opt-in tracing (Sentry)" section, the configuration and online-behaviour rows, and the status rows.
+  - ARCHITECTURE §1, §12 and §13, and the integrations table.
+  - API: `run` in `/api/suggest`, and the environment-variable lines.
+  - INTEGRATIONS: the Sentry row and §5 status.
+  - `.env.example`, context.md and CLAUDE.md: secrets line, telemetry rule, honesty line.
+  - TESTING.md: test counts, "Opt-in tracing" and "Record real traces"; this row.
+
+**Not changed:** fixtures, saved runs, results, the prompt, and `ledger/` apart from the new `tracing.py`. Not committed.
+
+**Checks run:**
+- **Unit tests:** 105 in all.
+  - Plain `python3` 3.15.0, and 3.12.6 (also with `TZ=UTC`): 103 pass, 2 skipped (no SDK).
+  - `.venv` (3.15.0, `sentry-sdk` 2.72.0): 105 pass.
+- **Leak test:** the real server over HTTP and `evaluation.run`, traced into a capturing test transport with no DSN and no network. With invented name, phone, address, prompt, reply, error and log strings, plus simulated careless instrumentation, none appear in any envelope. Neither do message IDs or the run token.
+- **Mutation check:** with the scrubber made a pass-through, the leak test fails (the strings appear). So the test catches a leak, and the call sites alone already send no content.
+- **Cache-only re-score** after the instrumentation: 9/9 match the committed results.
+- **Browser checks** with tracing off: session_rerun 10/10, extraction_failures 14/14, csv_safety 4/4, sheet_display 28/28, review_safeguards 12/12, demo_mode 23/23 (`LEDGER_DEMO=1`, no DSN, unchanged behaviour).
+- **Links:** 0 problems.
+
+**Not done or not verified:**
+- **No real traces.** The DSN is the owner's, and the agent never saw it. The owner's steps are in TESTING.md "Record real traces".
+- No finding yet; it will be whatever the traces show.
+- The Sentry free-plan quota and settings were not checked (owner).
+- The SDK prints a `DeprecationWarning` for `send_default_pii` (kept because the brief requires it; `data_collection` is its successor and is also set). It is visible only where warnings are shown, such as unittest.
+- CI skips the 2 SDK tests because it installs nothing.
+
+**Not updated (outside this task):** the INTEGRATIONS table rows for GitHub Actions and Render still describe the pre-D-33 state.
+
+### Lead review of INT-03 (2026-10-21)
+
+**Re-run by the lead:** 105 tests in total, with no protected file changed (checksums 17/17, no diff to fixtures, saved runs, results or `ledger/model.py`).
+
+| Interpreter | Result |
+|---|---|
+| Python 3.15 and 3.12, no SDK | pass, 2 skipped (they need `sentry-sdk`) |
+| `.venv` with `sentry-sdk` 2.72.0 | all 105 pass |
+
+**Independent leak probe** (capturing transport, no DSN): an invented name, phone number, address and prompt/reply markers went through a failing and a succeeding suggest. None of them, and no message ID, appeared in any envelope. Token counts, load time and message position arrive on the `chat` spans.
+
+**Gap found, blocking commit:**
+- `sentry-sdk` 2.72 sends `gen_ai.*` spans as separate streamed span items (`stream_gen_ai_spans` is on by default). They never pass through `before_send_transaction`, so `tracing.scrub` doesn't apply to the model-call spans.
+- Nothing leaks today: the call sites set only approved keys, and the SDK dropped the unapproved string keys the lead injected. That protection comes from the SDK, not from this code.
+- An approved string field still accepts any identifier-like value (a single name passed the check on both paths). Those values are code-controlled (model names, stage names), so this is accepted.
+- Fix requested: apply the same allowlist to streamed spans through `before_send_span`, test it with an unapproved key on a `chat` span, and correct the docs wording.
+
+**Also:** `docs/INTEGRATIONS.md` status rows for Copilot, Actions, Render and ElevenLabs brought up to date.
+
+### INT-03 lead-review fix: streamed chat spans under our own allowlist (2026-10-21, system clock 19:12 IST)
+
+**The lead's concern:** `gen_ai.*` spans (our `chat` spans) are sent as separate streamed span items (`stream_gen_ai_spans`, default on). The concern was that our allowlist might not cover them, leaving the protection to SDK behaviour.
+
+**Checked in sentry-sdk 2.72.0** (source and experiments, capturing transport, no DSN):
+1. With `stream_gen_ai_spans` on, `Transaction.finish` still puts the `gen_ai` spans in the transaction's span list. `client.capture_event` runs `_prepare_event` (including `before_send_transaction`) and only afterwards splits the `gen_ai` spans into a v2 span item. So `scrub()` did already apply to the chat spans.
+   - An unapproved key plus message text on a chat span: absent with scrub on, **present with scrub off**. The SDK does not drop them.
+2. `before_send_span` is called 0 times on this path. The SDK warns: "The `before_send_span` parameter only works when `trace_lifecycle` is set to `stream`." It would be dead code here.
+
+**Option chosen:** neither the `before_send_span` hook nor `stream_gen_ai_spans=False`.
+- `stream_gen_ai_spans` stays at its default (on) for the Agents view.
+- `trace_lifecycle` is pinned to `"static"`.
+- A second allowlist runs where it demonstrably sees every streamed item: `clean_envelope()`, in a `CleaningTransport` that wraps the SDK's transport at init. All sends go through `client.transport.capture_envelope`, which is looked up at call time, including the batchers' `_capture_envelope`.
+  - It runs `scrub()` on transactions again.
+  - It rebuilds each v2 span with the same `_value` rules and `NAME`, replacing a foreign name with `sentry.op`, or dropping the span if it can't be cleaned.
+  - It drops every other item type and filters the envelope headers (event_id, sent_at, and the sampling context via `_dsc`).
+- `before_send_transaction` now calls `transaction_hook()`, which runs `scrub()`. Being separate, each layer can be switched off in tests on its own.
+
+**Kept on streamed spans:**
+- **Fields:** `trace_id` (32 hex), `span_id`, `parent_span_id` (16 hex), `name` (ours, or `sentry.op`), `status` (`ok`/`error`), `is_segment`, `start_timestamp`, `end_timestamp`.
+- **Attributes:** allowlisted `gen_ai.*`/`ledger.*`/`error.type` keys with `_value` rules, plus these structural keys with fixed checks:
+  - `sentry.op`, `sentry.origin`;
+  - `sentry.release` (ours only), `sentry.environment` (`local` only);
+  - `sentry.segment.name` (our names), `sentry.segment.id` (16 hex);
+  - `sentry.sdk.name`, `sentry.sdk.version`;
+  - `process.runtime.name`, `process.runtime.version`.
+- **Dropped,** among others: `server.address`, `user.*`, `thread.*`.
+
+**Tests** (`tests/test_tracing.py`, 7 → 13):
+- **`NoContentLeaves`** now also sets, on the streamed chat span, an unapproved key through `Handle.set` and through raw `span.set_data`, and message text under an approved key. None appear, and the existing assertions are kept: 3 chat spans with token counts, load time, position, and `error.type` on the failed call.
+- **New `EachAllowlistAlone` (6):**
+  - no leak with both layers on, with the cleaner alone, and with the hook alone (a canary for the SDK's ordering);
+  - with both off, the strings appear, so the SDK itself does not drop them;
+  - `clean_envelope()` output tested directly on a crafted envelope;
+  - the pinned options (`trace_lifecycle="static"`, no `before_send_span`, `stream_gen_ai_spans` on, cleaning transport installed).
+
+**Checks run:**
+- **Unit tests:** 111.
+  - Plain `python3` 3.15.0, and 3.12.6 (also with `TZ=UTC`): 103 pass, 8 skipped.
+  - `.venv`: 111 pass.
+- **Layers switched off, on `NoContentLeaves`:** `clean_envelope` alone off passes; `transaction_hook` alone off passes; both off fails (the fake name appears).
+  - A first version shared `scrub()` between both layers, so switching off "the hook" also switched off the cleaner's transaction path, and that run failed. Separating `transaction_hook` fixed the coupling.
+- **Cache-only re-score:** 9/9 match the committed results.
+- **Protected checksums:** 17/17. **Links:** 0 problems.
+- **Browser checks:** not re-run. `server.py`, the UI and the tracing-off path are unchanged since the last run, when all passed.
+
+**Docs:** the module docstring, README (opt-in tracing), ARCHITECTURE §12–13, API, INTEGRATIONS and TESTING now name both layers. The INT-03 row is updated. Not committed.
+
+### Correction and acceptance: INT-03 privacy layers (2026-10-21)
+
+**Correction to the lead's INT-03 review above:** its "gap" was wrong. In `sentry-sdk` 2.72.0 the `gen_ai` spans are still inside the transaction when `before_send_transaction` runs, and are split into streamed items only afterwards. The lead's own probe had shown the `chat` span in the pre-scrub transaction. The unapproved key the lead injected was removed by our scrub, not by the SDK.
+
+**Accepted fix (coding agent):**
+- `trace_lifecycle="static"` pinned.
+- A second allowlist, `clean_envelope()`, runs in a wrapper around the SDK transport. It re-scrubs transactions, rebuilds streamed spans and drops every other item type.
+- `before_send_span` not used: it never runs in this mode.
+
+**Re-checked by the lead:** 111 tests in total, and no protected file changed (checksums 17/17).
+
+| Interpreter | Result |
+|---|---|
+| Python 3.15 and 3.12, no SDK | pass, 8 skipped (they need `sentry-sdk`) |
+| `.venv` | all 111 pass |
+
+Independent toggle probe, with an unapproved string key and raw `set_data` on a `chat` span:
+
+| Hook | Cleaner | Result |
+|---|---|---|
+| on | on | clean |
+| on | off | clean |
+| off | on | clean |
+| off | off | leaks |
+
+Token counts survive in every case.
+
+**Not verified until the owner's real run:** that the transport wrapper delivers to Sentry with a real DSN, and how the traces appear in Sentry's Agents view.

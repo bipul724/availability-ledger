@@ -137,6 +137,7 @@ Request:
 | `extractor` | `hybrid` \| `model` \| `rules` | no (default `hybrid`) | which reader |
 | `model` | string | no | Ollama model name; default `gemma4:e2b-it-qat` |
 | `coordinators` | list of strings | no | extra coordinator sender names (only used by `hybrid`; the UI never sends it) |
+| `run` | object | no | `{"id": <random token>, "index": <1-based position>, "total": <requests in this run>}`. The page sends it so that opt-in tracing (INT-03) groups one run's requests under one agent span; ignored when tracing is off. Never contains message content |
 
 Response 200 (rules reader, fictional):
 
@@ -321,13 +322,13 @@ available_models() -> list[str]
 ```
 
 - Returns claim dicts in the `said` shape and a stats dict (including the raw reply under `raw`, which the server removes before responding).
-- The current application's only outbound calls are `POST /api/chat` and `GET /api/tags` on `http://127.0.0.1:11434` (hard-coded). No Sentry, Backboard or hosted inference request exists.
+- The current application's only outbound calls are `POST /api/chat` and `GET /api/tags` on `http://127.0.0.1:11434` (hard-coded). With opt-in tracing (`SENTRY_DSN` set and `sentry-sdk` installed), allowlisted spans also go to Sentry, checked by both allowlists; see [ARCHITECTURE §12](ARCHITECTURE.md#12-logging-and-observability). No Backboard or hosted inference request exists.
 - Any other reader must return the same `said` shape: `person, day_text, time_text, status, condition, replaces_earlier, excerpt`. `ledger/rules.py` (`extract(msg, roster)`) is the second implementation.
 - Changing `SYSTEM` or `EXAMPLES` requires bumping `PROMPT_VERSION`, which changes the cache folder in `evaluation/runs/` (see [TUNING.md](../evaluation/TUNING.md)).
 
 ## Command-line interface
 
-All commands run from the project folder. Only demo mode reads environment variables (`LEDGER_DEMO`, `PORT`); the browser harness reads `CHROME`.
+All commands run from the project folder. Environment variables: demo mode reads `LEDGER_DEMO` and `PORT`; opt-in tracing reads `SENTRY_DSN`; the browser harness reads `CHROME`.
 
 | Command | Purpose | Notes |
 |---|---|---|
@@ -353,9 +354,9 @@ These **cannot be called today**. They are listed so nobody mistakes them for ex
 
 ### Agreed integration boundaries (planned, no new interfaces yet)
 
-- **Local core:** preserve existing parse → suggest → resolve → explicit review → final export contracts. All optional services may be absent and the local workflow must still work. The local app reads no environment variables or `.env` files (demo mode alone reads `LEDGER_DEMO` and `PORT`); [.env.example](../.env.example) remains comments only.
+- **Local core:** preserve existing parse → suggest → resolve → explicit review → final export contracts. All optional services may be absent and the local workflow must still work. The local app reads no environment variables or `.env` files (demo mode reads `LEDGER_DEMO` and `PORT`; opt-in tracing reads `SENTRY_DSN`); [.env.example](../.env.example) remains comments only.
 - **Copilot, GitHub Actions, Entire and optional Backboard R-CLI:** development/process tools, not runtime APIs. Capture genuine work with fictional inputs and inspect public artifacts for private data. No API route or provider-backed memory layer is implied.
-- **Sentry:** optional, opt-in structural diagnostics using fictional demonstrations, not message-content telemetry. Implementation would need an explicit dependency/network/privacy decision, a verified free allowance and a reviewed event schema/redaction test before any events leave the machine. No SDK, endpoint, environment variable or transport has been selected in this code.
+- **Sentry:** optional, opt-in structural diagnostics using fictional demonstrations, not message-content telemetry. Implemented 2026-10-21 (INT-03, D-33): `SENTRY_DSN`, optional `sentry-sdk==2.72.0` in `.venv`, two allowlists (`scrub()` in `before_send_transaction`, `clean_envelope()` at the transport) and leak tests; see [ARCHITECTURE §12](ARCHITECTURE.md#12-logging-and-observability).
 - **Render and .tech:** proposed judge-facing interactive fictional replay plus a domain pointing at hosting. A replay must be labelled as saved output, keep public input restricted to fictional data and document its actual export/review behavior; do not imply the present loopback-only server is already deployable or that the hosted site runs live Gemma. No replay route is final or implemented. Domain prize eligibility remains conditional on acquisition evidence.
 - **ElevenLabs:** narration for the demonstration video, outside the runtime. No voice-input, transcription or in-app speech route is planned for this submission; reconsider product voice only after a validated coordinator need and a separate scope decision.
 

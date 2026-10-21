@@ -83,7 +83,7 @@ Preview tooling, outside the repo [V]: `week 3/.claude/launch.json` attaches the
 5. `POST /api/export` returns the **accepted-only** final-sheet CSV (complete or provisional). The review-log CSV is built in the browser.
 6. All state is in browser memory. No database, no persistence; a reload loses work.
 
-Contracts: [docs/API.md](docs/API.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/specs/final-export.md](docs/specs/final-export.md). No auth, database, migrations or telemetry.
+Contracts: [docs/API.md](docs/API.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/specs/final-export.md](docs/specs/final-export.md). No auth, database or migrations. Telemetry only as opt-in Sentry tracing (`SENTRY_DSN`, INT-03).
 
 ## E. Feature inventory
 
@@ -106,7 +106,7 @@ Contracts: [docs/API.md](docs/API.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.
 | Session save/load (COR-04), roster-limit warning (COR-06), coordinator names in UI (COR-08), timezone use (COR-05), stop button (UI-03) | PLANNED, NOT IMPLEMENTED | Deferred (D-23) or P2 |
 | Human time saved | UNKNOWN: EVIDENCE INSUFFICIENT | Never measured; see [evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md) |
 | Real-world usefulness / demand | UNKNOWN: EVIDENCE INSUFFICIENT | No coordinator interviews or pilot |
-| Sponsor integrations for this submission: Actions automation (INT-11), Render replay (DEP-02), Sentry tracing (INT-03), ElevenLabs narration (INT-04) | PLANNED, NOT IMPLEMENTED (D-33, 2026-10-21; each has a dated gate) | [briefs](docs/prompts/d33-integrations.md) |
+| Sponsor integrations for this submission: Actions automation (INT-11), Render replay (DEP-02), Sentry tracing (INT-03), ElevenLabs narration (INT-04) | INT-11 and DEP-02 done and verified; INT-03 IMPLEMENTED, real traces not yet recorded; INT-04 planned (D-33, 2026-10-21; each has a dated gate) | [briefs](docs/prompts/d33-integrations.md) |
 | Other sponsor integrations (.tech, Entire, Copilot coding agent, R-CLI) | PLANNED, NOT IMPLEMENTED; deferred (D-23) | — |
 
 ## F. Decisions (canonical: [docs/DECISIONS.md](docs/DECISIONS.md))
@@ -193,7 +193,7 @@ Optional: **EVAL-11** set D (about 45 min of owner time) to test the fixes indep
 
 ## J. Configuration, integrations, deployment
 
-There are no secrets; the only environment variables are the replay's `LEDGER_DEMO` and `PORT` (DEP-02). The only external runtime dependency is local Ollama; GitHub Actions runs on GitHub's free hosted runners. No deployment, nothing to migrate.
+There are no secrets in the repo. Environment variables: the replay's `LEDGER_DEMO` and `PORT` (DEP-02), and `SENTRY_DSN` for opt-in tracing (INT-03; the owner keeps it in their own shell). The only external runtime dependency is local Ollama; GitHub Actions runs on GitHub's free hosted runners. No deployment, nothing to migrate.
 
 Local run: `python3 server.py` → http://127.0.0.1:8765. Use "Rules only" without Ollama; the model readers need `ollama serve` and `gemma4:e2b-it-qat`.
 

@@ -51,7 +51,7 @@ A local Git repository exists, on `main` tracking `origin/main` at the audited H
 python3 server.py [port]        # default port 8765; host is always 127.0.0.1
 ```
 
-1. `server.py` starts a `ThreadingHTTPServer` on `127.0.0.1:<port>`. The port is the first command-line argument; nothing is read from `.env` files. The only environment variables are for the hosted read-only replay (DEP-02): with `LEDGER_DEMO=1` it binds `0.0.0.0:$PORT`, serves fictional set A only and answers suggestions from saved Gemma outputs instead of Ollama ([API: demo mode](API.md#demo-mode-hosted-replay)).
+1. `server.py` starts a `ThreadingHTTPServer` on `127.0.0.1:<port>`. The port is the first command-line argument; nothing is read from `.env` files. `SENTRY_DSN` turns on opt-in tracing when the optional `sentry-sdk` is installed (INT-03, §12). The other environment variables are for the hosted read-only replay (DEP-02): with `LEDGER_DEMO=1` it binds `0.0.0.0:$PORT`, serves fictional set A only and answers suggestions from saved Gemma outputs instead of Ollama ([API: demo mode](API.md#demo-mode-hosted-replay)).
 2. The browser loads `/` → `ui/index.html`, `app.js`, `style.css` (sent with `Cache-Control: no-store`).
 3. `app.js` calls `GET /api/status`, which asks Ollama at the hard-coded `http://127.0.0.1:11434/api/tags` for installed models (2 s timeout). If Ollama is unreachable the page says only "Rules only" will work.
 4. The coordinator loads the fictional demo (`GET /api/demo`) or pastes text, then clicks **Suggest records**.
@@ -188,7 +188,31 @@ Adds: `person`, `person_state` (`resolved | ambiguous | unknown`), `person_candi
 ## 12. Logging and observability
 
 - The server suppresses request logging (`log_message` is a no-op) and prints only its start-up line.
-- No telemetry, analytics, crash reporting or tracing is implemented. Nothing is sent anywhere except to Ollama on `127.0.0.1`.
+- **Opt-in tracing (INT-03, D-33).** By default nothing is sent anywhere except to Ollama on `127.0.0.1`. With `SENTRY_DSN` set and the optional `sentry-sdk` installed (`requirements-tracing.txt`, into `.venv`), `ledger/tracing.py` sends structural spans to Sentry. Without either, every tracing call is a no-op and `sentry_sdk` is never imported. Demo mode never initialises it.
+  - **Spans at the call sites,** not in `ledger/model.py`:
+    - `server.py` opens one `gen_ai.invoke_agent` span per browser suggest run. The page sends a random run token, the request's position and the request count; `tracing.Runs` keeps the span open across those requests.
+    - Inside the run: one `gen_ai.chat` span per model call (model, Ollama's load/prompt/output times, token counts, JSON-ok, claim count, message position, `error.type` on failure), and `ledger.hybrid_merge`.
+    - Resolve, confirmed export, ledger build and final CSV spans join the open run, or form a small `ledger request` transaction.
+    - `evaluation/run.py` wraps a run the same way, with a chat span per fresh model call and `ledger.score` / `ledger.build_ledger` stages.
+  - **Two allowlists before transmission:**
+    1. `transaction_hook` (the SDK's `before_send_transaction`) runs `scrub()`. It rebuilds each transaction from listed fields, span-data keys and value shapes (identifier-like strings only, our own span names).
+    2. `clean_envelope()`, in a `CleaningTransport` wrapped around the SDK's transport at init, is the last step before sending:
+       - it runs `scrub()` on transaction items again;
+       - it rebuilds every streamed v2 span item with the same `_value`/`NAME` rules;
+       - it drops spans it can't clean, and every other item type.
+
+    The second layer matters because sentry-sdk 2.72 sends `gen_ai.*` spans (our `chat` spans) as separate streamed items (`stream_gen_ai_spans`, default on, kept for Sentry's Agents view). In 2.72 they are split out after `before_send_transaction`, so layer 1 also covers them today. Layer 2 makes that independent of SDK ordering.
+  - **Structural attributes kept on streamed spans**, with fixed value checks:
+    - `sentry.op`, `sentry.origin`;
+    - `sentry.release` (ours only), `sentry.environment` (`local` only);
+    - `sentry.segment.name` (our names only), `sentry.segment.id` (16 hex);
+    - `sentry.sdk.name`, `sentry.sdk.version`;
+    - `process.runtime.name`, `process.runtime.version`.
+
+    Span fields kept: `trace_id`, `span_id`, `parent_span_id`, `name`, `status`, `is_segment`, `start_timestamp`, `end_timestamp`. Dropped, for example: `server.address`, `user.*`, `thread.*`, and any other key.
+  - **Not used:** `before_send_span`. In 2.72 it runs only with `trace_lifecycle="stream"`, and never on the streamed `gen_ai` items. The lifecycle is pinned to `"static"`.
+  - **SDK settings:** error events and breadcrumbs are dropped. Default and auto-enabled integrations are off (no logging, HTTP-client, argv or module capture). `send_default_pii=False` and `data_collection` are all off; no local variables or source context; no sessions, client reports or logs.
+  - **Test:** `tests/test_tracing.py` sends invented sensitive strings through these paths into a capturing transport and finds none of them.
 - Model timing and token counts are returned by `/api/suggest` in `stats` but the UI does not display them. The evaluation scripts record them per message in `evaluation/runs/` and summarise them in result JSON.
 - `evaluation/run.py` samples memory with macOS tools (`ps`, `sysctl`, `memory_pressure`, `vm_stat`) and Ollama `/api/ps` while it runs. These are local reads only.
 
@@ -200,9 +224,9 @@ Adds: `person`, `person_state` (`resolved | ambiguous | unknown`), `person_candi
 | Model prompts and replies | Sent to Ollama on 127.0.0.1 | No |
 | Exported CSV | Downloaded by the browser to wherever the user saves it | Only if the user shares it |
 | Evaluation caches and results | `evaluation/runs/`, `evaluation/results/` (fictional fixtures only) | No |
-| Telemetry | None implemented | — |
+| Tracing spans (opt-in, INT-03) | Built in process from allowlisted timing, count, model and stage fields, checked by both allowlists (`scrub()` and `clean_envelope()`) | Only when the user sets `SENTRY_DSN` (to Sentry); never in demo mode |
 
-No external integration other than the local Gemma model is implemented today. Any future runtime service must follow [DECISIONS.md](DECISIONS.md) D-17 and the detailed [integration contracts](INTEGRATIONS.md): opt-in/off by default, verified free allowance, no private content in telemetry, disclosure of external transfers, and no disruption to the local workflow. Development tools and demo narration are separate data paths, not application runtime dependencies.
+Runtime integrations today: the local Gemma model, the opt-in Sentry tracing above, and the hosted replay (fictional data, no model calls). Any future runtime service must follow [DECISIONS.md](DECISIONS.md) D-17 and the detailed [integration contracts](INTEGRATIONS.md): opt-in/off by default, verified free allowance, no private content in telemetry, disclosure of external transfers, and no disruption to the local workflow. Development tools and demo narration are separate data paths, not application runtime dependencies.
 
 ## 14. Known technical limitations
 
@@ -244,7 +268,7 @@ The core runtime stays browser → local Python → local Ollama. Supporting tec
 | Development: Copilot + Actions | Use Copilot on genuine needed coding/review tasks; use Actions for offline regression CI on fictional fixtures. These are distinct evidence routes, not a claim that Actions implies Copilot wrote code. | Record real issues/PRs/reviews and workflow results; verify available free access and avoid private pilot content/secrets. |
 | Development: Entire | Capture actual future sessions, decisions and commit checkpoints. No application API or runtime dependency is implied. | Confirm supported agent compatibility and inspect/redact sessions before sharing; never fabricate past use or checkpoints. Transcripts reconstructed from genuinely captured records must retain authentic provenance. |
 | Development: Backboard R-CLI | Optional bounded task using an existing local model if compatible and useful. | Verify model compatibility, local routing, external data handling and free allowance. Do not switch application inference to a cloud provider or upload private data to obtain eligibility. |
-| Optional runtime diagnostics: Sentry | Allow-listed operational metadata about extraction failure/latency and a documented real debugging/performance finding. No private text, names, quotes, prompts, replies or sensitive raw exceptions. | Explicit dependency/network/privacy architecture decision before code; verify Python/runtime support, default capture behavior, redaction with fictional data, opt-in/off-by-default operation and free quota. No SDK or environment variable contract is implemented today. |
+| Optional runtime diagnostics: Sentry | Allow-listed operational metadata about extraction failure/latency and a documented real debugging/performance finding. No private text, names, quotes, prompts, replies or sensitive raw exceptions. | Explicit dependency/network/privacy architecture decision before code; verify Python/runtime support, default capture behavior, redaction with fictional data, opt-in/off-by-default operation and free quota. **Implemented 2026-10-21 (INT-03, D-33):** `SENTRY_DSN` plus optional `sentry-sdk` 2.72.0; see §12. Real traces and a finding are still to come. |
 | Public demo: Render + domain | Fixed fictional saved-output replay with useful review/export interactions, clearly disclosed. Domain supplies DNS only. | Implement and verify the replay boundary, server binding/deployment configuration, cost fail-safe, and domain acquisition/renewal evidence. |
 | Public video: ElevenLabs | Narrate a fictional demonstration script; the generated audio is a demo asset. | Verify free entitlement, output-publication rights and required attribution/disclosure. Do not send real messages/audio; in-product voice or transcription is not selected. |
 
