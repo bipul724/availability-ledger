@@ -824,3 +824,24 @@ Independent toggle probe, with an unapproved string key and raw `set_data` on a 
 Token counts survive in every case.
 
 **Not verified until the owner's real run:** that the transport wrapper delivers to Sentry with a real DSN, and how the traces appear in Sentry's Agents view.
+
+
+### INT-03: owner Sentry setup guidance (2026-10-21)
+
+Checked current agent instructions, tracing source, README and TESTING record-real-traces steps. The existing project .venv reports sentry-sdk 2.72.0 via package metadata; nothing was installed. The remaining owner steps are account/project/free-plan verification, private DSN entry in their own terminal, live fictional cold/warm runs and verification of received traces. Startup saying tracing is on proves initialization only, not event delivery.
+
+Begin with Sentry signup and a plain Python project named availability-ledger. No payment method, paid upgrade or pay-as-you-go enrollment; do not promise automatic trial downgrade or Agents dashboard entitlement before checking the actual account. Do not paste DSNs into chat/screenshots. Use the local app for live tracing; the Render replay does not make model calls. Source references checked: docs.sentry.io/platforms/python and sentry.io/pricing returned unsupported Markdown to the web fetcher; official help/search results support the Developer plan and Client Keys (DSN) location, but actual account access/allowances remain unverified.
+
+No DSN was read, local app/server or inference started, account created, event uploaded, application test rerun or application code changed by this guidance task. INT-03 remains in progress until real traces and an honest finding are verified.
+
+### INT-03: owner live traces received; four timeouts and log review (2026-10-21, owner UI 20:19–20:21 IST)
+
+**Evidence:** owner-operated local server printed tracing enabled. Owner screenshots show a fictional-demo run completed in 1,616 s with 4 extraction warnings, Sentry Explore/Traces with 130 spans, and Agents with one availability-reader trace (122 spans), 49 model calls, about 65K tokens and 26.93 min duration. These different counts describe different views, not missing-event proof. Agents is usable during the current trial; post-trial entitlement remains unverified. The onboarding UI stated no card required and a post-trial 5M spans/mo allowance.
+
+**Finding:** owner inspected all four failed chat spans. Positions 37, 38, 39 and 40 have status error / TimeoutError with durations 300.010, 300.047, 300.047 and 300.038 seconds, about 20 minutes combined. The first inspected successful call took 72.086 s (1,416 input, 177 output tokens). Input tab showed no input for that span; this is limited visible evidence, not a complete payload audit. No warm-run improvement or cold-load cause has been established.
+
+**Log review:** read the owner's pasted Ollama terminal log. Ordinary calls near the interruption and after recovery take about 1–3 s. At one runner task, detailed output stops mid-processing; HTTP log lines then appear at roughly five-minute intervals from 19:51 to 20:11 while reporting status 200 and only 2–3 s handler durations. Detailed runner output later resumes and normal calls continue around 20:15. This discrepancy does not explain the client timeouts by itself. Sleep, terminal/output blocking, runner stalls, queuing or response-delivery problems are hypotheses only, not findings. Ask about sleep/lid closure or paused terminal output before choosing a bounded reproduction; do not ask the owner to repeat the entire 27-minute run.
+
+**Privacy follow-up:** owner-pasted attributes contain user.geo fields. Their origin (SDK payload versus ingestion enrichment) is unverified; do not claim the received trace contains only timings/tokens. Audit origin and removal before more traced runs or public privacy claims. Do not retain the personal field values in project docs.
+
+**Limits / next:** initialization and real delivery are now proven by owner evidence; INT-03 remains in progress for privacy, bounded performance diagnosis, quota/retention/export checks and any justified comparison run. Only the provided log and project docs were read; no DSN accessed or retained, no application code changed, no inference, upload, tests or browser checks run by this agent. Frozen evaluation evidence is untouched.

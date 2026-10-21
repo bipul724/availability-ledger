@@ -1,5 +1,7 @@
 # Availability Ledger: project context (main handoff)
 
+**Latest owner-observed update (2026-10-21, evening):** Sentry received a real local fictional-demo trace; Agents works during the trial. The 1,616 s run includes four 300 s TimeoutErrors at positions 37–40. Cause remains unverified after owner-log review; received attributes also contain user.geo fields whose origin/removal needs auditing. INT-03 remains in progress. See the final INT-03 entry in [PROGRESS.md](PROGRESS.md) and its [TASKS.md](TASKS.md) row; older no-real-traces statements below are historical.
+
 **Read this first, then [CLAUDE.md](CLAUDE.md).** Written 2026-10-21, about 11:10–11:30 IST (Asia/Kolkata), by the Claude **project-lead (planning) session** before a context compaction. The previous version is preserved in [docs/archive/context-2026-10-20.md](docs/archive/context-2026-10-20.md): it is outdated in places but holds extra detail.
 
 **Evidence labels used below:**
@@ -106,7 +108,7 @@ Contracts: [docs/API.md](docs/API.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.
 | Session save/load (COR-04), roster-limit warning (COR-06), coordinator names in UI (COR-08), timezone use (COR-05), stop button (UI-03) | PLANNED, NOT IMPLEMENTED | Deferred (D-23) or P2 |
 | Human time saved | UNKNOWN: EVIDENCE INSUFFICIENT | Never measured; see [evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md) |
 | Real-world usefulness / demand | UNKNOWN: EVIDENCE INSUFFICIENT | No coordinator interviews or pilot |
-| Sponsor integrations for this submission: Actions automation (INT-11), Render replay (DEP-02), Sentry tracing (INT-03), ElevenLabs narration (INT-04) | INT-11 and DEP-02 done and verified; INT-03 IMPLEMENTED, real traces not yet recorded; INT-04 planned (D-33, 2026-10-21; each has a dated gate) | [briefs](docs/prompts/d33-integrations.md) |
+| Sponsor integrations for this submission: Actions automation (INT-11), Render replay (DEP-02), Sentry tracing (INT-03), ElevenLabs narration (INT-04) | INT-11 and DEP-02 done and verified; INT-03 real delivery verified; timeout and privacy follow-up open; INT-04 planned (D-33, 2026-10-21; each has a dated gate) | [briefs](docs/prompts/d33-integrations.md) |
 | Other sponsor integrations (.tech, Entire, Copilot coding agent, R-CLI) | PLANNED, NOT IMPLEMENTED; deferred (D-23) | — |
 
 ## F. Decisions (canonical: [docs/DECISIONS.md](docs/DECISIONS.md))
