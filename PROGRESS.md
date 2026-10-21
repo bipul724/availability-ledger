@@ -400,3 +400,51 @@ Re-checked independently:
 - The only code change is the set registration (`evaluation/fixture.py` +1 line, `evaluation/run.py` choices).
 
 Accepted as the **headline independent result**. The lead's reading: the main failures are deterministic reconciliation rules (explicit dates, settling conditions, replacement cues, initial + surname), not the model. **D-31** schedules COR-13 to COR-17 as post-hoc fixes and an optional set D (EVAL-11); the timeline was revised in TASKS.
+
+### D-31 fixes COR-13 to COR-17; post-hoc re-score of A, B and C (2026-10-21 11:13 IST)
+
+**Changed:** `ledger/resolve.py` (COR-13), `ledger/core.py` (COR-14, COR-15 `REPLACE_CUES`), `ledger/names.py` (COR-16), `ledger/rules.py` (COR-17 negation pattern), new `tests/test_d31_fixes.py` (15 tests, invented messages only), the five TASKS rows, a post-hoc subsection in the RESULTS.md set C section (frozen table untouched). Not changed: the prompt and `PROMPT_VERSION`, fixtures, `frozen/`, `frozen-setC/`, `tuning/`, `runs/`. Not committed.
+
+**Checks:** 10 of the 15 new sub-tests failed before the fixes (one or more per fix; the rest are guards that already passed); after: 81 unit tests OK on Python 3.15 and 3.12. Cache coverage verified first (A 49/49, B 19/19 for Gemma and Qwen; C 23/23 for Gemma). Each fix was scored in turn in-process from caches with the model call disabled (0 fresh calls); the official re-score (A/B as before; C rules, Gemma, Gemma + rules) also made 0 fresh calls and matches the final stage; SHA-256 of every file in `frozen/`, `frozen-setC/` and `tuning/` unchanged; fixtures and runs unchanged. Browser checks: see the hand-back.
+
+**What changed, by fix (all post-hoc):** COR-13: set C m13 outside-week and flagged (Gemma readers: units 17 → 18 /20, ambiguities 2/3 → 3/3). COR-14: set C m19 settled (wrong conditions 1/2 → 0/2 for all readers; slot +0.14 to +0.18). COR-15: set C m20/m21 (Gemma and Gemma + rules slot → 1.0; rules 0.582 → 0.765), A Gemma only missed cancellations 7 → 4 /12, A Qwen only 5 → 3 /12. COR-16: set C m23 ambiguous (Gemma readers 18 → 19 /20). COR-17: set C rules m15/m16 (missed cancellations 2 → 0 /8). **One regression:** COR-14 raised B rules chart slots wrong 58 → 64 (B m20 misread by the rules reader is now upgraded from conditional to available; see the COR-14 row). Frozen-to-current tables per set: in the hand-back and, for C, in RESULTS.md.
+
+**Not verified:** generalisation (fixes were designed from set C's failures; no fresh set D, EVAL-11); the m19 unit-level time error, the rules m13 drop and the rules m23 coordinator gap remain.
+
+
+### DOC-05: pre-compaction documentation pass (2026-10-21, about 11:10–11:30 IST)
+
+Lead session, documentation only.
+
+**Checks run:**
+- `git status`, `git log`, `git rev-parse`: HEAD = origin/main = `c5a2e05`.
+- Unit tests on a clean `git archive HEAD` copy: **66 passed** on Python 3.15 and 3.12, with per-file counts 21/30/5/10.
+- The working tree (coding agent's uncommitted D-31 work) at 11:10: 81 tests, 7 failing in the new `tests/test_d31_fixes.py`. At 11:13: **81 passed**.
+- Protected paths (fixtures, frozen, frozen-setC, tuning, runs, `model.py`): unchanged.
+- Ollama 0.40.6 answering; only the `gemma4` model is installed (Qwen removed).
+- App server not running.
+- Repository tree and API routes inspected; `.github/workflows/tests.yml` read.
+
+**Not run:** browser checks, `evaluation.run`, model inference, a fresh GitHub API call.
+
+**Outputs:**
+- `docs/archive/context-2026-10-20.md`: the old handoff, kept for history.
+- `context.md`: rewritten in sections A–L with evidence labels.
+- `TESTING.md`: new.
+- README: CI run observed, set C result, work order, link to TESTING.
+- AGENTS.md: stale set C line.
+- TASKS: REL-02 criteria, COR-13 to COR-17 marked in progress, DOC-05.
+
+The coding agent's D-31 report has not been received or reviewed.
+
+### Lead review of D-31 (COR-13 to COR-17), 2026-10-21 about 12:00 IST
+
+This supersedes the last line of the DOC-05 entry: the coding agent's D-31 report has now been received and reviewed.
+
+**Re-run by the lead:** 81 unit tests pass on Python 3.15.0 and 3.12.6. `git diff` shows no change under `fixtures/`, `evaluation/runs/`, `evaluation/results/frozen/`, `frozen-setC/`, `tuning/` or `ledger/model.py`. The code diff (`resolve.py`, `core.py`, `names.py`, `rules.py`) matches the TASKS rows. RESULTS.md keeps the frozen set C table and labels the new numbers post-hoc.
+
+**Not re-run by the lead:** browser checks, the evaluation re-score (the agent reports 0 fresh calls), per-fix attribution.
+
+**Found:** COR-15's cue words are matched against the whole message. Three invented messages removed an earlier answer that should have stayed, visible only in the day's history. Recorded as **D-32**; follow-up **COR-18** (warning only). The COR-14 regression on set B rules is accepted as documented.
+
+**Outcome:** D-31 accepted for commit.
