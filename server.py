@@ -1,10 +1,15 @@
 """Local review app. Standard library only; binds to 127.0.0.1.
 
     python3 server.py            # then open http://127.0.0.1:8765
+    LEDGER_DEMO=1 PORT=10000 python3 server.py   # hosted read-only replay (DEP-02): binds 0.0.0.0:$PORT
+
+Demo mode replays fictional set A with saved Gemma outputs: it never calls Ollama and refuses any message, roster,
+week or model it did not serve itself.
 """
 from __future__ import annotations
 
 import json
+import os
 import sys
 from datetime import date
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -20,13 +25,30 @@ ROOT = Path(__file__).resolve().parent
 UI = ROOT / "ui"
 MAX_VOLUNTEERS = 20
 TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8"}
+DEMO = os.environ.get("LEDGER_DEMO") == "1"
+DEMO_MODEL = "gemma4:e2b-it-qat"
+DEMO_RUNS = ROOT / "evaluation" / "runs" / "gemma4_e2b_it_qat_prompt3"  # saved set A outputs, prompt v3
+
+
+class Forbidden(Exception):
+    """A demo-mode request for something the replay did not serve (HTTP 403)."""
 
 
 def calendar(body: dict) -> Calendar:
     return Calendar(date.fromisoformat(body["week_start"]), body.get("timezone") or "America/New_York")
 
 
+def saved_output(msg: Message) -> tuple[list, dict]:
+    """Demo mode: the saved Gemma reply for a served set A message, in place of a model call."""
+    data = json.loads((DEMO_RUNS / f"{msg.id}.json").read_text())
+    return data["claims"], {**data["stats"], "saved": True}
+
+
 def suggest(body: dict) -> dict:
+    if DEMO:
+        check_demo(body, messages=[body["message"]])
+        if (body.get("model") or DEMO_MODEL) != DEMO_MODEL:
+            raise Forbidden(f"the replay has saved outputs for {DEMO_MODEL} only")
     msg = Message.from_dict(body["message"])
     if msg.duplicate_of:  # same text already read: no extraction call, no suggestions of its own
         return {"claims": [], "stats": {}, "duplicate_of": msg.duplicate_of}
@@ -36,7 +58,7 @@ def suggest(body: dict) -> dict:
     week = f"Monday {cal.week_start:%d %B} to Sunday {cal.week_end:%d %B %Y}"
     stats, model_raw, rules_raw = {}, [], []
     if kind in ("model", "hybrid"):
-        said, stats = model.extract(msg, week, body.get("model") or model.DEFAULT_MODEL)
+        said, stats = saved_output(msg) if DEMO else model.extract(msg, week, body.get("model") or model.DEFAULT_MODEL)
         stats.pop("raw", None)
         model_raw = [{"id": f"{msg.id}.{i}", "msg": msg.id, "n": i, "source": "model", "review": "pending", "said": s}
                      for i, s in enumerate(said, 1)]
@@ -56,6 +78,8 @@ def _reviewed(body: dict) -> list[str]:
 
 
 def _confirmed(body: dict):
+    if DEMO:
+        check_demo(body, messages=body["messages"])
     messages = [Message.from_dict(m) for m in body["messages"]]
     roster = body["roster"][:MAX_VOLUNTEERS]
     cal = calendar(body)
@@ -82,6 +106,43 @@ def demo() -> dict:
             "week_start": ref["week_start"], "timezone": ref["timezone"]}
 
 
+_served = None
+
+
+def served() -> dict:
+    """What demo mode serves: set A's parsed messages by id, its roster, week and timezone."""
+    global _served
+    if _served is None:
+        d = demo()
+        _served = {**d, "messages": {m.id: m.to_dict() for m in parse_messages(d["text"])},
+                   "roster_list": parse_roster(d["roster"])[:MAX_VOLUNTEERS]}
+    return _served
+
+
+def check_demo(body: dict, messages: list) -> None:
+    """Demo mode accepts only messages it served, unchanged, with the served roster, week and timezone."""
+    s = served()
+    for m in messages:
+        if not isinstance(m, dict) or s["messages"].get(m.get("id")) != {k: m.get(k) for k in Message.__dataclass_fields__}:
+            raise Forbidden("the replay only reads the fictional messages it served")
+    if body.get("roster") != s["roster_list"] or body.get("week_start") != s["week_start"] \
+            or body.get("timezone") != s["timezone"] or body.get("coordinators"):
+        raise Forbidden("the replay only uses the fictional roster and week it served")
+
+
+def parse(body: dict) -> dict:
+    if DEMO and (body.get("text") != served()["text"] or body.get("roster") != served()["roster"] or body.get("day_first")):
+        raise Forbidden("the replay does not read pasted messages; run the app locally to use your own")
+    msgs = parse_messages(body.get("text", ""), bool(body.get("day_first")))
+    return {"messages": [m.to_dict() for m in msgs], "roster": parse_roster(body.get("roster", ""))[:MAX_VOLUNTEERS]}
+
+
+def status() -> dict:
+    if DEMO:  # never contacts Ollama
+        return {"models": [DEMO_MODEL], "default_model": DEMO_MODEL, "demo": True}
+    return {"models": model.available_models(), "default_model": model.DEFAULT_MODEL}
+
+
 class Handler(BaseHTTPRequestHandler):
     def _send(self, code: int, body: bytes, ctype: str):
         self.send_response(code)
@@ -98,7 +159,7 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/api/demo":
             return self._json(demo())
         if self.path == "/api/status":
-            return self._json({"models": model.available_models(), "default_model": model.DEFAULT_MODEL})
+            return self._json(status())
         name = "index.html" if self.path in ("/", "") else self.path.lstrip("/").split("?")[0]
         f = (UI / name).resolve()
         if UI in f.parents and f.is_file() and f.suffix in TYPES:
@@ -109,9 +170,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
             if self.path == "/api/parse":
-                msgs = parse_messages(body.get("text", ""), bool(body.get("day_first")))
-                return self._json({"messages": [m.to_dict() for m in msgs],
-                                   "roster": parse_roster(body.get("roster", ""))[:MAX_VOLUNTEERS]})
+                return self._json(parse(body))
             if self.path == "/api/suggest":
                 return self._json(suggest(body))
             if self.path == "/api/resolve":
@@ -119,6 +178,8 @@ class Handler(BaseHTTPRequestHandler):
             if self.path == "/api/export":
                 return self._json(export(body))
             self._json({"error": "unknown endpoint"}, 404)
+        except Forbidden as e:
+            self._json({"error": str(e)}, 403)
         except Exception as e:  # report to the page instead of dropping the connection
             self._json({"error": f"{type(e).__name__}: {e}"}, 400)
 
@@ -128,5 +189,9 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
+    if DEMO:  # hosted replay: the host chooses the port and the server must listen on every interface
+        port = int(os.environ.get("PORT") or port)
+        print(f"Availability Ledger replay (fictional set A, saved Gemma outputs) on 0.0.0.0:{port}", flush=True)
+        ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()
     print(f"Availability Ledger on http://127.0.0.1:{port}  (Ctrl+C to stop)")
     ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()

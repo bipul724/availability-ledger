@@ -15,6 +15,10 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, -apple-system, sans-serif; }
 header { padding: 16px 20px 4px; }
+.banner { position: sticky; top: 0; z-index: 10; padding: 8px 20px; background: var(--warn-bg); border-bottom: 1px solid var(--line); font-size: 13px; }
+.banner a { color: var(--accent); }
+.demo .local-only { display: none; }  /* hosted replay (DEP-02): no pasted or uploaded messages */
+input:disabled { color: var(--muted); }
 header h1 { margin: 0; font-size: 20px; }
 header p { margin: 4px 0 0; color: var(--muted); }
 h2 { font-size: 15px; margin: 0 0 8px; }

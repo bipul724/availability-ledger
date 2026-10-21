@@ -11,8 +11,9 @@ export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..")
 const CHROME = process.env.CHROME || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export async function openApp(port, dbg) {
-  const server = spawn("python3", ["server.py", String(port)], { cwd: ROOT, stdio: "ignore" });
+export async function openApp(port, dbg, env = {}) {  // env: extra server environment, e.g. { LEDGER_DEMO: "1" }
+  const server = spawn("python3", ["server.py", String(port)], { cwd: ROOT, stdio: "ignore",
+    env: { ...process.env, ...env, ...(env.LEDGER_DEMO ? { PORT: String(port) } : {}) } });
   const chrome = spawn(CHROME, ["--headless=new", `--remote-debugging-port=${dbg}`,
     `--user-data-dir=${mkdtempSync(join(tmpdir(), "ledger-cdp-"))}`, "about:blank"], { stdio: "ignore" });
   let failures = 0;

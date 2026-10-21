@@ -2,6 +2,7 @@
 
 const $ = (id) => document.getElementById(id);
 const state = { messages: [], claims: [], resolved: [], ledger: null, roster: [], week: "", tz: "", read: new Set(), cur: null,
+  demo: false,  // hosted replay (DEP-02): fictional set A and saved model outputs only
   reviewed: new Set(), confirmed: null,  // message ids the reviewer explicitly marked; export status from the server
   failures: new Map(),  // message id -> why its suggestions could not be read (COR-03)
   stats: { reviewStart: null, accepts: 0, edits: 0, rejects: 0, adds: 0, bulk: 0, marks: 0 } };
@@ -76,6 +77,14 @@ async function init() {
     const models = st.models.length ? st.models : [st.default_model];
     $("model").innerHTML = models.map((m) => `<option ${m === st.default_model ? "selected" : ""}>${esc(m)}</option>`).join("");
     if (!st.models.length) $("progress").textContent = "Ollama is not reachable: only 'Rules only' will work.";
+    if (st.demo) {  // the server refuses anything else, so the inputs for other messages are hidden
+      state.demo = true;
+      document.body.classList.add("demo");
+      $("replay-banner").hidden = false;
+      $("week").disabled = $("tz").disabled = true;
+      await loadDemo();
+      $("progress").textContent = "Fictional demo week loaded (50 messages). Pick a reader and press Suggest records.";
+    }
   } catch (e) {
     $("progress").textContent = "Could not reach the local server.";
   }
@@ -147,7 +156,9 @@ async function run() {
       if (i % 5 === 4 || i === state.messages.length - 1) await resolveNow();
     }
     const failed = state.failures.size;
-    $("progress").textContent = `Read ${state.messages.length} messages in ${((performance.now() - t0) / 1000).toFixed(0)} s on this computer.` +
+    const secs = ((performance.now() - t0) / 1000).toFixed(0);
+    $("progress").textContent = (state.demo ? `Replayed ${state.messages.length} messages in ${secs} s from saved outputs.`
+      : `Read ${state.messages.length} messages in ${secs} s on this computer.`) +
       (failed ? ` ${failed} of ${state.messages.length} messages could not be read fully; each has a warning.` : "") + " Review timer started.";
     state.stats = { reviewStart: performance.now(), accepts: 0, edits: 0, rejects: 0, adds: 0, bulk: 0, marks: 0 };
   } catch (e) {

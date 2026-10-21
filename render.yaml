@@ -1,0 +1,17 @@
+# Render Blueprint for the hosted read-only replay (DEP-02, INT-02, D-33).
+# Fictional set A and saved Gemma 4 outputs only: LEDGER_DEMO=1 makes server.py refuse pasted messages and never call
+# a model. Standard library only, so nothing is installed; the build command is a required no-op.
+# Free instance only. No secrets, no paid plan, no region pinned (Render's default is used).
+services:
+  - type: web
+    name: availability-ledger-replay
+    runtime: python
+    plan: free
+    buildCommand: echo "standard library only, nothing to install"
+    startCommand: python3 server.py
+    healthCheckPath: /api/status
+    envVars:
+      - key: LEDGER_DEMO
+        value: "1"
+      - key: PYTHON_VERSION
+        value: "3.12.6"  # the version the tests run on locally and in CI; Render's default is newer

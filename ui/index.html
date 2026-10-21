@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="replay-banner" class="banner" role="note" hidden>Replay: fictional messages and saved Gemma 4 outputs. To use your own messages,
+  <a href="https://github.com/bipul724/availability-ledger" target="_blank" rel="noopener">run it locally</a> — nothing leaves your machine.</div>
 <header>
   <h1>Availability Ledger</h1>
   <p>A local open model proposes. Ordinary code checks dates, history and counts. You decide.</p>
@@ -25,17 +27,17 @@
       </select>
     </label>
     <label>Model <select id="model"></select></label>
-    <label class="check"><input type="checkbox" id="dayfirst"> WhatsApp dates are day-first</label>
+    <label class="check local-only"><input type="checkbox" id="dayfirst"> WhatsApp dates are day-first</label>
   </div>
-  <div class="row grow">
+  <div class="row grow local-only">
     <label class="grow">Messages (YYYY-MM-DD HH:MM | Sender | text, or a WhatsApp export)
       <textarea id="text" rows="7" spellcheck="false"></textarea></label>
     <label>Volunteers (one per line, up to 20)
       <textarea id="roster" rows="7" spellcheck="false"></textarea></label>
   </div>
   <div class="row">
-    <input type="file" id="file" accept=".txt,.csv,text/plain">
-    <button id="demo" type="button">Load fictional demo</button>
+    <input type="file" id="file" class="local-only" accept=".txt,.csv,text/plain">
+    <button id="demo" type="button" class="local-only">Load fictional demo</button>
     <button id="run" type="button" class="primary">Suggest records</button>
     <span id="progress" role="status"></span>
   </div>
