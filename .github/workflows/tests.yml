@@ -1,5 +1,9 @@
-# Offline unit tests on every push and pull request to main (TASKS INT-10, D-23).
-# No secrets, no deployment, no model or Ollama: the suite uses fictional fixtures and invented messages only.
+# Offline checks on every push and pull request to main (TASKS INT-10, INT-11; D-23, D-33).
+# These jobs are the GitHub Actions automation entered under the Copilot category (D-33: "automate your project with
+# GitHub Actions"): unit tests, a protected-evidence integrity check, and a cache-only re-score whose table goes to
+# the job summary.
+# No secrets, no deployment, no model or Ollama: fictional fixtures, invented test messages and saved model outputs only.
+# The re-score writes to a temporary folder; nothing is committed back.
 # The browser checks in tests/browser/ are not run here; see the INT-10 row in TASKS.md for why.
 name: tests
 
@@ -16,6 +20,13 @@ concurrency:
   group: tests-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    shell: bash  # bash -eo pipefail: a failing command fails the step, also inside a pipe
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
 jobs:
   unit:
     name: Unit tests (Python 3.12, offline)
@@ -27,6 +38,41 @@ jobs:
         with:
           python-version: "3.12"
       - name: Run unit tests
-        env:
-          PYTHONDONTWRITEBYTECODE: "1"
         run: python3 -m unittest discover -s tests
+
+  integrity:
+    name: Protected evidence unchanged (SHA-256)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Frozen results, tuning results and the set C manifest match evaluation/protected.sha256
+        run: sha256sum --check --strict evaluation/protected.sha256
+      - name: No file added to or removed from the protected folders
+        run: |
+          diff <(find evaluation/results/frozen evaluation/results/frozen-setC evaluation/results/tuning -type f | LC_ALL=C sort) \
+               <(awk '{print $2}' evaluation/protected.sha256 | grep -v '^fixtures/' | LC_ALL=C sort)
+
+  rescore:
+    name: Cache-only re-score of sets A, B, C (saved Gemma outputs)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Re-score rules, Gemma and Gemma + rules (fails on any missing saved output)
+        run: |
+          out="$RUNNER_TEMP/rescore"
+          for s in A B C; do
+            python3 -m evaluation.run --set "$s" --extractor rules --out "$out" > /dev/null
+            for ex in model hybrid; do
+              python3 -m evaluation.run --set "$s" --extractor "$ex" --model gemma4:e2b-it-qat --cache-only --out "$out" > /dev/null
+            done
+          done
+          ls "$out"
+      - name: Score table to the job summary (fails if any score differs from the committed results)
+        run: python3 -m evaluation.ci_summary "$RUNNER_TEMP/rescore" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Checkout unchanged (nothing to commit back)
+        run: git status --porcelain && test -z "$(git status --porcelain)"

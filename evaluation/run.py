@@ -3,6 +3,7 @@
     python3 -m evaluation.run --extractor rules
     python3 -m evaluation.run --extractor model --only m02,m05,m08,m13,m20   # small benchmark
     python3 -m evaluation.run --extractor model                              # full run (cached per message)
+    python3 -m evaluation.run --extractor hybrid --cache-only --out /tmp/x   # CI: saved outputs only, never Ollama
 """
 from __future__ import annotations
 
@@ -11,10 +12,12 @@ import json
 import re
 import statistics
 import subprocess
+import sys
 import threading
 import time
 import urllib.request
 from collections import Counter
+from pathlib import Path
 
 from ledger import hybrid
 from ledger import model as model_mod
@@ -25,6 +28,7 @@ from .fixture import ROOT, load, reference_claims
 
 RUNS = ROOT / "evaluation" / "runs"
 RESULTS = ROOT / "evaluation" / "results"
+PROTECTED = [RESULTS / "frozen", RESULTS / "frozen-setC", RESULTS / "tuning", RUNS]  # never written by a run (--out)
 # Flags that point a reviewer at the content of a suggestion. "similar_name" is excluded on purpose:
 # it marks identity, not the day/time/status, so an error under it still counts as silent.
 WARNING_FLAGS = {"who_ambiguous", "who_unknown", "date_ambiguous", "outside_week", "date_unreadable",
@@ -86,9 +90,17 @@ def ollama_ps() -> list[dict]:
 
 # ---------------------------------------------------------------- extraction
 
-def run_extractor(kind, messages, roster, cal, model_name, only=None, refresh=False, set_name="A"):
+def _shown(path: Path):
+    return path.relative_to(ROOT) if ROOT in path.parents else path
+
+
+class CacheMissError(RuntimeError):
+    """--cache-only and a model output is not saved: fail instead of calling the model (INT-11)."""
+
+
+def run_extractor(kind, messages, roster, cal, model_name, only=None, refresh=False, set_name="A", cache_only=False):
     if kind == "hybrid":
-        model_raw, stats = run_extractor("model", messages, roster, cal, model_name, only, refresh, set_name)
+        model_raw, stats = run_extractor("model", messages, roster, cal, model_name, only, refresh, set_name, cache_only)
         rules_raw, _ = run_extractor("rules", messages, roster, cal, model_name, only, refresh, set_name)
         return hybrid.merge([m for m in messages if not only or m.id in only], model_raw, rules_raw, roster, cal), stats
     week = f"Monday {cal.week_start:%d %B} to Sunday {cal.week_end:%d %B %Y}"
@@ -107,6 +119,9 @@ def run_extractor(kind, messages, roster, cal, model_name, only=None, refresh=Fa
             if cache.exists() and not refresh:
                 data = json.loads(cache.read_text())
                 said, st = data["claims"], {**data["stats"], "cached": True}
+            elif cache_only:
+                raise CacheMissError(f"no saved model output for message {msg.id} (set {set_name}): "
+                                     f"{_shown(cache)} is missing and --cache-only forbids a model call")
             else:
                 said, st = model_mod.extract(msg, week, model_name)
                 cache.parent.mkdir(parents=True, exist_ok=True)
@@ -337,15 +352,31 @@ def main():
     ap.add_argument("--only", default="", help="comma-separated message ids (small benchmark)")
     ap.add_argument("--refresh", action="store_true", help="ignore cached model outputs")
     ap.add_argument("--label", default="", help="suffix for the results file")
+    ap.add_argument("--cache-only", action="store_true",
+                    help="use saved model outputs only; a missing one is an error, Ollama is never called (CI)")
+    ap.add_argument("--out", default="", help="directory for the results file (default evaluation/results)")
     args = ap.parse_args()
+    if args.cache_only and args.refresh:
+        ap.error("--cache-only and --refresh contradict each other")
+    out_dir = Path(args.out).resolve() if args.out else RESULTS
+    if any(out_dir == p or p in out_dir.parents for p in PROTECTED):
+        ap.error(f"--out {args.out} is inside a protected folder")
 
     messages, roster, cal, ref = load(args.set)
     only = set(filter(None, args.only.split(","))) or None
-    sampler = MemorySampler() if args.extractor != "rules" else None
+    uses_model = args.extractor != "rules"
+    # Memory sampling uses macOS tools and measures Ollama; with --cache-only there is no model work to measure.
+    sampler = MemorySampler() if uses_model and not args.cache_only else None
     if sampler:
         sampler.start()
     t0 = time.time()
-    raw, stats = run_extractor(args.extractor, messages, roster, cal, args.model, only, args.refresh, args.set)
+    try:
+        raw, stats = run_extractor(args.extractor, messages, roster, cal, args.model, only, args.refresh, args.set,
+                                   args.cache_only)
+    except CacheMissError as e:
+        if sampler:
+            sampler.stop()
+        sys.exit(f"error: {e}")
     wall = time.time() - t0
     loaded = ollama_ps() if sampler else []
     memory = sampler.stop() if sampler else None
@@ -355,7 +386,7 @@ def main():
     report = {"set": args.set, "extractor": args.extractor, "model": args.model if args.extractor != "rules" else None,
               "prompt_version": model_mod.PROMPT_VERSION if args.extractor != "rules" else None,
               "messages_run": len(all_ids), "wall_s": round(wall, 1)}
-    if sampler:
+    if uses_model:
         fresh = [s for s in stats.values() if not s.get("cached")]
         report["speed"] = {
             "fresh_calls": len(fresh),
@@ -366,6 +397,7 @@ def main():
             "json_parse_failures": sum(1 for s in stats.values() if not s.get("json_ok", True)),
             "first_load_s": max((s["load_s"] for s in fresh), default=None),
         }
+    if sampler:
         report["memory"] = {**memory, "ollama_ps": loaded}
     for name, ids in (("dev", [i for i in all_ids if i not in heldout]), ("heldout", [i for i in all_ids if i in heldout]),
                       ("all", all_ids)):
@@ -376,17 +408,17 @@ def main():
         resolved, _ = score(messages, roster, cal, ref, raw, all_ids)
         _, report["ledger"] = ledger_checks(messages, roster, cal, ref, resolved)
         report["form_analysis"] = form_analysis(ref)
-    RESULTS.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
     name = f"set{args.set}_{args.extractor}" + ("" if args.extractor == "rules" else
                                                  "_" + re.sub(r"[^a-z0-9.]+", "_", args.model.lower()) + f"_prompt{model_mod.PROMPT_VERSION}")
-    out = RESULTS / f"{name}{'_' + args.label if args.label else ('_subset' if only else '')}.json"
+    out = out_dir / f"{name}{'_' + args.label if args.label else ('_subset' if only else '')}.json"
     out.write_text(json.dumps(report, indent=1, ensure_ascii=False, default=list))
     brief = {k: v for k, v in report.items() if k not in ("dev", "heldout", "all")}
     for split in ("dev", "heldout", "all"):
         if split in report:
             brief[split] = {k: v for k, v in report[split].items() if k not in ("errors", "errors_per_message")}
     print(json.dumps(brief, indent=1, ensure_ascii=False, default=list))
-    print(f"\nwrote {out.relative_to(ROOT)}")
+    print(f"\nwrote {_shown(out)}")
 
 
 if __name__ == "__main__":

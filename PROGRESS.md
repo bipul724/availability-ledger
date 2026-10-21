@@ -478,3 +478,82 @@ This supersedes the last line of the DOC-05 entry: the coding agent's D-31 repor
 **Not re-run:** browser checks (agent reports 12/12 for `review_safeguards.mjs`).
 
 **Docs:** `cue_replacement` added to `docs/API.md`, `docs/ARCHITECTURE.md` and the `context.md` repo map.
+
+### D-33: four more categories planned (2026-10-21, about 13:00 IST)
+
+Lead planning; no code changed. The owner asked to add Render, Sentry, ElevenLabs and GitHub Copilot.
+
+**Checked:**
+- The official routes for these four categories were re-read on the HF26 hub, and the deadline on the event API: the conflict still stands (25 Oct 12:29 IST vs 26 Oct 12:29 IST).
+
+**Recorded:**
+- D-33 in DECISIONS.
+- TASKS updated: INT-02, INT-03, INT-04 and DEP-02 reactivated with gates; INT-06 superseded; new INT-11.
+- Briefs in `docs/prompts/d33-integrations.md`.
+- CLAUDE.md and context.md aligned with D-33.
+
+**Not verified:** free-tier terms for Render, Sentry and ElevenLabs (owner to confirm in each dashboard), and whether the owner's Hacktoberfest ElevenLabs offer is still available.
+
+### INT-11: GitHub Actions integrity check and cache-only re-score (2026-10-21, system clock 11:51 IST)
+
+**Changed:**
+- `evaluation/run.py`:
+  - `--cache-only`: a missing saved model output raises `CacheMissError` naming the message and cache path, and the run exits 1. Ollama is never called, and the macOS-only memory sampler and `ollama_ps` are skipped.
+  - `--out DIR`: writes the results file elsewhere and refuses `frozen/`, `frozen-setC/`, `tuning/` and `evaluation/runs/`.
+  - `--cache-only` with `--refresh` is rejected.
+  - Behaviour without these flags is unchanged.
+- New `evaluation/ci_summary.py` (Markdown table plus a comparison with the committed results).
+- New `evaluation/protected.sha256`: 17 files, generated from the committed copies, which matched HEAD.
+- `.github/workflows/tests.yml`: new `integrity` and `rescore` jobs; the `unit` job is unchanged.
+- New `tests/test_cache_only.py` (7 tests).
+- The INT-10 and INT-11 rows, and TESTING.md (CI section).
+
+**Not changed:** fixtures, saved runs, the committed and frozen results, and the prompt. Not committed.
+
+**Checks run:**
+- **Unit tests:** 91 pass on Python 3.15.0 and 3.12.6 (84 + 7).
+- **Model never reached:** with the model call patched to fail, `--cache-only` raised on the missing message for both model and hybrid.
+- **Checksums:** `shasum -a 256 -c` passes 17/17.
+- **Local CI simulation** in a scratch copy of the working tree (ignored files excluded, as in a checkout):
+  - `sha256sum --check --strict` and the folder-list check pass.
+  - Both fail as intended on an edited frozen file and on an added tuning file.
+  - Removing one saved set B output makes the cache-only hybrid run exit 1 with the message ID and path, writing no results.
+  - Nine cache-only runs (A, B, C × rules, Gemma, Gemma + rules) took about 1.8 s on 3.12, with 0 fresh calls. All nine match the committed results on every scoring field, on 3.12 and 3.15.
+- **YAML:** parses (Ruby's YAML): three jobs, `contents: read`.
+
+**Generated table (local):**
+
+| Set | Reader | Units right (held-out) | Missed cancellations | Slot agreement | Fresh calls | Matches committed |
+|---|---|---|---|---|---|---|
+| A | Rules only | 19/28 | 0/12 | 0.787 | 0 | yes |
+| A | Gemma 4 E2B only | 20/28 | 4/12 | 0.811 | 0 | yes |
+| A | Gemma 4 E2B + rules | 24/28 | 0/12 | 0.876 | 0 | yes |
+| B | Rules only | 16/34 | 3/5 | 0.57 | 0 | yes |
+| B | Gemma 4 E2B only | 30/34 | 3/5 | 0.845 | 0 | yes |
+| B | Gemma 4 E2B + rules | 31/34 | 1/5 | 0.925 | 0 | yes |
+| C | Rules only | 17/20 | 0/8 | 1.0 | 0 | yes |
+| C | Gemma 4 E2B only | 19/20 | 0/8 | 1.0 | 0 | yes |
+| C | Gemma 4 E2B + rules | 19/20 | 0/8 | 1.0 | 0 | yes |
+
+These are the current, post-hoc numbers; the frozen first scores are unchanged.
+
+**Not verified:**
+- No run on GitHub yet, so Ubuntu's `sha256sum`, `$RUNNER_TEMP` and `$GITHUB_STEP_SUMMARY` are untested there. Locally `/sbin/sha256sum` on macOS was used.
+- The browser checks were not re-run; no UI or server code changed.
+
+**Design note:** `rescore` fails whenever scores differ from the committed `evaluation/results/*.json`. A scoring change must therefore commit its re-scored results in the same push.
+
+**Next:** the owner pushes and sends the lead a screenshot of the green run and its job summary. Then DEP-02 (brief 2), after the lead's review.
+
+### Lead review of INT-11 (2026-10-21)
+
+**Re-run by the lead:**
+- 91 unit tests pass on Python 3.15 and 3.12.
+- `shasum -a 256 -c evaluation/protected.sha256`: 17/17 OK.
+- No diff under `fixtures/`, `evaluation/runs/`, `evaluation/results/` or `ledger/`.
+- The CI re-score loop run locally with **`TZ=UTC`** on Python 3.12, as on GitHub's runners: 9/9 files match the committed results, 0 fresh calls, exit 0.
+- Code read: `--cache-only` raises before any model call; `--out` refuses the protected folders; normal (non-cache-only) runs are unchanged.
+
+**Decision on the agent's extra gate:** kept. The re-score fails if any score differs from the committed results, so committed results always match the code. Consequence for every future scoring change: re-score locally (cache-only) and commit the result files in the same push. CI checks only the Gemma and rules files, so Qwen result files must be re-scored by hand when scoring changes.
+
+**Not verified:** a run on GitHub itself (owner to push and send a screenshot of the run and its job summary).

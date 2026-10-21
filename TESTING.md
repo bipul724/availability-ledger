@@ -17,9 +17,32 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
 | `tests/test_evaluation.py` | 5 | Duplicate-aware unit scoring (EVAL-10), partial condition loss (EVAL-09) |
 | `tests/test_review_safeguards.py` | 10 | COR-10 "check the wording" flag (no hold), COR-07a warning |
 
+**Working tree, 2026-10-21 (INT-11, uncommitted):** **91 tests pass** on Python 3.15.0 and 3.12.6. Since `c5a2e05`: `tests/test_d31_fixes.py` (COR-13 to COR-18, 18 tests) and `tests/test_cache_only.py` (INT-11, 7 tests: `--cache-only` never reaches the patched model call, `--out` refuses protected folders, the CI summary fails on any score difference or fresh call).
+
 **Working tree (uncommitted, 2026-10-21):** a new `tests/test_d31_fixes.py` for COR-13 to COR-17 brings the total to **81**. At 11:13 IST all 81 passed. That work is in progress and unreviewed (see [context.md §G](context.md#g-current-state-at-handover-2026-10-21-about-1115-ist)).
 
-**CI:** `.github/workflows/tests.yml` runs this command on push and PR to `main` (Python 3.12, ubuntu-latest). First run "tests #1" on `56e38bd` passed (owner screenshot); later runs have not been observed by the lead.
+**CI:** see [CI (GitHub Actions)](#ci-github-actions).
+
+## CI (GitHub Actions)
+
+`.github/workflows/tests.yml` runs on every push and pull request to `main` (ubuntu-latest, Python 3.12). It has read-only token permissions, no secrets, no deployment and no Ollama. Its jobs are the GitHub Actions automation entered under the Copilot category (D-33).
+
+| Job | What it does | Fails when |
+|---|---|---|
+| `unit` (INT-10) | The unit-test command above | Any test fails |
+| `integrity` (INT-11) | `sha256sum --check --strict evaluation/protected.sha256` (every file in `evaluation/results/frozen/`, `frozen-setC/`, `tuning/` and `fixtures/setC.manifest`); then compares the folders' file list with the checksum list | A protected file changed, went missing or was added |
+| `rescore` (INT-11) | For sets A, B and C: rules, then Gemma and Gemma + rules with `--model gemma4:e2b-it-qat --cache-only --out "$RUNNER_TEMP/rescore"`. Then `python3 -m evaluation.ci_summary` writes a table (units right on held-out messages, missed cancellations and slot agreement on the final sheet, fresh calls, "matches committed") to `$GITHUB_STEP_SUMMARY`. Last step: the checkout has no changes, so nothing is committed back | A saved model output is missing; any scoring field differs from the committed `evaluation/results/*.json` of the same name (run time, speed and memory are not compared); any fresh model call |
+
+- **Consequence:** a commit that changes scores must also commit the re-scored `evaluation/results/*.json`, or `rescore` fails.
+- **Changing a protected file:** `evaluation/protected.sha256` may only be regenerated after a recorded decision, never to make the check pass.
+- **Run the same checks locally:**
+
+```bash
+shasum -a 256 -c evaluation/protected.sha256      # sha256sum -c on Linux
+out=$(mktemp -d); for s in A B C; do python3 -m evaluation.run --set $s --extractor rules --out $out >/dev/null; for ex in model hybrid; do python3 -m evaluation.run --set $s --extractor $ex --model gemma4:e2b-it-qat --cache-only --out $out >/dev/null; done; done; python3 -m evaluation.ci_summary $out
+```
+
+**Runs observed:** "tests #1" on `56e38bd` (unit job only) passed (owner screenshot). The `integrity` and `rescore` jobs have **not yet run on GitHub**; locally (2026-10-21, macOS, Python 3.12.6 and 3.15.0, a copy of the working tree with ignored files left out) both pass, `rescore` takes under 2 s, and the checksum checks fail as intended on a modified frozen file and on an added file.
 
 ## Browser checks (optional, not in CI)
 
@@ -48,7 +71,7 @@ python3 -m evaluation.compare frozen     # A/B first scores
 python3 -m evaluation.run --set A --extractor rules
 ```
 
-- **Fresh model calls on cache misses:** `evaluation.run` with `--extractor model` or `hybrid` calls Ollama whenever a cached output is missing, even without `--refresh`. Confirm `evaluation/runs/<model>_prompt3[_setB|_setC]/` covers every non-duplicate message first.
+- **Fresh model calls on cache misses:** `evaluation.run` with `--extractor model` or `hybrid` calls Ollama whenever a cached output is missing, even without `--refresh`. Add `--cache-only` to make a miss an error instead (no model call, no memory sampling), and `--out DIR` to write results somewhere other than `evaluation/results/`. Confirm `evaluation/runs/<model>_prompt3[_setB|_setC]/` covers every non-duplicate message first.
 - **Results get overwritten:** it overwrites `evaluation/results/*.json`. Never write into `frozen/`, `frozen-setC/` or `tuning/`.
 - **Qwen is no longer installed** (2026-10-21). Its cached A/B outputs still allow cache-only re-scoring.
 - **Set C** was scored once (EVAL-07, frozen in `evaluation/results/frozen-setC/`). Every later set C number is **post-hoc**.
