@@ -17,7 +17,7 @@ const visible = (sel) => js(`(() => { const e = document.querySelector(${JSON.st
 // load
 const banner = await js(`(() => { const b = document.getElementById("replay-banner"); return { hidden: b.hidden,
   text: b.innerText.replace(/\\s+/g, " ").trim(), href: b.querySelector("a")?.href }; })()`);
-check(!banner.hidden && banner.text === "Replay: fictional messages and saved Gemma 4 outputs. To use your own messages, run it locally — nothing leaves your machine.",
+check(!banner.hidden && banner.text === "Replay: fictional messages and saved Gemma 4 outputs. To read your own messages, run it locally, where they are processed on your own computer.",
   "banner shown with the exact wording: " + banner.text);
 check(banner.href === "https://github.com/bipul724/availability-ledger", "banner links the repo");
 check(!(await visible("#text")) && !(await visible("#roster")) && !(await visible("#file")) && !(await visible("#demo")) && !(await visible("#dayfirst")),

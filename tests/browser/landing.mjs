@@ -1,6 +1,6 @@
 // Optional browser check for the landing page (UI-09, D-34; not part of `python3 -m unittest`): served as on Render
 // (LEDGER_DEMO=1), the page loads nothing from another site, its hero demo plays to the sheet the replay shows and can
-// be stepped through, every in-page link resolves, the layout fits at 1400 px and 390 px, and its button opens the
+// be stepped through, every in-page link resolves, the layout fits at 1400, 390 and 320 px, and its button opens the
 // replay at /app. Run locally (no demo flag), the buttons say "Open the app" and the replay card points to Render.
 //   node tests/browser/landing.mjs [screenshot-dir]    # from the project folder; Node 22+ and Chrome
 import { openApp, sleep } from "./harness.mjs";
@@ -45,13 +45,19 @@ check(s.bubbles === 3 && s.struck === 1 && s.tag === 1 && s.segs === 4 && s.kofi
 s = await go(4);
 check(s.kofi === "available" && await js(`document.querySelector('[data-go="4"]').getAttribute("aria-pressed")`) === "true", "step 4 (m29): Kofi's Thursday available");
 
-// layout
-for (const width of [1400, 390]) {
+// layout. The body has overflow-x: hidden, so a page-width check alone could miss content cut off at the edge (UI-18):
+// also require every visible element to lie inside the viewport, unless it sits in a box that scrolls sideways itself.
+const OUTSIDE = `(() => { const vw = document.documentElement.clientWidth;
+  const inScroller = (e) => { for (let p = e.parentElement; p && p !== document.body; p = p.parentElement) if (/auto|scroll/.test(getComputedStyle(p).overflowX)) return true; return false; };
+  return [...document.querySelectorAll("body *")].filter((e) => { if (!e.getClientRects().length || e.closest(".sr, [hidden]")) return false;
+    const r = e.getBoundingClientRect(); return r.width > 0 && (r.right > vw + 0.5 || r.left < -0.5) && !inScroller(e); })
+    .map((e) => e.tagName.toLowerCase() + "." + [...e.classList].join(".") + " " + Math.round(e.getBoundingClientRect().right)).slice(0, 5); })()`;
+for (const width of [1400, 390, 320]) {
   await viewport(width);
   await js(`window.scrollTo(0, 0)`); await sleep(300);
   if (SHOTS) await shotView(`${SHOTS}/landing-${width}.png`);
-  const w = await js(`({ page: document.documentElement.scrollWidth, inner: innerWidth })`);
-  check(w.page <= w.inner, `${width}px: no horizontal page scroll (${w.page} <= ${w.inner})`);
+  const w = await js(`({ page: document.documentElement.scrollWidth, inner: innerWidth, outside: ${OUTSIDE} })`);
+  check(w.page <= w.inner && w.outside.length === 0, `${width}px: no horizontal page scroll and no content past the edge (${w.page} <= ${w.inner}; outside: ${JSON.stringify(w.outside)})`);
 }
 await viewport(1400);
 
@@ -69,18 +75,18 @@ await send("Page.addScriptToEvaluateOnNewDocument", { source: `const realFetch =
 await send("Page.navigate", { url: "http://127.0.0.1:8774/" });
 await sleep(1500);
 const local = await js(`({ ctas: [...document.querySelectorAll("[data-cta]")].map((a) => a.textContent.trim()), replay: document.querySelector("[data-replay-link]").href })`);
-check(local.ctas.length === 3 && local.ctas.every((t) => t === "Open the app") && local.replay === "https://availability-ledger-replay.onrender.com/",
+check(local.ctas.length === 3 && local.ctas.every((t) => t === "Open the app") && local.replay === "https://availability-ledger-replay.onrender.com/app",
   "locally the buttons say 'Open the app' and the replay card links to Render: " + JSON.stringify(local));
 
 // the guide (UI-10) and the styled 404 page
 await send("Page.navigate", { url: "http://127.0.0.1:8774/docs" });
 await sleep(1200);
-for (const width of [1400, 390]) {
+for (const width of [1400, 390, 320]) {
   await viewport(width); await sleep(300);
-  const g = await js(`({ page: document.documentElement.scrollWidth, inner: innerWidth, arch: !!document.querySelector(".arch"),
+  const g = await js(`({ page: document.documentElement.scrollWidth, inner: innerWidth, arch: !!document.querySelector(".arch"), outside: ${OUTSIDE},
     dangling: [...document.querySelectorAll('a[href^="#"]')].filter((a) => !document.getElementById(a.hash.slice(1))).length,
     foreign: performance.getEntriesByType("resource").map((e) => e.name).filter((u) => !u.startsWith(location.origin)).length })`);
-  check(g.arch && g.page <= g.inner && !g.dangling && !g.foreign, `guide at /docs, ${width}px: diagrams shown, no overflow, links resolve, nothing from another site ` + JSON.stringify(g));
+  check(g.arch && g.page <= g.inner && !g.outside.length && !g.dangling && !g.foreign, `guide at /docs, ${width}px: diagrams shown, no overflow or content past the edge, links resolve, nothing from another site ` + JSON.stringify(g));
 }
 await send("Page.navigate", { url: "http://127.0.0.1:8774/no-such-page" });
 await sleep(800);

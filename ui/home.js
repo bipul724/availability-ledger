@@ -3,7 +3,7 @@
 "use strict";
 window.homeReady = true;
 
-const REPLAY_URL = "https://availability-ledger-replay.onrender.com/";
+const REPLAY_URL = "https://availability-ledger-replay.onrender.com/app";  // the hosted app itself, not its landing page (UI-12)
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // The same page is served by the local app and by the hosted replay (DEP-02). Locally the buttons open this

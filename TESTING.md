@@ -88,6 +88,10 @@ PYTHONDONTWRITEBYTECODE=1 node tests/browser/session_rerun.mjs
 | `landing.mjs` | Landing page (UI-09) served with `LEDGER_DEMO=1`: nothing loaded from another site, every in-page link resolves, the hero demo plays to the final sheet and each step shows the right sheet, no page overflow at 1400 and 390 px, the button opens the replay at `/app`; locally (simulated status) the buttons say "Open the app". Since UI-10 also: the guide at `/docs` fits at 1400/390 px and unknown paths show the 404 page. Optional `[screenshot-dir]` | 18/18 (2026-10-22) |
 | `harness.mjs` | Shared helper, not a test. Opens `/app` (the review app) unless a page is given | — |
 
+**Release check (2026-10-22, working tree on top of `a4bebb7`, Sentry unset, Chrome 155):** all seven scripts pass: `sheet_display` 28/28, `demo_mode` 23/23 (exact banner copy updated for UI-11), `review_safeguards` 12/12, `session_rerun` 10/10, `extraction_failures` 14/14, `csv_safety` 4/4, `landing` **20/20** (now also 320 px for the landing page and the guide, with an element-bounds check that does not trust page width alone; it fails on the pre-UI-18 CSS). Unit tests: 116 run, OK (8 skipped without `sentry-sdk`, Python 3.15). A fresh clone of `origin/main` at `a4bebb7` gave the same 116/8 and passed every protected checksum. Scratch checks outside the repo (not reproducible from it): an invented-message import→review→export run, a bounded accessibility audit (UI-02) and a public Render/GitHub check; see PROGRESS.
+
+**Final release review (REL-07, 2026-10-23, working tree on top of `a4bebb7`, `SENTRY_DSN` and `LEDGER_DEMO` unset, bytecode writes off, Python 3.15.0, Node 22.11.0, Chrome):** all seven scripts pass: `sheet_display` 28/28, `demo_mode` 23/23, `review_safeguards` 12/12, `session_rerun` 10/10, `extraction_failures` 14/14, `csv_safety` 4/4, `landing` 20/20. Unit tests: 116 run, OK (8 skipped without `sentry-sdk`). `shasum -a 256 -c evaluation/protected.sha256`: 17/17 OK; the CI protected-file inventory diff: no difference. CI-equivalent re-score of A, B and C (rules, then Gemma and Gemma + rules with `--cache-only`, temporary `--out`): 9/9 files match the committed results, 0 fresh model calls. `bash -n` and `zsh -n` on `.env.example`: OK. `git diff --check`: clean. `git status` identical before and after the checks. Not repeated: live inference (see below), a fresh clone, CI and Render for the release revision (after the owner pushes).
+
 **UI-09 (2026-10-22, lead):** all seven scripts re-run after the app moved to `/app`: 28/28, 23/23, 12/12, 10/10, 14/14, 4/4 and `landing.mjs` 15/15. Unit tests: **115** run, OK (8 skipped without `sentry-sdk`, Python 3.15); `tests/test_pages.py` adds 4 (landing page at `/` also with a query string, app at `/app` and `/index.html`, other paths unchanged, no external loads in the landing page).
 
 The agent also ran two checks kept in its own scratchpad, not in the repo: final export 13/13 and keyboard 18/18. They are not reproducible from the repo.
@@ -155,10 +159,11 @@ A controlled cold/warm or memory comparison remains a separate experiment, **not
 
 ## Not tested
 
-- Safari and Firefox.
-- Screen readers, colour contrast (UI-02).
+- Safari (no WebDriver response; automation settings not changed) and Firefox (not installed), 2026-10-22.
+- Screen readers (VoiceOver not run). Contrast, keyboard order, focus and accessible names were checked automatically in Chrome on 2026-10-22 (UI-02).
 - Python 3.10 and 3.11.
 - Linux locally (CI covers Ubuntu with 3.12).
 - Real messages.
+- Live model inference on a full week or with Model + rules. The only live check is the owner's two-message Model-only Chrome run with `gemma4:e2b-it-qat` on 2026-10-23 (CFG-02): correct suggestions and quotes, provisional then complete CSVs as expected. The 2026-10-22 and 2026-10-23 automated release checks made no model calls.
 - Run-to-run model variation.
-- Any hosted deployment (none exists).
+- The hosted replay beyond a read-only check: on 2026-10-22 its public pages returned 200 (404 for an unknown path) and served UI files byte-identical to `origin/main` at `a4bebb7`; its server code and Render's own logging were not inspected.

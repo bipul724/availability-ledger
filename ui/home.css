@@ -193,7 +193,7 @@ mark { color: inherit; background-color: transparent; background-image: linear-g
 
 /* ------------------------------------------------------------ 02 how it works */
 .hands { list-style: none; padding: 0; margin-top: 44px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
-.hand { padding: 22px 28px 0; border-left: 1px solid var(--rule); display: grid; grid-row: span 3; grid-template-rows: subgrid; align-content: start; }
+.hand { min-width: 0; padding: 22px 28px 0; border-left: 1px solid var(--rule); display: grid; grid-template-columns: minmax(0, 1fr); grid-row: span 3; grid-template-rows: subgrid; align-content: start; }  /* minmax: the JSON exhibit must not widen the card past a 320px screen (UI-18) */
 .hand:first-child { padding-left: 0; border-left: 0; }
 .hand:last-child { padding-right: 0; }
 .hand > p:not(.hand-k) { font-size: 15.5px; line-height: 1.6; color: var(--ink-2); }
@@ -398,6 +398,7 @@ kbd { display: inline-grid; place-items: center; min-width: 30px; height: 30px; 
 }
 @media (max-width: 720px) {
   body { font-size: 16px; }
+  .exhibit .code { white-space: pre-wrap; overflow-wrap: anywhere; }  /* the JSON wraps instead of hiding behind a scroll (UI-18) */
   .wrap { padding: 0 16px; }
   .top-in { gap: 12px; height: 58px; }
   .brand { font-size: 17px; }

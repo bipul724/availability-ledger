@@ -48,6 +48,8 @@ Submission requirements:
 | Written contest rules/challenge prose | 2026-10-25, 11:59 PM PDT | **2026-10-26, 12:29 PM** |
 | [Raw DEV event API](https://dev.to/api/events/81), `end_time` | `2026-10-25T06:59:00.000Z` | **2026-10-25, 12:29 PM** |
 
+**Rechecked 2026-10-22:** unchanged. The rules page still says the contest "ends on October 25, 2026 at 11:59 PM PDT"; the event API still gives `end_time: 2026-10-25T06:59:00.000Z`; the challenge page's Key Dates say only "Submissions due: October 25, 2026". Its submission template (prefill) has the headings What I Built, Demo, Code, How I Built It, Why Does Open Innovation Matter?, and optional My Agent Session, The Lazy Payoff and Prize Categories, with tags `devchallenge, hf26challenge`. The rules require a published post using the template and `#hf26challenge`, a brand-new open-source-AI project made in the entry period, why open innovation matters, a demo (deployed link or video) and a code link; partner categories need meaningful use.
+
 The API's prose agrees with written rules while its timestamp is one day earlier. Earlier tools called the value `ends_at`; raw API uses `end_time`. **Plan for October 25, 12:29 PM IST internally until clarified**, without calling that the written official deadline. Written rules start October 19 at 09:00 PDT; the API's `start_time` is October 19, 19:00Z, three hours later. Commit dates inside the window do not prove the actual start of development.
 
 ### All 20 sponsor categories: fit screening

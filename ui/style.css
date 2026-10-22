@@ -76,6 +76,10 @@ h2 { font-size: 15px; font-weight: 650; margin: 0 0 10px; letter-spacing: -0.01e
 #file { width: 210px; max-width: 100%; font-size: 12px; }  /* Chrome shortens a long filename in the middle */
 #run { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 40px; margin-left: auto; padding: 9px 17px; }
 .action-icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+/* Keyboard bypass past the suggestion cards (UI-02); shown only on focus, and only once the workspace exists. */
+.skip { position: absolute; left: 12px; top: -60px; z-index: 50; padding: 10px 14px; border-radius: 8px; background: var(--accent); color: var(--on-accent); font-weight: 600; text-decoration: none; }
+.skip:focus { top: 12px; }
+body:has(#workspace[hidden]) .skip { display: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 /* ------------------------------------------------------------ controls */

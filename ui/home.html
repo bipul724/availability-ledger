@@ -51,11 +51,11 @@
         <a class="btn btn-ink" href="/app" data-cta><span>Open the replay</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg></a>
         <a class="btn btn-line" href="#run">Run it on your laptop</a>
       </div>
-      <p class="fine">The replay uses a fictional week and saved Gemma&nbsp;4 outputs. To read your own messages, run it locally: they never leave your machine.</p>
+      <p class="fine">The replay uses a fictional week and saved Gemma&nbsp;4 outputs. To read your own messages, run Availazy on your own computer, where they are processed locally.</p>
       <dl class="facts">
         <div><dt>Model</dt><dd>Gemma 4 E2B, run locally by Ollama</dd></div>
         <div><dt>Code</dt><dd>Python standard library, no packages</dd></div>
-        <div><dt>Messages</dt><dd>stay on 127.0.0.1</dd></div>
+        <div><dt>Messages</dt><dd>processed on 127.0.0.1</dd></div>
         <div><dt>Licence</dt><dd>MIT</dd></div>
       </dl>
     </div>
@@ -408,8 +408,8 @@ Kofi Mensah,2026-11-12,13:00,17:00,available,,confirmed,m29.1</code></pre>
   <p class="margin num" aria-hidden="true">05</p>
   <div class="body">
     <p class="label"><span class="num-inline" aria-hidden="true">05</span>Privacy</p>
-    <h2 id="privacy-title">Nothing leaves your laptop.</h2>
-    <p class="prose narrow">In the core workflow your messages, roster and review decisions live in the browser tab and pass through a small Python server on 127.0.0.1. The model runs in Ollama on the same machine. There is no account, no cloud database and no telemetry by default.</p>
+    <h2 id="privacy-title">Your messages are read on your own laptop.</h2>
+    <p class="prose narrow">In the local app your messages, roster and review decisions live in the browser tab and go only to a small Python server on 127.0.0.1. The model runs in Ollama on the same machine. There is no account and no cloud database, and tracing is off unless you turn it on. The hosted replay is separate: it shows a fictional week with saved model outputs and does not accept your messages.</p>
 
     <figure class="flow">
       <div class="laptop">
@@ -423,9 +423,9 @@ Kofi Mensah,2026-11-12,13:00,17:00,available,,confirmed,m29.1</code></pre>
         </div>
       </div>
       <div class="outside">
-        <div class="node node-opt"><b>Sentry, only if you opt in</b><span>timings, token counts and the model name. Never message text, names, quotes, prompts or replies.</span></div>
+        <div class="node node-opt"><b>Sentry, only if you opt in</b><span>timings, token counts and the model name. Our code never sends message text, names, quotes, prompts or replies. Received traces have shown location attributes that our code does not send; their origin remains unverified.</span></div>
       </div>
-      <figcaption class="sr">Everything runs inside your laptop: the browser tab talks to a Python server on 127.0.0.1, which talks to Ollama on 127.0.0.1. Only opt-in tracing sends anything out, and it carries no content.</figcaption>
+      <figcaption class="sr">In the local app the browser tab talks to a Python server on 127.0.0.1, which talks to Ollama on 127.0.0.1. Only opt-in tracing sends anything out: structural metadata, never message content. Received traces have shown location attributes that our code does not send; their origin remains unverified.</figcaption>
     </figure>
 
     <div class="stack-grid">
@@ -462,7 +462,7 @@ Kofi Mensah,2026-11-12,13:00,17:00,available,,confirmed,m29.1</code></pre>
         <p>The hosted replay serves the fictional demo week with saved Gemma&nbsp;4 outputs. Review, history, the chart and both exports work as they do locally; pasting your own messages is switched off.</p>
         <div class="browser" aria-hidden="true">
           <div class="b-bar"><span></span><span></span><span></span><p>availability-ledger-replay.onrender.com/app</p></div>
-          <p class="b-banner">Replay: fictional messages and saved Gemma 4 outputs. To use your own messages, run it locally — nothing leaves your machine.</p>
+          <p class="b-banner">Replay: fictional messages and saved Gemma 4 outputs. To read your own messages, run it locally, where they are processed on your own computer.</p>
           <div class="b-app">
             <p class="b-title">Availazy</p>
             <p class="b-sub">A local open model proposes. Ordinary code checks dates, history and counts. You decide.</p>

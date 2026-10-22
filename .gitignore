@@ -4,7 +4,7 @@ __pycache__/
 .venv/
 venv/
 
-# Local settings (the app reads no .env, but never commit one by accident)
+# Local settings (manually loaded; never commit local values)
 .env
 .env.*
 !.env.example

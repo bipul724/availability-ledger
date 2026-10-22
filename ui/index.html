@@ -9,8 +9,9 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="replay-banner" class="banner" role="note" hidden>Replay: fictional messages and saved Gemma 4 outputs. To use your own messages,
-  <a href="https://github.com/bipul724/availability-ledger" target="_blank" rel="noopener">run it locally</a> — nothing leaves your machine.</div>
+<a class="skip" href="#summary">Skip to the week overview and exports</a>
+<div id="replay-banner" class="banner" role="note" hidden>Replay: fictional messages and saved Gemma 4 outputs. To read your own messages,
+  <a href="https://github.com/bipul724/availability-ledger" target="_blank" rel="noopener">run it locally</a>, where they are processed on your own computer.</div>
 <header class="app-header">
   <div class="app-header-inner">
     <h1><svg class="glyph" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path class="g-margin" d="M9.5 6v20M11.5 6v20"/><path class="g-rule" d="M15 11h10M15 16h10M15 21h6"/></svg><a href="/" title="About Availazy">Availazy</a></h1>
@@ -81,7 +82,7 @@
     </section>
     <section class="panel">
       <h2 id="sheet-title">Availability sheet</h2>
-      <p class="hint">Provisional until every message is marked reviewed and nothing is pending. The final-sheet export uses accepted records only.</p>
+      <p class="hint">Provisional until every non-duplicate message is marked reviewed, nothing is pending and no blocking issue is open. The final-sheet export uses accepted records only.</p>
       <div id="sheet-legend" class="legend">
         <span><span class="seg available">10:00–12:00</span> accepted</span>
         <span><span class="seg available pending">10:00–12:00<small>pending</small></span> not yet accepted</span>

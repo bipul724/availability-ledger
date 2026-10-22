@@ -8,7 +8,7 @@ A local review tool for volunteer coordinators who collect availability through 
 
 It records **availability** (when people say they can or cannot help), not shift assignments.
 
-**A local open model proposes and ordinary code decides.** The model (Gemma 4 E2B through Ollama) only copies phrases such as "next Tuesday", "after 3" or "if needed". Python code turns them into dates and times, checks each suggestion's words against the message and flags or drops unsupported ones (with one documented gap: a real quote with invented day or time words is only flagged and counts on the provisional sheet), keeps each person's history per day, keeps conditional offers conditional, and does every count. In the core workflow nothing leaves your computer.
+**A local open model proposes and ordinary code decides.** The model (Gemma 4 E2B through Ollama) only copies phrases such as "next Tuesday", "after 3" or "if needed". Python code turns them into dates and times, checks each suggestion's words against the message and flags or drops unsupported ones (with one documented gap: a real quote with invented day or time words is only flagged and counts on the provisional sheet), keeps each person's history per day, keeps conditional offers conditional, and does every count. In the core workflow your messages go only to programs on your own computer (127.0.0.1); optional tracing, off by default, sends timing metadata, never message content.
 
 ```mermaid
 flowchart LR
@@ -99,7 +99,27 @@ The page's **Model** list shows whatever Ollama has installed. If Ollama is not 
 
 ## Configuration
 
-The local app reads no environment variables and loads no `.env`; [.env.example](.env.example) explains this. Two exceptions: the hosted replay (`LEDGER_DEMO=1` switches on demo mode, which then reads `PORT`; see [Hosted replay](#hosted-replay-render)), and opt-in tracing, which reads `SENTRY_DSN` (see [Opt-in tracing](#opt-in-tracing-sentry)). Configuration is:
+The local app needs no environment variables. [.env.example](.env.example) is a shell-compatible template; keep your local values in the ignored `.env`. Its defaults select local mode (`LEDGER_DEMO=0`) and disable tracing (empty `SENTRY_DSN`). `server.py` does **not** automatically load `.env`.
+
+For a new checkout, create the local file without overwriting an existing one:
+
+```bash
+cp -n .env.example .env
+chmod 600 .env
+```
+
+To load it and start a local server on port 8780, run this from the project directory:
+
+```bash
+(
+  set -a
+  source ./.env
+  set +a
+  python3 server.py 8780
+)
+```
+
+The subshell exports the settings only for that server session. Use port 8765 instead, or omit the argument, for the default port. An empty `SENTRY_DSN` keeps tracing off; a real value enables opt-in tracing only with the optional SDK installed (see [Opt-in tracing](#opt-in-tracing-sentry)). `LEDGER_DEMO=1` enables the hosted fictional replay and makes `PORT` apply; it is not needed for local use (see [Hosted replay](#hosted-replay-render)). Other configuration is:
 
 | Setting | Where |
 |---|---|
@@ -133,7 +153,7 @@ The status line then shows review time and counts of accepts, edits, rejects, ad
 
 ## Hosted replay (Render)
 
-**Live:** https://availability-ledger-replay.onrender.com (free instance: after 15 minutes without visitors it sleeps, and the first visit takes about a minute to wake it). Since UI-09 the root is the landing page and the replay itself is at `/app`; the live site shows this after its next deploy.
+**Live:** https://availability-ledger-replay.onrender.com (free instance: after 15 minutes without visitors it sleeps, and the first visit takes about a minute to wake it). The root is the landing page and the replay itself is at https://availability-ledger-replay.onrender.com/app (UI-09; served since `a4bebb7`).
 
 `LEDGER_DEMO=1 python3 server.py` starts a **read-only replay** (DEP-02, D-33). It listens on `0.0.0.0:$PORT` and serves only fictional set A. Suggestions come from the saved Gemma 4 outputs in `evaluation/runs/gemma4_e2b_it_qat_prompt3/`, by message ID, and Ollama is never called. The paste box and file upload are hidden, and the server refuses (403) any message, roster, week or model it did not serve. Review, accept and reject, history, warnings, the chart and both CSV exports work as locally. A banner on every page says it is a replay and links here. Without `LEDGER_DEMO` nothing changes.
 
@@ -180,18 +200,18 @@ Two allowlists in `ledger/tracing.py` guard what leaves the process. The SDK's `
 
 ## Week 3 scope, work order and costs
 
-**Scope ([D-33](docs/DECISIONS.md#d-33-owner-override-of-d-23-add-copilot-actions-render-sentry-and-elevenlabs)):** the DEV Hacktoberfest Week 3 entry targets **overall + Gemma**, plus GitHub Copilot (through GitHub Actions automation), Render, Sentry Agent Tracing and ElevenLabs. Each one is named in the submission only if it is genuinely in use by then. Not planned for this entry: `.tech` routing, Entire, Copilot coding-agent work, Backboard R-CLI. Roles and gates: [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md); rules: [docs/COMPETITION.md](docs/COMPETITION.md). An entry can win at most one prize.
+**Scope ([D-33](docs/DECISIONS.md#d-33-owner-override-of-d-23-add-copilot-actions-render-sentry-and-elevenlabs)):** the DEV Hacktoberfest Week 3 entry targets **overall + Gemma**, plus GitHub Copilot (through GitHub Actions automation), Render and Sentry Agent Tracing; ElevenLabs was dropped ([D-37](docs/DECISIONS.md#d-37-drop-elevenlabs-int-04-demo-narrated-live-or-captioned)). Each one is named in the submission only if it is genuinely in use by then. Not planned for this entry: `.tech` routing, Entire, Copilot coding-agent work, Backboard R-CLI. Roles and gates: [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md); rules: [docs/COMPETITION.md](docs/COMPETITION.md). An entry can win at most one prize.
 
 | Technology | Status |
 |---|---|
 | Gemma 4 E2B via local Ollama | **Implemented.** Phrase extraction, cross-checked by rules and reviewed by a person. |
 | Render read-only replay | **Deployed** (DEP-02, 2026-10-21): https://availability-ledger-replay.onrender.com, from [render.yaml](render.yaml) on the free plan. |
-| GitHub Actions (Copilot category) | **Running** (`.github/workflows/tests.yml`, INT-10, INT-11): on every push and pull request, unit tests, a SHA-256 check that the frozen evidence is unchanged, and a re-score of sets A, B and C from saved outputs, with the score table in the job summary. No secrets or model. Run "tests #5" (`8c5f975`) passed. |
+| GitHub Actions (Copilot category) | **Running** (`.github/workflows/tests.yml`, INT-10, INT-11): on every push and pull request, unit tests, a SHA-256 check that the frozen evidence is unchanged, and a re-score of sets A, B and C from saved outputs, with the score table in the job summary. No secrets or model. Latest observed run: "tests #17" on `a4bebb7` passed all three jobs (2026-10-22). |
 | Sentry Agent Tracing | **Real delivery verified** (INT-03, 2026-10-21/22): four 300 s timeouts identified, later successful retry received, and targeted geo redaction verified on a separate fictional trace. Wider privacy/account checks remain open; [handoff](docs/SENTRY_HANDOFF.md). |
 | ElevenLabs | **Dropped** ([D-37](docs/DECISIONS.md#d-37-drop-elevenlabs-int-04-demo-narrated-live-or-captioned)): not used, category not claimed. |
 | Everything else listed above | **Deferred**; not implemented. |
 
-**Work order ([TASKS.md](TASKS.md#order-of-work)):** done: set C scored once (EVAL-07, 2026-10-21); post-hoc fixes COR-13 to COR-18; GitHub Actions automation (INT-11); hosted replay (DEP-02). In progress: Sentry tracing (**INT-03**: real delivery/finding verified; scoped privacy/account checks remain) → narrated demo (**DEP-03**, **INT-04**) → submission post (**REL-05**; the owner checks eligibility, **REL-04**). A small fresh set D (**EVAL-11**) is optional.
+**Work order ([TASKS.md](TASKS.md#order-of-work)):** done: set C scored once (EVAL-07, 2026-10-21); post-hoc fixes COR-13 to COR-18; GitHub Actions automation (INT-11); hosted replay (DEP-02). In progress: Sentry tracing (**INT-03**: real delivery/finding verified; scoped privacy/account checks remain) → demo recording (**DEP-03**; short local live-model check passed 2026-10-23, recording remains) → submission post (**REL-05**; the owner checks eligibility, **REL-04**). A small fresh set D (**EVAL-11**) is optional.
 
 **Costs:** additional spending stays at **₹0**: existing resources, verified free plans or confirmed sponsor credits only, with no automatic upgrades, top-ups, paid fallbacks or renewals. CI runs on GitHub-hosted runners within the account's free allowance.
 
