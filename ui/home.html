@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Availazy — Local AI for Coordinators Who Have Better Things to Do</title>
+<meta name="description" content="A local review tool for volunteer coordinators. Gemma 4 copies phrases from a week of chat messages, plain Python reconciles dates, times and changes, and you approve every record. Runs on your own laptop.">
+<meta name="theme-color" content="#f4f2e8">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Availazy — Local AI for Coordinators Who Have Better Things to Do">
+<meta property="og:description" content="Gemma 4 copies the words, plain code keeps the books, and the coordinator decides. Local, open source, honest about its numbers.">
+<meta property="og:url" content="https://availability-ledger-replay.onrender.com/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23174b3a'/%3E%3Cpath d='M9.5 6v20M11.5 6v20' stroke='%238aa47f' stroke-width='1.2'/%3E%3Cpath d='M15 11h10M15 16h10M15 21h6' stroke='%23f4f2e8' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="home.css">
+<script>document.documentElement.classList.add("js"); setTimeout(() => { if (!window.homeReady) document.documentElement.classList.remove("js"); }, 3000);</script>
+<script src="home.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="/" aria-label="Availazy, home">
+      <svg class="glyph" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path class="g-margin" d="M9.5 6v20M11.5 6v20"/><path class="g-rule" d="M15 11h10M15 16h10M15 21h6"/></svg>
+      <span>Availazy</span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#problem">Problem</a>
+      <a href="#how">How it works</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#run">Run it</a>
+      <a href="/docs">Guide</a>
+    </nav>
+    <a class="btn btn-ink btn-sm" href="/app" data-cta><span>Open the replay</span></a>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ======================================================== hero -->
+<section class="entry hero" aria-labelledby="hero-title">
+  <div class="margin" aria-hidden="true"></div>
+  <div class="body hero-grid">
+    <div class="hero-copy">
+      <p class="kicker"><span class="nw">Availazy</span> <span class="sep">·</span> <span class="nw">For volunteer coordinators</span> <span class="sep">·</span> <span class="nw">Open source</span></p>
+      <h1 id="hero-title">Local AI for Coordinators Who Have <span class="hl">Better Things to Do</span></h1>
+      <p class="motto">Let AI read. You decide.</p>
+      <p class="lede">Volunteers answer in their own words: offers, corrections, cancellations, maybes. Availazy reads a week of messages on your own computer, puts each suggestion beside the message it came from and keeps every change on the books. Only what you accept reaches the final sheet.</p>
+      <div class="cta-row">
+        <a class="btn btn-ink" href="/app" data-cta><span>Open the replay</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg></a>
+        <a class="btn btn-line" href="#run">Run it on your laptop</a>
+      </div>
+      <p class="fine">The replay uses a fictional week and saved Gemma&nbsp;4 outputs. To read your own messages, run it locally: they never leave your machine.</p>
+      <dl class="facts">
+        <div><dt>Model</dt><dd>Gemma 4 E2B, run locally by Ollama</dd></div>
+        <div><dt>Code</dt><dd>Python standard library, no packages</dd></div>
+        <div><dt>Messages</dt><dd>stay on 127.0.0.1</dd></div>
+        <div><dt>Licence</dt><dd>MIT</dd></div>
+      </dl>
+    </div>
+
+    <figure class="demo" id="demo" data-step="4" aria-labelledby="demo-cap">
+      <div class="demo-head">
+        <p class="demo-org">Riverside Community Pantry <span class="pill">fictional</span></p>
+        <p class="demo-week">Week of Mon 9 – Sun 15 Nov 2026</p>
+      </div>
+      <ol class="chat" aria-label="Messages">
+        <li class="bubble" data-in="1">
+          <p class="who"><b>Maria Lopez</b> <span>m02 · Mon 2 Nov, 09:41</span></p>
+          <p class="said"><mark>I can do Tuesday and Thursday mornings</mark>.</p>
+        </li>
+        <li class="bubble" data-in="2">
+          <p class="who"><b>Kofi Mensah</b> <span>m13 · Tue 3 Nov, 09:30</span></p>
+          <p class="said"><mark>I might be able to do Thursday afternoon if my work shift gets moved</mark>. Will know by Tuesday.</p>
+        </li>
+        <li class="bubble" data-in="3">
+          <p class="who"><b>Maria Lopez</b> <span>m28 · Thu 5 Nov, 09:10</span></p>
+          <p class="said">Change of plans — <mark>Thursday doesn't work anymore, sorry!</mark> <mark>Tuesday morning still good</mark>. <mark>I can add Friday 2-5</mark>.</p>
+        </li>
+        <li class="bubble" data-in="4">
+          <p class="who"><b>Kofi Mensah</b> <span>m29 · Thu 5 Nov, 10:30</span></p>
+          <p class="said">Good news, my shift got moved, so <mark>Thursday afternoon is a yes</mark>.</p>
+        </li>
+      </ol>
+
+      <div class="sheet" role="table" aria-label="Availability sheet after these messages">
+        <div class="sh-row sh-head" role="row">
+          <span role="columnheader" class="sh-name">Volunteer</span>
+          <span role="columnheader" class="off"><small>Mon</small> 9</span>
+          <span role="columnheader"><small>Tue</small> 10</span>
+          <span role="columnheader" class="off"><small>Wed</small> 11</span>
+          <span role="columnheader"><small>Thu</small> 12</span>
+          <span role="columnheader"><small>Fri</small> 13</span>
+          <span role="columnheader" class="off"><small>Sat</small> 14</span>
+          <span role="columnheader" class="off"><small>Sun</small> 15</span>
+        </div>
+        <div class="sh-row" role="row">
+          <span role="rowheader" class="sh-name">Maria Lopez</span>
+          <span role="cell" class="off"></span>
+          <span role="cell" class="cell"><span class="seg ok" data-in="1"><span class="t">09:00</span><wbr><span class="t">–12:00</span></span></span>
+          <span role="cell" class="off"></span>
+          <span role="cell" class="cell"><span class="seg ok" data-in="1" data-x="3"><span class="t">09:00</span><wbr><span class="t">–12:00</span></span><span class="tag-x" data-in="3">cancelled</span></span>
+          <span role="cell" class="cell"><span class="seg ok" data-in="3"><span class="t">14:00</span><wbr><span class="t">–17:00</span></span></span>
+          <span role="cell" class="off"></span>
+          <span role="cell" class="off"></span>
+        </div>
+        <div class="sh-row" role="row">
+          <span role="rowheader" class="sh-name">Kofi Mensah</span>
+          <span role="cell" class="off"></span>
+          <span role="cell" class="cell"></span>
+          <span role="cell" class="off"></span>
+          <span role="cell" class="cell"><span class="seg maybe" data-in="2" data-out="4"><span class="t">13:00</span><wbr><span class="t">–17:00</span> ?<span class="sr"> (conditional)</span></span><span class="seg ok" data-in="4"><span class="t">13:00</span><wbr><span class="t">–17:00</span></span></span>
+          <span role="cell" class="cell"></span>
+          <span role="cell" class="off"></span>
+          <span role="cell" class="off"></span>
+        </div>
+      </div>
+
+      <ol class="log" aria-label="Changes over time">
+        <li data-in="1"><b>m02</b><span>Maria Lopez: Tue 10 and Thu 12, 09:00–12:00 added</span></li>
+        <li data-in="2"><b>m13</b><span>Kofi Mensah: Thu 12, 13:00–17:00 added as <span class="w-maybe">conditional</span></span></li>
+        <li data-in="3"><b>m28</b><span>Maria Lopez: Thu 12 <span class="w-no">marked unavailable</span>, flagged “Added by the rules: possible cancellation the model missed”. Fri 13, 14:00–17:00 added</span></li>
+        <li data-in="4"><b>m29</b><span>Kofi Mensah: Thu 12 conditional → <span class="w-ok">available</span>; listed under Needs a decision as “Earlier answer replaced — check”</span></li>
+      </ol>
+
+      <div class="demo-foot">
+        <div class="steps" role="group" aria-label="Step through the four messages">
+          <button type="button" data-go="1" aria-label="Message 1 of 4: m02">1</button>
+          <button type="button" data-go="2" aria-label="Message 2 of 4: m13">2</button>
+          <button type="button" data-go="3" aria-label="Message 3 of 4: m28">3</button>
+          <button type="button" data-go="4" aria-label="Message 4 of 4: m29">4</button>
+        </div>
+        <button type="button" class="replay" data-replay><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.2 8a4.8 4.8 0 1 0 1.5-3.5M3 2.5v2.8h2.8"/></svg>Play again</button>
+      </div>
+      <figcaption id="demo-cap">Four of the demo week's 50 messages and the sheet after them, read by <em>Model + rules</em> with the saved Gemma&nbsp;4 outputs, as in the replay.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ======================================================== 01 problem -->
+<section class="entry" id="problem" aria-labelledby="problem-title">
+  <p class="margin num" aria-hidden="true">01</p>
+  <div class="body">
+    <p class="label"><span class="num-inline" aria-hidden="true">01</span>The problem</p>
+    <h2 id="problem-title">Nobody replies in rows and columns.</h2>
+    <div class="split">
+      <p class="prose">A coordinator asks “when can you help?” The answers arrive as ordinary messages: “after 3”, “next Tuesday”, “maybe Saturday if my sister can babysit”. Then people change their minds, cancel and repeat themselves, and someone reconciles it all into a spreadsheet by hand.</p>
+      <blockquote class="pull"><p>The error that matters most is the silent one: a cancellation or a condition that never reaches the sheet, so you count on someone who isn't coming.</p></blockquote>
+    </div>
+
+    <p class="sub">Six moments from the fictional demo week, as the replay handles them</p>
+    <ul class="cases">
+      <li class="case">
+        <div class="case-msg">
+          <p class="who"><b>Rui Costa</b> <span>m41 · Mon 9 Nov, 07:50</span></p>
+          <p class="said"><mark>Next Tuesday I'm busy</mark>, but <mark>I'll still do Wednesday evening</mark>.</p>
+        </div>
+        <div class="case-note">
+          <p class="chip chip-maybe"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M6.3 6.3a1.8 1.8 0 1 1 2.4 1.7c-.5.2-.7.6-.7 1.1v.4M8 11.6v.1"/></svg>Asks you</p>
+          <p>Sent on a Monday, “next Tuesday” could be 10 or 17&nbsp;Nov. Both dates go to <em>Needs a decision</em>; nothing is guessed.</p>
+        </div>
+      </li>
+      <li class="case">
+        <div class="case-msg">
+          <p class="who"><b>Kofi Mensah</b> <span>m26 · Wed 4 Nov, 18:10</span></p>
+          <p class="said"><mark>Can't do this Saturday, I'm at a wedding</mark>.</p>
+        </div>
+        <div class="case-note">
+          <p class="chip"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M3.8 12.2l8.4-8.4"/></svg>Kept off the sheet</p>
+          <p>Sent on 4&nbsp;Nov, “this Saturday” is 7&nbsp;Nov: outside the week being planned. It is listed for you, not applied.</p>
+        </div>
+      </li>
+      <li class="case">
+        <div class="case-msg">
+          <p class="who"><b>Lina Fisher</b> <span>m42 · Mon 9 Nov, 08:15</span></p>
+          <p class="said">Monday's fine but <mark>can we make it 2-5 instead of the full afternoon?</mark></p>
+        </div>
+        <div class="case-note">
+          <p class="chip chip-ok"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5a5 5 0 1 0 1.6-3.7M3 2.6v2.6h2.6"/></svg>Corrected</p>
+          <p>Her Monday changes from 13:00–17:00 to 14:00–17:00. The history keeps both answers and links each to its message.</p>
+        </div>
+      </li>
+      <li class="case">
+        <div class="case-msg">
+          <p class="who"><b>Olu Adeyemi</b> <span>m49 · Wed 11 Nov, 08:40</span></p>
+          <p class="said">Something's come up and <mark>I have to drop out for the rest of this week</mark>. Really sorry.</p>
+        </div>
+        <div class="case-note">
+          <p class="chip chip-no"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="4.5" width="11" height="7" rx="1.5"/><path d="M1.5 8h13"/></svg>Cancelled</p>
+          <p>Wednesday to Sunday are marked unavailable, so his Thursday evening and Saturday morning come off the sheet.</p>
+        </div>
+      </li>
+      <li class="case">
+        <div class="case-msg">
+          <p class="who"><b>Beth Carter</b> <span>m11, m12 · Tue 3 Nov, 08:05 and 08:06</span></p>
+          <p class="said"><mark>Tuesday evening</mark> and <mark>Sunday morning</mark>. <span class="twice">sent twice</span></p>
+        </div>
+        <div class="case-note">
+          <p class="chip"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 3.5V3A1.5 1.5 0 0 0 9 1.5H3.5A1.5 1.5 0 0 0 2 3v5.5A1.5 1.5 0 0 0 3.5 10H4"/></svg>Collapsed</p>
+          <p>Same sender, same words, a minute apart. The copy shows as “Same as m11” and adds nothing of its own.</p>
+        </div>
+      </li>
+      <li class="case">
+        <div class="case-msg">
+          <p class="who"><b>Marta Lopes</b> <span>m48 · Tue 10 Nov, 15:30</span></p>
+          <p class="said">Is Maria still doing Tuesday morning? <mark>If not I can take it</mark>.</p>
+        </div>
+        <div class="case-note">
+          <p class="chip chip-maybe"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 14.5V2.5M3.5 3h8.2l-1.8 3 1.8 3H3.5"/></svg>Caught in review</p>
+          <p>A real model mistake in the saved run: Gemma filed Marta's offer under Maria. It arrives flagged (only one reader found it, and a similar name is on the roster), and one click rejects it.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================================================== 02 how -->
+<section class="entry" id="how" aria-labelledby="how-title">
+  <p class="margin num" aria-hidden="true">02</p>
+  <div class="body">
+    <p class="label"><span class="num-inline" aria-hidden="true">02</span>How it works</p>
+    <h2 id="how-title">The model reads. The code keeps the books. You decide.</h2>
+    <p class="prose narrow">The model's job is kept deliberately small: it copies words. Dates, times, history and counts are ordinary Python, and they come out the same every time.</p>
+
+    <ol class="hands">
+      <li class="hand">
+        <p class="hand-k"><span>A</span>Gemma 4 E2B copies</p>
+        <p>Running in Ollama on your laptop, the model copies phrases out of each message (who, which day, what time, any condition) into JSON that has to match a schema. It never works out a date.</p>
+        <div class="exhibit">
+          <p class="ex-msg"><b>Priya Nair</b> <span>m03</span><br>“Monday after 3 works, and Wednesday afternoon.”</p>
+<pre class="code"><code>{ "person": "SENDER",
+  "day_text": "Monday",
+  "time_text": "after 3",
+  "status": "available",
+  "condition": "",
+  "replaces_earlier": false,
+  "excerpt": "Monday after 3 works" }</code></pre>
+          <p class="ex-cap">The first of two objects in the saved Gemma 4 output for m03 (prompt v3); the second copies “Wednesday” and “afternoon”. 3.7&nbsp;s, 110 output tokens.</p>
+        </div>
+      </li>
+      <li class="hand">
+        <p class="hand-k"><span>B</span>Python decides</p>
+        <p>Code turns the phrases into dates and times, checks each suggestion's words against the message, keeps every person's history day by day and keeps conditional offers conditional. It does every count.</p>
+        <div class="exhibit">
+          <table class="map">
+            <caption class="sr">How the phrases resolve</caption>
+            <tbody>
+              <tr><th scope="row">Monday</th><td>Mon 9 Nov</td></tr>
+              <tr><th scope="row">after 3</th><td>15:00–20:00</td></tr>
+              <tr><th scope="row">Wednesday</th><td>Wed 11 Nov</td></tr>
+              <tr><th scope="row">afternoon</th><td>13:00–17:00</td></tr>
+            </tbody>
+          </table>
+          <ul class="checks">
+            <li class="ck-ok">Both quotes found word for word in the message</li>
+            <li class="ck-flag">Wednesday flagged: “Model and rules read this differently”</li>
+          </ul>
+          <p class="ex-cap">The planning day runs 09:00–20:00, so “after 3” ends at 20:00</p>
+        </div>
+      </li>
+      <li class="hand">
+        <p class="hand-k"><span>C</span>You approve</p>
+        <p>Each suggestion sits beside its message with the quote highlighted. Accept, reject or edit it, then mark the message reviewed. Only accepted records reach the final sheet.</p>
+        <div class="exhibit">
+          <div class="mini-actions" aria-hidden="true"><span class="a-ok">Accept</span><span class="a-no">Reject</span><span>Edit</span><span class="a-mark">Mark message reviewed</span></div>
+<table class="map">
+            <caption class="sr">Rows in the final sheet</caption>
+            <tbody>
+              <tr><th scope="row">Priya · Mon 9</th><td>15:00–20:00</td></tr>
+              <tr><th scope="row">Priya · Wed 11</th><td>13:00–17:00</td></tr>
+            </tbody>
+          </table>
+          <p class="ex-cap">After accepting both and marking m03 reviewed, the final-sheet export is complete: two confirmed rows, traced to m03.1 and m03.2.</p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="readers">
+      <p class="readers-k">Three readers</p>
+      <ul>
+        <li><b>Model + rules cross-check</b> <span>default: both read every message and disagreements are flagged</span></li>
+        <li><b>Model only</b> <span>Gemma's suggestions on their own</span></li>
+        <li><b>Rules only</b> <span>a keyword baseline that needs no model at all</span></li>
+      </ul>
+      <p class="why">Why both? On the fictional set A week, Gemma alone left <strong>7 of 12</strong> cancellations on the final sheet. With the rules cross-check: <strong>0 of 12</strong>.<a class="fn" href="#fine-1" aria-label="Note 1">¹</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================== 03 review -->
+<section class="entry" id="review" aria-labelledby="review-title">
+  <p class="margin num" aria-hidden="true">03</p>
+  <div class="body">
+    <p class="label"><span class="num-inline" aria-hidden="true">03</span>Review</p>
+    <h2 id="review-title">Nothing is final until you accept it.</h2>
+    <div class="review-grid">
+      <div>
+        <p class="prose">Warnings are written in plain English, and anything unclear waits under <em>Needs a decision</em> instead of being guessed. Review with the mouse or the keyboard. Marking a message reviewed is always your own action, never inferred.</p>
+        <ul class="keys" aria-label="Keyboard shortcuts">
+          <li><kbd>J</kbd><kbd>K</kbd><span>next / previous</span></li>
+          <li><kbd>A</kbd><span>accept</span></li>
+          <li><kbd>R</kbd><span>reject</span></li>
+          <li><kbd>E</kbd><span>edit</span></li>
+          <li><kbd>M</kbd><span>mark reviewed</span></li>
+          <li><kbd>Esc</kbd><span>leave a field</span></li>
+        </ul>
+        <dl class="features">
+          <div><dt>People available</dt><dd>A half-hourly chart. Pending suggestions are drawn lighter above accepted ones, and conditional offers are never counted as available.</dd></div>
+          <div><dt>Availability sheet</dt><dd>Marked <em>Provisional</em> until every message is reviewed, nothing is pending and no blocking issue is open.</dd></div>
+          <div><dt>Changes over time</dt><dd>Every correction and cancellation, linked to the message that caused it.</dd></div>
+          <div><dt>Two exports</dt><dd>The final sheet (accepted records only, labelled complete or provisional) and a review log for the audit trail. Cells a spreadsheet would run as formulas are neutralised in both.</dd></div>
+        </dl>
+      </div>
+      <div class="review-side">
+        <div class="panel-replica">
+          <p class="pr-title"><span class="dot" aria-hidden="true"></span>Needs a decision <span class="pr-count">4 of the demo week's 10</span></p>
+          <ul>
+            <li><b>m29</b> <strong>Earlier answer replaced — check:</strong> Kofi Mensah Thu 12 Nov: m29 contains a change word, so it replaced the earlier answer (13:00-17:00 conditional); check that the message really changes it</li>
+            <li><b>m41</b> Which day? 'next tuesday' sent on Mon 09 Nov could be 10 Nov or 17 Nov; read as 'next tuesday' from the quote</li>
+            <li><b>m48</b> Maria Lopez 2026-11-10 09:00-12:00 is still conditional: If not I can take it</li>
+            <li><b>m26</b> Kofi Mensah: 2026-11-07 is outside the selected week</li>
+          </ul>
+        </div>
+        <div class="export">
+          <p class="ex-file"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5h5.5L13 5v9.5H4z"/><path d="M9.5 1.5V5H13"/></svg>availability-final-2026-11-09-complete.csv</p>
+<pre class="code csv"><code><span class="c-com"># availability-final v1; week=2026-11-09; status=complete; unreviewed=; pending=0; blocking_issues=0</span>
+volunteer,date,start,end,status,condition,cell_state,sources
+Maria Lopez,2026-11-10,09:00,12:00,available,,confirmed,m28.1
+Maria Lopez,2026-11-13,14:00,17:00,available,,confirmed,m28.2
+Kofi Mensah,2026-11-12,13:00,17:00,available,,confirmed,m29.1</code></pre>
+          <p class="ex-cap">The four messages at the top of this page, every suggestion accepted and each message marked reviewed. Maria's cancelled Thursday has no row.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================== 04 evidence -->
+<section class="entry" id="evidence" aria-labelledby="evidence-title">
+  <p class="margin num" aria-hidden="true">04</p>
+  <div class="body">
+    <p class="label"><span class="num-inline" aria-hidden="true">04</span>Evidence</p>
+    <h2 id="evidence-title">We kept score, including the misses.</h2>
+    <p class="prose narrow">Every number here comes from fictional messages, scored the first time and then frozen. They are published as they came out.</p>
+
+    <div class="tiles">
+      <div class="tile">
+        <p class="tile-v">3</p>
+        <p class="tile-k">silent errors on set B with Gemma 4 + rules. Rules alone: 18.</p>
+        <p class="tile-s">Silent means wrong, with no warning shown.</p>
+      </div>
+      <div class="tile">
+        <p class="tile-v">0.527</p>
+        <p class="tile-k">final-sheet slot agreement on independent set C, scored once.</p>
+        <p class="tile-s">Gemma 4 + rules. 2 of 8 cancellations stayed on the sheet.</p>
+      </div>
+      <div class="tile tile-open">
+        <p class="tile-v">Not measured</p>
+        <p class="tile-k">human time saved.</p>
+        <p class="tile-s">The timing study has not been run, so no time saving is claimed.</p>
+      </div>
+    </div>
+
+    <div class="scores">
+      <table class="score score-dots">
+        <caption>Silent errors <span>wrong with no warning shown · one dot each · fewer is better</span></caption>
+        <thead><tr><th scope="col">Reader</th><th scope="col">Set A</th><th scope="col">Set B</th><th scope="col">Set C</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Rules only</th><td><span class="n">10</span><span class="tally" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td><span class="n">18</span><span class="tally" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td><span class="n">5</span><span class="tally" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></td></tr>
+          <tr><th scope="row">Gemma 4 only</th><td><span class="n">9</span><span class="tally" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td><span class="n">5</span><span class="tally" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></td><td><span class="n">2</span><span class="tally" aria-hidden="true"><i></i><i></i></span></td></tr>
+          <tr class="em"><th scope="row">Gemma 4 + rules</th><td><span class="n">3</span><span class="tally" aria-hidden="true"><i></i><i></i><i></i></span></td><td><span class="n">3</span><span class="tally" aria-hidden="true"><i></i><i></i><i></i></span></td><td><span class="n">2</span><span class="tally" aria-hidden="true"><i></i><i></i></span></td></tr>
+        </tbody>
+      </table>
+      <div class="scores-2">
+        <table class="score">
+          <caption>Units right <span>held-out messages</span></caption>
+          <thead><tr><th scope="col">Reader</th><th scope="col">Set A</th><th scope="col">Set B</th><th scope="col">Set C</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Rules only</th><td>20/30</td><td>17/35</td><td>15/20</td></tr>
+            <tr><th scope="row">Gemma 4 only</th><td>20/30</td><td>28/35</td><td>17/20</td></tr>
+            <tr class="em"><th scope="row">Gemma 4 + rules</th><td>26/30</td><td>30/35</td><td>17/20</td></tr>
+          </tbody>
+        </table>
+        <table class="score">
+          <caption>Cancellations left on the final sheet <span>whole week, before review</span></caption>
+          <thead><tr><th scope="col">Reader</th><th scope="col">Set A</th><th scope="col">Set B</th><th scope="col">Set C</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Rules only</th><td>0/12</td><td>3/5</td><td>4/8</td></tr>
+            <tr><th scope="row">Gemma 4 only</th><td>7/12</td><td>1/5</td><td>4/8</td></tr>
+            <tr class="em"><th scope="row">Gemma 4 + rules</th><td>0/12</td><td>0/5<a class="fn" href="#fine-2" aria-label="Note 2">²</a></td><td>2/8</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="method">
+      <p><b>Sets A and B.</b> Set A is a 50-message week whose 20 held-out messages hold 30 units; set B is 20 messages and 35 units, written and frozen before anything was scored on it. A unit is one person and one day as a message states it. The same author wrote these messages, the rules and the reference answers, and nobody independent checked them.</p>
+      <p><b>Set C.</b> 24 messages written by an isolated ChatGPT session, 5 of them rewritten by the owner, frozen by SHA-256 before any implementing agent saw them and scored once on 21&nbsp;Oct&nbsp;2026. Most of its misses came from the reconciliation rules (explicit dates, replacement cues, settling conditions), not from the model.</p>
+      <p><b>Afterwards.</b> Fixes made after reading those misses are labelled post-hoc and reported beside these numbers, never instead of them. GitHub Actions re-scores sets A, B and C from the saved model outputs on every push.</p>
+      <p><a class="more" href="https://github.com/bipul724/availability-ledger/blob/main/evaluation/RESULTS.md">Full results and caveats <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg></a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================== 05 privacy -->
+<section class="entry" id="privacy" aria-labelledby="privacy-title">
+  <p class="margin num" aria-hidden="true">05</p>
+  <div class="body">
+    <p class="label"><span class="num-inline" aria-hidden="true">05</span>Privacy</p>
+    <h2 id="privacy-title">Nothing leaves your laptop.</h2>
+    <p class="prose narrow">In the core workflow your messages, roster and review decisions live in the browser tab and pass through a small Python server on 127.0.0.1. The model runs in Ollama on the same machine. There is no account, no cloud database and no telemetry by default.</p>
+
+    <figure class="flow">
+      <div class="laptop">
+        <p class="laptop-k">Your laptop</p>
+        <div class="nodes">
+          <div class="node"><b>Browser tab</b><span>messages, roster and decisions, kept in memory</span></div>
+          <svg class="arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M4 5h31M30 1.5 35 5M36 11H5M10 14.5 5 11"/></svg>
+          <div class="node"><b>Python server</b><span>127.0.0.1:8765, standard library only</span></div>
+          <svg class="arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M4 5h31M30 1.5 35 5M36 11H5M10 14.5 5 11"/></svg>
+          <div class="node"><b>Ollama + Gemma 4 E2B</b><span>127.0.0.1:11434, gemma4:e2b-it-qat</span></div>
+        </div>
+      </div>
+      <div class="outside">
+        <div class="node node-opt"><b>Sentry, only if you opt in</b><span>timings, token counts and the model name. Never message text, names, quotes, prompts or replies.</span></div>
+      </div>
+      <figcaption class="sr">Everything runs inside your laptop: the browser tab talks to a Python server on 127.0.0.1, which talks to Ollama on 127.0.0.1. Only opt-in tracing sends anything out, and it carries no content.</figcaption>
+    </figure>
+
+    <div class="stack-grid">
+      <div>
+        <p class="sub">Built with</p>
+        <table class="stack">
+          <tbody>
+            <tr><th scope="row">Gemma 4 E2B <span>via Ollama</span></th><td>In the two model readers, reads each message on your laptop and copies the phrases. A 4.3&nbsp;GB download that used about 1.6&nbsp;GB of memory once loaded on an 8&nbsp;GB Apple M2.</td><td><span class="state">in the app</span></td></tr>
+            <tr><th scope="row">Render</th><td>Hosts the read-only replay: the fictional week with saved Gemma 4 outputs. It never calls a model and refuses pasted messages.</td><td><span class="state">deployed</span></td></tr>
+            <tr><th scope="row">GitHub Actions</th><td>On every push and pull request: the unit tests, a SHA-256 check that the frozen results are untouched, and a re-score of sets A, B and C from saved outputs.</td><td><span class="state">running</span></td></tr>
+            <tr><th scope="row">Sentry Agent Tracing</th><td>Content-free spans, checked against two allowlists before anything is sent. In one traced run, four model calls hit the 300-second timeout; a later run of 49 calls took 1.42 minutes with no errors.</td><td><span class="state">opt-in</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="speed">
+        <p class="sub">On an 8 GB laptop</p>
+        <p class="speed-v">131 s</p>
+        <p class="speed-k">to read a 50-message week with Gemma 4 + rules, end to end in the app.</p>
+        <p class="speed-s">Median 2.3–3.4&nbsp;s per message, 26–33 tokens/s. Apple M2, 8&nbsp;GB, other apps open; recorded 20&nbsp;Oct&nbsp;2026.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================== 06 run -->
+<section class="entry" id="run" aria-labelledby="run-title">
+  <p class="margin num" aria-hidden="true">06</p>
+  <div class="body">
+    <p class="label"><span class="num-inline" aria-hidden="true">06</span>Run it</p>
+    <h2 id="run-title">Try the replay, or run it on your own messages.</h2>
+    <div class="run-grid">
+      <div class="run-card">
+        <p class="run-k">In your browser</p>
+        <p>The hosted replay serves the fictional demo week with saved Gemma&nbsp;4 outputs. Review, history, the chart and both exports work as they do locally; pasting your own messages is switched off.</p>
+        <div class="browser" aria-hidden="true">
+          <div class="b-bar"><span></span><span></span><span></span><p>availability-ledger-replay.onrender.com/app</p></div>
+          <p class="b-banner">Replay: fictional messages and saved Gemma 4 outputs. To use your own messages, run it locally — nothing leaves your machine.</p>
+          <div class="b-app">
+            <p class="b-title">Availazy</p>
+            <p class="b-sub">A local open model proposes. Ordinary code checks dates, history and counts. You decide.</p>
+            <p class="b-status">Fictional demo week loaded (50 messages). Pick a reader and press Suggest records.</p>
+          </div>
+        </div>
+        <a class="btn btn-ink" href="/app" data-replay-link><span>Open the replay</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg></a>
+        <p class="fine">Free hosting: after 15 minutes without visitors it sleeps, and the next visit takes about a minute to wake it.</p>
+      </div>
+      <div class="run-card run-local">
+        <p class="run-k">On your laptop</p>
+        <div class="term">
+          <div class="term-bar"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><button type="button" class="copy" data-copy="term-code">Copy</button></div>
+<pre id="term-code"><code>git clone https://github.com/bipul724/availability-ledger
+cd availability-ledger
+python3 server.py</code></pre>
+        </div>
+        <ol class="steps-list">
+          <li>Open <code>http://127.0.0.1:8765/app</code> and click <em>Load fictional demo</em>.</li>
+          <li>Choose <em>Reader → Rules only</em> and press <em>Suggest records</em>. No model needed.</li>
+          <li>For the model readers, install and start <a href="https://ollama.com">Ollama</a>, then run <code>ollama pull gemma4:e2b-it-qat</code> (about 4.3&nbsp;GB).</li>
+        </ol>
+        <p class="fine">Python 3.10+ on macOS or Linux and a modern browser. Standard library only: nothing to <code>pip install</code>.</p>
+      </div>
+    </div>
+    <p class="closing">Slow and steady: the model reads, the code reconciles, and <span class="hl">you decide.</span></p>
+  </div>
+</section>
+
+<!-- ======================================================== fine print -->
+<section class="entry fineprint" aria-labelledby="fine-title">
+  <p class="margin num" aria-hidden="true">§</p>
+  <div class="body">
+    <h2 id="fine-title" class="label">Before you rely on it</h2>
+    <ol class="notes">
+      <li id="fine-1">Frozen first scoring. Cancellation figures count withdrawals still showing on the sheet built from every suggestion in the week, before any human review; for set A that is all 50 messages, development messages included.</li>
+      <li id="fine-2">Partly luck: “Scratch Wednesday” was missed silently, and the sheet came out right only because an earlier flagged problem had already kept that Wednesday off it.</li>
+      <li>It records availability (when people say they can or can't help), not shift assignments.</li>
+      <li>Review work lives only in the browser tab, and reloading replaces it. Saving and reopening a session isn't built yet.</li>
+      <li>The timezone field is stored but not used, and point times such as “at 9” are not read.</li>
+      <li>A real quote with invented day or time words is flagged, not held back: it counts on the provisional sheet until you accept or reject it.</li>
+      <li>All accuracy figures come from fictional messages. No real-coordinator pilot has run, and human time saved has not been measured.</li>
+      <li>Every name, message and organisation on this page is fictional. Riverside Community Pantry does not exist.</li>
+    </ol>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="foot-brand">
+      <a class="brand" href="/"><svg class="glyph" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path class="g-margin" d="M9.5 6v20M11.5 6v20"/><path class="g-rule" d="M15 11h10M15 16h10M15 21h6"/></svg><span>Availazy</span></a>
+      <p>Built for DEV's Hacktoberfest Open-Source AI Challenge, Week&nbsp;3: <em>Slow and Steady</em>.</p>
+    </div>
+    <nav class="foot-links" aria-label="Project links">
+      <a href="/docs">User guide</a>
+      <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/evaluation/RESULTS.md">Results</a>
+      <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/ARCHITECTURE.md">Architecture</a>
+      <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/DECISIONS.md">Decisions</a>
+      <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger">Source on GitHub</a>
+      <a target="_blank" rel="noopener" href="/app" data-cta><span>Open the replay</span></a>
+    </nav>
+    <p class="legal">Code under the <a href="https://github.com/bipul724/availability-ledger/blob/main/LICENSE">MIT License</a>. The gemma4:e2b-it-qat model is Apache 2.0 according to its Ollama listing; that licence does not cover this application's code.</p>
+  </div>
+</footer>
+</body>
+</html>

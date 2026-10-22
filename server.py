@@ -1,6 +1,6 @@
 """Local review app. Standard library only; binds to 127.0.0.1.
 
-    python3 server.py            # then open http://127.0.0.1:8765
+    python3 server.py            # then open http://127.0.0.1:8765/app (the landing page is at /)
     LEDGER_DEMO=1 PORT=10000 python3 server.py   # hosted read-only replay (DEP-02): binds 0.0.0.0:$PORT
 
 Demo mode replays fictional set A with saved Gemma outputs: it never calls Ollama and refuses any message, roster,
@@ -28,6 +28,7 @@ ROOT = Path(__file__).resolve().parent
 UI = ROOT / "ui"
 MAX_VOLUNTEERS = 20
 TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8"}
+PAGES = {"/": "home.html", "": "home.html", "/app": "index.html", "/docs": "docs.html"}  # landing page, review app, guide (UI-09/10, D-34)
 DEMO = os.environ.get("LEDGER_DEMO") == "1"
 DEMO_MODEL = "gemma4:e2b-it-qat"
 DEMO_RUNS = ROOT / "evaluation" / "runs" / "gemma4_e2b_it_qat_prompt3"  # saved set A outputs, prompt v3
@@ -203,11 +204,12 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(demo())
         if self.path == "/api/status":
             return self._json(status())
-        name = "index.html" if self.path in ("/", "") else self.path.lstrip("/").split("?")[0]
+        path = self.path.split("?")[0]  # a query string (?ref=...) still finds the page
+        name = PAGES.get(path) or path.lstrip("/")
         f = (UI / name).resolve()
         if UI in f.parents and f.is_file() and f.suffix in TYPES:
             return self._send(200, f.read_bytes(), TYPES[f.suffix])
-        self._send(404, b"not found", "text/plain")
+        self._send(404, (UI / "404.html").read_bytes(), TYPES[".html"])  # styled page, links home (UI-10)
 
     def do_POST(self):
         try:
@@ -234,11 +236,11 @@ if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
     if DEMO:  # hosted replay: the host chooses the port and the server must listen on every interface
         port = int(os.environ.get("PORT") or port)
-        print(f"Availability Ledger replay (fictional set A, saved Gemma outputs) on 0.0.0.0:{port}", flush=True)
+        print(f"Availazy replay (fictional set A, saved Gemma outputs) on 0.0.0.0:{port}", flush=True)
         ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()
     if tracing.init():  # the replay above is never traced: it makes no model calls
         print("Sentry tracing on: timings, token counts and model name only; no message text, names or replies")
-    print(f"Availability Ledger on http://127.0.0.1:{port}  (Ctrl+C to stop)")
+    print(f"Availazy on http://127.0.0.1:{port}/app  (Ctrl+C to stop)")
     try:
         ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
     finally:

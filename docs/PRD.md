@@ -1,4 +1,4 @@
-# Product requirements: Availability Ledger
+# Product requirements: Availazy (formerly Availability Ledger)
 
 Status of this document: describes the current prototype, planned core work and optional conditional integrations as of 2026-10-20. Future directions are not implemented features. Status words follow [PROGRESS.md](../PROGRESS.md#status-vocabulary). Start with [context.md](../context.md) and [CLAUDE.md](../CLAUDE.md); technology contracts are in [INTEGRATIONS.md](INTEGRATIONS.md) and verified competition research is in [COMPETITION.md](COMPETITION.md).
 

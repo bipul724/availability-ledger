@@ -28,7 +28,7 @@ Related: [ARCHITECTURE.md](ARCHITECTURE.md) for data structures and flow; [INTEG
 - **Authentication: none.** Anyone who can open a connection to that port on the same machine can call every route.
 - Request bodies are JSON (the `Content-Type` header is not checked; `Content-Length` is used to read the body). An empty body is treated as `{}`.
 - Responses: JSON (`application/json`, UTF-8, non-ASCII kept), or the static files. Every response carries `Cache-Control: no-store`. (In [demo mode](#demo-mode-hosted-replay) the host is `0.0.0.0` and the port is `$PORT`.)
-- **Errors.** Any exception raised while handling a POST returns **400** with `{"error": "<ExceptionType>: <message>"}`. This includes malformed JSON, missing fields, a `week_start` that is not a Monday, and Ollama being unreachable. There is no 500 response. Unknown POST path: **404** `{"error": "unknown endpoint"}`. Unknown GET path: **404** `text/plain` body `not found`.
+- **Errors.** Any exception raised while handling a POST returns **400** with `{"error": "<ExceptionType>: <message>"}`. This includes malformed JSON, missing fields, a `week_start` that is not a Monday, and Ollama being unreachable. There is no 500 response. Unknown POST path: **404** `{"error": "unknown endpoint"}`. Unknown GET path: **404** with the HTML page `ui/404.html` (UI-10).
 - No request logging, rate limiting, CORS headers or streaming.
 - **Demo mode** (`LEDGER_DEMO=1`, DEP-02): the hosted read-only replay. See [Demo mode](#demo-mode-hosted-replay); refused requests return **403** `{"error": "<reason>"}`.
 
@@ -37,7 +37,7 @@ Related: [ARCHITECTURE.md](ARCHITECTURE.md) for data structures and flow; [INTEG
 Off unless the environment variable `LEDGER_DEMO` is exactly `1`. Then:
 
 - **Binding:** `0.0.0.0:$PORT` (falls back to the command-line port, then 8765). Without demo mode `PORT` is ignored and the host stays `127.0.0.1`.
-- **What it serves:** only fictional set A (`GET /api/demo`, unchanged). The page hides the paste box, roster box, file upload, demo button and day-first option, disables week and timezone, loads set A on arrival and shows the replay banner.
+- **What it serves:** only fictional set A (`GET /api/demo`, unchanged). The landing page at `/` is the same as locally. The review app at `/app` hides the paste box, roster box, file upload, demo button and day-first option, disables week and timezone, loads set A on arrival and shows the replay banner.
 - **`GET /api/status`** returns `{"models": ["gemma4:e2b-it-qat"], "default_model": "gemma4:e2b-it-qat", "demo": true}` without contacting Ollama. This is also Render's health check.
 - **`POST /api/parse`** returns 403 unless `text` and `roster` equal the served set A text and roster exactly and `day_first` is not set.
 - **`POST /api/suggest`** returns 403 unless:
@@ -58,12 +58,14 @@ Observed error responses (fictional calls):
 | `POST /api/parse` with body `not json` | 400 | `{"error": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}` |
 | `POST /api/resolve` with `"week_start": "2026-11-10"` | 400 | `{"error": "ValueError: week_start must be a Monday"}` |
 | `POST /api/nope` | 404 | `{"error": "unknown endpoint"}` |
-| `GET /nope` | 404 | `not found` |
+| `GET /nope` | 404 | `ui/404.html` (HTML page linking home, the app and the guide; plain `not found` before UI-10) |
 
 ## GET / and static files
 
-- `GET /` → `ui/index.html`.
-- `GET /<name>` → a file inside `ui/` if it exists and ends in `.html`, `.js` or `.css`. Paths that resolve outside `ui/` return 404. A query string on `/` (for example `/?x=1`) returns 404.
+- `GET /` → `ui/home.html`, the landing page (UI-09, D-34), locally and in demo mode. Its only request is `GET /api/status`, used to label its buttons ("Open the replay" in demo mode, "Open the app" locally); it loads nothing from another site.
+- `GET /docs` → `ui/docs.html`, the user guide with diagrams (UI-10).
+- `GET /app` → `ui/index.html`, the review app (served at `/` before UI-09). `GET /index.html` still serves it; `/app/` (trailing slash) returns 404.
+- `GET /<name>` → a file inside `ui/` if it exists and ends in `.html`, `.js` or `.css`. Paths that resolve outside `ui/` return 404. A query string is ignored when finding the page: `/?ref=x` serves the landing page (before UI-09 it returned 404).
 - Side effects: none.
 
 ## GET /api/status

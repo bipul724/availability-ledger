@@ -166,7 +166,7 @@ class Binding(unittest.TestCase):
         port, other = free_port(), free_port()
         proc = self.start({"PORT": str(other), "PYTHONDONTWRITEBYTECODE": "1"}, str(port))
         self.assertIn(f"http://127.0.0.1:{port}", proc.stdout.readline())
-        self.assertIn(b"Availability Ledger", get(port))
+        self.assertIn(b"Availazy", get(port))
         with self.assertRaises(OSError):
             urllib.request.urlopen(f"http://127.0.0.1:{other}/", timeout=1)
 

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not found · Availazy</title>
+<meta name="theme-color" content="#f4f2e8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23174b3a'/%3E%3Cpath d='M9.5 6v20M11.5 6v20' stroke='%238aa47f' stroke-width='1.2'/%3E%3Cpath d='M15 11h10M15 16h10M15 21h6' stroke='%23f4f2e8' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/home.css">
+<style>
+  .lost { max-width: 1240px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 60px minmax(0, 1fr); min-height: calc(100vh - 64px); }
+  .lost .body { grid-column: 2; border-left: 3px double var(--margin-line); padding: 14vh 0 64px 40px; }
+  .lost .entry-line { display: inline-flex; gap: 14px; align-items: baseline; padding: 10px 16px; border: 1px dashed var(--rule-2); border-radius: 8px; background: var(--card); font: 500 13px/1.4 var(--mono); color: var(--muted); }
+  .lost .entry-line s { color: var(--red); text-decoration-thickness: 2px; }
+  .lost h1 { margin-top: 26px; }
+  .lost .lede { max-width: 34em; }
+  @media (max-width: 720px) { .lost { display: block; padding: 0 16px 0 14px; } .lost .body { padding: 56px 0 48px 18px; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="/" aria-label="Availazy, home">
+      <svg class="glyph" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path class="g-margin" d="M9.5 6v20M11.5 6v20"/><path class="g-rule" d="M15 11h10M15 16h10M15 21h6"/></svg>
+      <span>Availazy</span>
+    </a>
+  </div>
+</header>
+<main class="lost">
+  <div class="body">
+    <p class="entry-line"><span>404</span><s>this page</s><span>not on the books</span></p>
+    <h1>This page isn't <span class="hl">in the ledger.</span></h1>
+    <p class="lede">The address may be mistyped, or the page has moved. The review app now lives at /app.</p>
+    <div class="cta-row">
+      <a class="btn btn-ink" href="/app"><span>Open the app</span></a>
+      <a class="btn btn-line" href="/">Home</a>
+      <a class="btn btn-line" href="/docs">Guide</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

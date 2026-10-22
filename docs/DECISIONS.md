@@ -46,6 +46,11 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 | D-29 | Set C may be written by a fresh, isolated AI session if the owner cannot write it | accepted (project lead, 2026-10-21) |
 | D-30 | COR-10: flag unsupported phrases, do not hold them; keep COR-07a | accepted (project lead, 2026-10-21) |
 | D-31 | Fix the reconciliation defects set C exposed, labelled post-hoc; set C's first score stays the headline | accepted (project lead, 2026-10-21) |
+| D-32 | Accept D-31 as delivered; make cue-only replacements visible (COR-18); accept the B rules regression | accepted (project lead, 2026-10-21) |
+| D-33 | Owner override of D-23: add Copilot (Actions), Render, Sentry and ElevenLabs | accepted (owner request; plan by the project lead, 2026-10-21) |
+| D-34 | Landing page at `/`, review app at `/app` (UI-09) | accepted (owner request; routing by the project lead, 2026-10-22) |
+| D-35 | Forest & Parchment colour palette (UI-13) | accepted (owner approved, 2026-10-22) |
+| D-36 | Light appearance only (UI-14) | accepted (owner request, 2026-10-22) |
 
 ---
 
@@ -337,3 +342,29 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
   - **Sat 24 evening:** post.
   - Any category that misses its gate is dropped from the post, not rushed. Core quality and the write-up come first.
 - **Owner-only steps:** create accounts (Render, Sentry, ElevenLabs), redeem offers, enter keys in dashboards or a local `.env`, deploy, and confirm free-tier terms (no card, no paid fallback). Keys are never committed or pasted into chat.
+
+### D-34 Landing page at `/`, review app at `/app` (UI-09)
+
+- **Date:** 2026-10-22. **Status:** accepted (owner request "make a landing page for this website", with correct data only; routing by the project lead).
+- **Context:** judges reach the project through the Render URL, which opened straight into the review tool with no explanation of the problem, the model/code split or the evidence. INTEGRATIONS §6 and INT-02 require the hosted demo to stay a useful interactive replay, never a landing page instead of one.
+- **Decision:** `GET /` serves a landing page (`ui/home.html`, `home.css`, `home.js`) locally and in demo mode; the review app moves to `GET /app` (`/index.html` still works), and its title links back to `/`. The landing page's main button opens `/app`. A query string no longer turns `/` into a 404, so shared links such as `/?ref=...` work.
+- **Constraints kept:** D-11: no CDN, web fonts or libraries; system typefaces and inline SVG, and a unit test checks that the page loads nothing from another site. PRIV-01: the page sends nothing; its only request is `GET /api/status`, to label its buttons. Honesty: every figure comes from RESULTS.md, the README or a replay of set A through `server.py`'s demo path with the saved Gemma outputs (no model calls); frozen first scores are the headline, set C's 0.527 is shown, time saved is shown as not measured, and ElevenLabs (planned) is not listed.
+- **Alternatives:** the landing page at `/about` with the app staying at `/` (rejected: visitors would still land in the tool without context); a separate static site (rejected: a second host to keep in step, and the replay would still need its own URL).
+- **Tradeoffs:** a local coordinator who opens the root address sees the landing page first (the startup line now prints the `/app` address); the browser checks open `/app`; the demo recording and the post must link the replay as `/app`.
+- **Revisit if:** the owner wants the tool, not the landing page, at the root for local use; serving the landing page at `/` only in demo mode would be a two-line change.
+
+### D-35 Forest & Parchment colour palette (UI-13)
+
+- **Date:** 2026-10-22. **Status:** accepted (owner approved the "Forest & Parchment" proposal and asked for a colour-only migration).
+- **Decision:** one palette across the landing page, review app, guide and 404. Light: page `#F4F2E8`, panels `#FCFCF6`, message bubbles `#FFFFFF`, ink `#1B2B23` / `#3E5146` / muted `#5E6F63`, rules `#D7DECD` / `#B9C9B2`, brand/action green `#174B3A` with `#FFFFFF` text, soft wash `#E8EEDB`, quote and hero highlight `#DBE7C9`, decorative margin `#8AA47F`. Status: available `#1F704B` / `#1A6040` / `#E1EFE4`; conditional `#A85F0A` / `#80500C` / `#F8EBCF`, hatch `#D4AD6D`; cancelled/rejected/error `#AF3542` / `#F8E2E4`; chart `#23784F` (available) and `#B46A12` (conditional). Dark mode stayed OS-driven (superseded the same day by [D-36](#d-36-light-appearance-only-ui-14): light only), in a forest-green family (page `#0F1A15`, panels `#15221C`, ivory text `#EEF0E2`, green accent `#8FC9A3`); the dark chart pair `#2F9A63` / `#C98420` is unchanged.
+- **Constraints kept:** a separate brand/action token (`--brand` on the landing pages, `--accent` in the app) so body ink is never the button colour; red only for cancellation, rejection and errors; meaning still carried by labels, icons, dashed outlines, hatching and strikethroughs, not colour alone; D-11 (no fonts, CDN or libraries).
+- **Accessibility notes:** `--muted` measures 4.497:1 on the wash and 4.50:1 on the green wash, so text on those surfaces uses the secondary ink; form controls use a border mixed from the palette (about 3.6:1 light, 4.2:1 dark) because `#B9C9B2` is 1.7:1 on the panel. The new light chart pair is at least 4.07:1 on the panel; its simulated protan/deutan separation is close to the previous pair's (checked with a Machado simulation, not the earlier validator).
+- **Alternatives:** the separate "Charcoal & Citron" proposal (not chosen); a theme switcher (not requested).
+- **Revisit if:** the owner changes the palette, or a UI-02 accessibility audit finds a state that needs a stronger colour.
+
+### D-36 Light appearance only (UI-14)
+
+- **Date:** 2026-10-22. **Status:** accepted (owner request: make the approved light Forest & Parchment appearance the default on all four pages, regardless of the OS or browser dark-mode preference; no theme switcher).
+- **Decision:** the landing page, review app, guide and 404 always use the light palette of [D-35](#d-35-forest--parchment-colour-palette-ui-13). The `@media (prefers-color-scheme: dark)` overrides are removed from `ui/home.css` and `ui/style.css` (setting `color-scheme: light` alone would not have disabled them); `color-scheme: light` stays so native controls, pickers and scrollbars are light; each page has one `theme-color` tag, `#f4f2e8`.
+- **Tradeoffs:** visitors who prefer dark mode get the light pages. The dark values D-35 lists were removed from the stylesheets rather than left as unused code; they are in git history (the UI-13 state) if a dark theme is wanted again.
+- **Revisit if:** the owner wants dark mode back, automatic or as a switcher.

@@ -1,4 +1,8 @@
-# Availability Ledger
+# Availazy
+
+**Local AI for Coordinators Who Have Better Things to Do.** Let AI read. You decide.
+
+Availazy was called Availability Ledger until 2026-10-22 (BRAND-01). The repository and Render service keep their existing `availability-ledger` identifiers; the Sentry organization remains `availability-ledger` and its project remains `python`. Older records in this repository use the old product name.
 
 A local review tool for volunteer coordinators who collect availability through ordinary messages. You paste a week of dated chat messages and your volunteer roster; the tool suggests availability records, shows each one beside the message it came from, and keeps a per-person, per-day history of offers, corrections, cancellations and conditions. You review the suggestions, explicitly mark each message reviewed, and export a reconciled final sheet built from accepted records. A separate review log preserves the record trail.
 
@@ -34,6 +38,7 @@ Implemented (which items are verified, and how, is in [PROGRESS.md](PROGRESS.md#
 - **Possible missed change (COR-07a):** when a later message from the same person contains a general-English change word (cancel, can't, drop, skip, scratch, …) and names a day on which they still have open time, but no suggestion from that message touches that day, **Needs a decision** shows "Possible change not applied (mXX mentions <day>)". It is a warning only: it never edits the sheet or the export.
 - Explicit message review marks; **Accept all and mark reviewed** appears only when every undecided suggestion in the message is unflagged and fully resolved.
 - A confirmed **final-sheet CSV** (complete or clearly provisional, COR-01) and a **review-log CSV**; in both, cells that a spreadsheet would run as a formula (starting with `=`, `+`, `-`, `@`) are written with a leading apostrophe (COR-02).
+- **Landing page (UI-09):** `/` introduces the project, with a step-through of four demo-week messages becoming the sheet as the replay reads them; the review app is at `/app`. System fonts and inline SVG only: it loads nothing from another site.
 
 ## Limitations
 
@@ -58,8 +63,10 @@ Full list: [docs/ARCHITECTURE.md §14](docs/ARCHITECTURE.md#14-known-technical-l
 
 ```bash
 cd availability-ledger
-python3 server.py                 # open http://127.0.0.1:8765 (or: python3 server.py 8780)
+python3 server.py                 # open http://127.0.0.1:8765/app (or: python3 server.py 8780)
 ```
+
+The root address, http://127.0.0.1:8765, is the landing page; its button opens the app.
 
 1. Click **Load fictional demo**.
 2. Choose **Reader → Rules only** (works without Ollama) and click **Suggest records**.
@@ -110,7 +117,7 @@ The status line then shows review time and counts of accepts, edits, rejects, ad
 
 ## Hosted replay (Render)
 
-**Live:** https://availability-ledger-replay.onrender.com (free instance: after 15 minutes without visitors it sleeps, and the first visit takes about a minute to wake it).
+**Live:** https://availability-ledger-replay.onrender.com (free instance: after 15 minutes without visitors it sleeps, and the first visit takes about a minute to wake it). Since UI-09 the root is the landing page and the replay itself is at `/app`; the live site shows this after its next deploy.
 
 `LEDGER_DEMO=1 python3 server.py` starts a **read-only replay** (DEP-02, D-33). It listens on `0.0.0.0:$PORT` and serves only fictional set A. Suggestions come from the saved Gemma 4 outputs in `evaluation/runs/gemma4_e2b_it_qat_prompt3/`, by message ID, and Ollama is never called. The paste box and file upload are hidden, and the server refuses (403) any message, roster, week or model it did not serve. Review, accept and reject, history, warnings, the chart and both CSV exports work as locally. A banner on every page says it is a replay and links here. Without `LEDGER_DEMO` nothing changes.
 
@@ -201,6 +208,7 @@ node tests/browser/extraction_failures.mjs  # per-message failure warnings; read
 node tests/browser/csv_safety.mjs           # formula-like cells are neutralised in both exports
 node tests/browser/sheet_display.mjs        # pending vs accepted display, chart layers, no overflow at 1400 px and 390 px
 node tests/browser/review_safeguards.mjs    # wording check (COR-10) and possible-missed-change warning (COR-07a)
+node tests/browser/landing.mjs              # landing page: demo steps, links, layout, nothing loaded from another site
 ```
 
 Model and hybrid evaluation use per-message caches in `evaluation/runs/`, but a missing cache entry triggers a fresh model call even without `--refresh`; check cache coverage first ([CLAUDE.md](CLAUDE.md)).
@@ -226,7 +234,7 @@ Model and hybrid evaluation use per-message caches in `evaluation/runs/`, but a 
 ## Layout
 
 ```
-server.py, ui/       local review page (no external libraries)
+server.py, ui/       local review page at /app and landing page at / (no external libraries)
 ledger/messages.py   parse dated text and WhatsApp exports; mark duplicates
 ledger/names.py      roster matching; similar names are flagged, never guessed
 ledger/resolve.py    day and time phrases -> dates and times (no model)

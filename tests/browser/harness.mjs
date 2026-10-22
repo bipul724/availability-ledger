@@ -11,7 +11,7 @@ export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..")
 const CHROME = process.env.CHROME || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export async function openApp(port, dbg, env = {}) {  // env: extra server environment, e.g. { LEDGER_DEMO: "1" }
+export async function openApp(port, dbg, env = {}, page = "/app") {  // env: extra server environment, e.g. { LEDGER_DEMO: "1" }; page "/" is the landing page
   const server = spawn("python3", ["server.py", String(port)], { cwd: ROOT, stdio: "ignore",
     env: { ...process.env, ...env, ...(env.LEDGER_DEMO ? { PORT: String(port) } : {}) } });
   const chrome = spawn(CHROME, ["--headless=new", `--remote-debugging-port=${dbg}`,
@@ -45,7 +45,7 @@ export async function openApp(port, dbg, env = {}) {  // env: extra server envir
   const check = (ok, label) => { console.log((ok ? "PASS " : "FAIL ") + label); if (!ok) failures++; };
 
   await send("Runtime.enable");
-  await send("Page.navigate", { url: `http://127.0.0.1:${port}/` });
+  await send("Page.navigate", { url: `http://127.0.0.1:${port}${page}` });
   await sleep(1500);
   // Downloads are captured instead of saved. window.__stub(path, fn) may answer an API call itself:
   // fn(body) returns {status, json} to replace the response, or undefined to let the real server answer.

@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guide · Availazy</title>
+<meta name="description" content="How Availazy works and how to use it: architecture, message formats, what it reads, reviewing, exports and privacy.">
+<meta name="theme-color" content="#f4f2e8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23174b3a'/%3E%3Cpath d='M9.5 6v20M11.5 6v20' stroke='%238aa47f' stroke-width='1.2'/%3E%3Cpath d='M15 11h10M15 16h10M15 21h6' stroke='%23f4f2e8' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="home.css">
+<link rel="stylesheet" href="docs.css">
+<script src="home.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="/" aria-label="Availazy, home">
+      <svg class="glyph" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path class="g-margin" d="M9.5 6v20M11.5 6v20"/><path class="g-rule" d="M15 11h10M15 16h10M15 21h6"/></svg>
+      <span>Availazy</span>
+    </a>
+    <nav class="nav" aria-label="Site">
+      <a href="/">Home</a>
+      <a href="/docs" aria-current="page">Guide</a>
+      <a href="https://github.com/bipul724/availability-ledger" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <a class="btn btn-ink btn-sm" href="/app" data-cta><span>Open the replay</span></a>
+  </div>
+</header>
+
+<main id="main" class="doc-wrap">
+  <nav class="toc" aria-label="On this page">
+    <p class="toc-k">Guide</p>
+    <ol>
+      <li><a href="#overview">How it fits together</a></li>
+      <li><a href="#start">Getting started</a></li>
+      <li><a href="#input">Your messages</a></li>
+      <li><a href="#reading">What it understands</a></li>
+      <li><a href="#review">Reviewing</a></li>
+      <li><a href="#export">Exports</a></li>
+      <li><a href="#limits">Privacy and limits</a></li>
+      <li><a href="#dev">For developers</a></li>
+    </ol>
+  </nav>
+
+  <div class="doc">
+    <header class="doc-head">
+      <p class="kicker"><span class="nw">User guide</span> <span class="sep">·</span> <span class="nw">fictional examples</span></p>
+      <h1>How Availazy works, <span class="hl">in pictures.</span></h1>
+      <p class="lede">Everything a coordinator needs: what happens to a message, what the tool can read, how review works and what the two exports contain. Every example comes from the fictional demo week.</p>
+    </header>
+
+    <!-- ======================================================== overview -->
+    <section id="overview" aria-labelledby="t-overview">
+      <p class="label"><span class="num-inline">01</span>Overview</p>
+      <h2 id="t-overview">How it fits together</h2>
+      <p class="prose">Three programs on one computer. The browser holds your review; a small Python server does the reading and the bookkeeping; Ollama runs the model. They talk only over 127.0.0.1.</p>
+
+      <figure class="arch">
+        <div class="arch-col">
+          <p class="arch-k">Browser</p>
+          <div class="box box-strong"><b>Review app</b><span>ui/index.html, app.js, style.css</span><span>holds messages, roster and decisions in memory</span></div>
+        </div>
+        <div class="arch-link" aria-hidden="true">
+          <span>/api/parse<br>/api/suggest<br>/api/resolve<br>/api/export</span>
+          <svg viewBox="0 0 48 16"><path d="M4 5h39M38 1.5 43 5M44 11H5M10 14.5 5 11"/></svg>
+        </div>
+        <div class="arch-col arch-server">
+          <p class="arch-k">Python server · 127.0.0.1:8765</p>
+          <div class="box box-strong"><b>server.py</b><span>standard library only</span></div>
+          <div class="mods">
+            <div class="mod"><b>messages.py</b><span>dated lines, WhatsApp exports, repeats</span></div>
+            <div class="mod"><b>names.py</b><span>roster matching, never guessed</span></div>
+            <div class="mod mod-model"><b>model.py</b><span>asks Gemma to copy phrases</span></div>
+            <div class="mod"><b>rules.py</b><span>keyword reader, no model</span></div>
+            <div class="mod"><b>hybrid.py</b><span>cross-checks the two readers</span></div>
+            <div class="mod"><b>resolve.py</b><span>phrases → dates and times</span></div>
+            <div class="mod"><b>core.py</b><span>evidence check, history, sheet, counts</span></div>
+            <div class="mod"><b>export.py</b><span>final sheet CSV</span></div>
+          </div>
+        </div>
+        <div class="arch-link" aria-hidden="true">
+          <span>/api/chat<br>/api/tags</span>
+          <svg viewBox="0 0 48 16"><path d="M4 5h39M38 1.5 43 5M44 11H5M10 14.5 5 11"/></svg>
+        </div>
+        <div class="arch-col">
+          <p class="arch-k">Ollama · 127.0.0.1:11434</p>
+          <div class="box box-model"><b>Gemma 4 E2B</b><span>gemma4:e2b-it-qat</span><span>used by the two model readers only</span></div>
+          <div class="box box-opt"><b>Sentry</b><span>only if you opt in: timings and token counts, never content</span></div>
+        </div>
+        <figcaption class="sr">Browser review app talks to the Python server on 127.0.0.1:8765 through four POST routes. The server's ledger modules parse, match names, read, cross-check, resolve, keep the ledger and export. Only model.py talks to Ollama on 127.0.0.1:11434, which runs Gemma 4 E2B. Sentry is optional.</figcaption>
+      </figure>
+
+      <p class="sub">One run, step by step</p>
+      <ol class="pipe">
+        <li><span class="pipe-n">1</span><b>Paste</b><span>a week of messages and your roster</span></li>
+        <li><span class="pipe-n">2</span><b>Parse</b><span>dated lines, repeats folded together</span></li>
+        <li><span class="pipe-n">3</span><b>Read</b><span>Gemma copies phrases; rules cross-check</span></li>
+        <li><span class="pipe-n">4</span><b>Resolve</b><span>people, days and times, by code</span></li>
+        <li><span class="pipe-n">5</span><b>Ledger</b><span>history per person per day</span></li>
+        <li class="pipe-you"><span class="pipe-n">6</span><b>You review</b><span>accept, reject, edit, mark reviewed</span></li>
+        <li><span class="pipe-n">7</span><b>Export</b><span>final sheet and review log</span></li>
+      </ol>
+    </section>
+
+    <!-- ======================================================== start -->
+    <section id="start" aria-labelledby="t-start">
+      <p class="label"><span class="num-inline">02</span>Getting started</p>
+      <h2 id="t-start">Getting started</h2>
+      <div class="two">
+        <div class="term">
+          <div class="term-bar"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><button type="button" class="copy" data-copy="g-cmd">Copy</button></div>
+<pre id="g-cmd"><code>git clone https://github.com/bipul724/availability-ledger
+cd availability-ledger
+python3 server.py</code></pre>
+        </div>
+        <ol class="steps-big">
+          <li>Open <code>http://127.0.0.1:8765/app</code>.</li>
+          <li>Click <em>Load fictional demo</em>, or paste your own messages and roster.</li>
+          <li>Pick the week's Monday and a reader, then press <em>Suggest records</em>.</li>
+        </ol>
+      </div>
+      <p class="sub">Choose a reader</p>
+      <div class="readers3">
+        <div class="rcard rcard-main"><p class="rcard-k">Model + rules</p><p>Both read every message. Where they disagree, the card says so. The default.</p><p class="rcard-need">Needs Ollama</p></div>
+        <div class="rcard"><p class="rcard-k">Model only</p><p>Gemma's suggestions on their own, no cross-check.</p><p class="rcard-need">Needs Ollama</p></div>
+        <div class="rcard"><p class="rcard-k">Rules only</p><p>A keyword baseline. Weaker, but works anywhere Python runs.</p><p class="rcard-need rcard-free">No model needed</p></div>
+      </div>
+      <p class="fine">For the model readers: install and start <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a>, then <code>ollama pull gemma4:e2b-it-qat</code> (about 4.3&nbsp;GB). Needs Python 3.10+ on macOS or Linux; nothing to <code>pip install</code>.</p>
+    </section>
+
+    <!-- ======================================================== input -->
+    <section id="input" aria-labelledby="t-input">
+      <p class="label"><span class="num-inline">03</span>Your messages</p>
+      <h2 id="t-input">Your messages</h2>
+      <p class="prose">Paste text or upload a <code>.txt</code>. Any of these three line formats works, mixed if needed.</p>
+      <div class="formats">
+        <div class="fmt"><p class="fmt-k">Plain</p><code>2026-11-02 09:41 | Maria Lopez | I can do Tuesday and Thursday mornings.</code></div>
+        <div class="fmt"><p class="fmt-k">WhatsApp, Android</p><code>02/11/2026, 09:41 - Maria Lopez: I can do Tuesday and Thursday mornings.</code></div>
+        <div class="fmt"><p class="fmt-k">WhatsApp, iPhone</p><code>[02/11/2026, 09:41:03] Maria Lopez: I can do Tuesday and Thursday mornings.</code></div>
+      </div>
+      <ul class="ticks">
+        <li>WhatsApp dates are read month-first unless you tick <em>WhatsApp dates are day-first</em>.</li>
+        <li>The roster is one name per line, up to 20 volunteers. Similar names are flagged, and a short name that fits several people is left for you.</li>
+        <li>The same sender sending the same words within 24 hours counts once, shown as “Same as m11”.</li>
+        <li>Times are read as written; the timezone field is stored but not used.</li>
+      </ul>
+    </section>
+
+    <!-- ======================================================== reading -->
+    <section id="reading" aria-labelledby="t-reading">
+      <p class="label"><span class="num-inline">04</span>What it understands</p>
+      <h2 id="t-reading">What it understands</h2>
+      <p class="prose">Code, not the model, turns words into times. The planning day runs from 09:00 to 20:00, and a bare “2-5” means the afternoon.</p>
+
+      <figure class="ruler" aria-label="How time phrases become hours on the 09:00 to 20:00 planning day">
+        <div class="ruler-scale" aria-hidden="true"><span></span><span class="rs"><i style="--k:0">09</i><i style="--k:1">10</i><i style="--k:2">11</i><i style="--k:3">12</i><i style="--k:4">13</i><i style="--k:5">14</i><i style="--k:6">15</i><i style="--k:7">16</i><i style="--k:8">17</i><i style="--k:9">18</i><i style="--k:10">19</i><i style="--k:11">20</i></span><span></span></div>
+        <div class="rrow"><span class="rk">“mornings”</span><span class="rtrack"><i style="--s:0;--e:3"></i></span><span class="rv">09:00–12:00</span></div>
+        <div class="rrow"><span class="rk">“afternoon”</span><span class="rtrack"><i style="--s:4;--e:8"></i></span><span class="rv">13:00–17:00</span></div>
+        <div class="rrow"><span class="rk">“evening”, “tonight”</span><span class="rtrack"><i style="--s:8;--e:11"></i></span><span class="rv">17:00–20:00</span></div>
+        <div class="rrow"><span class="rk">“10:30 to 1”</span><span class="rtrack"><i style="--s:1.5;--e:4"></i></span><span class="rv">10:30–13:00</span></div>
+        <div class="rrow"><span class="rk">“after 3”</span><span class="rtrack"><i class="open" style="--s:6;--e:11"></i></span><span class="rv">15:00–20:00</span></div>
+        <div class="rrow"><span class="rk">“4 onwards”</span><span class="rtrack"><i class="open" style="--s:7;--e:11"></i></span><span class="rv">16:00–20:00</span></div>
+        <div class="rrow"><span class="rk">“until 2”</span><span class="rtrack"><i class="open-l" style="--s:0;--e:5"></i></span><span class="rv">09:00–14:00</span></div>
+        <div class="rrow"><span class="rk">“all day”</span><span class="rtrack"><i style="--s:0;--e:11"></i></span><span class="rv">09:00–20:00</span></div>
+        <div class="rrow rrow-no"><span class="rk">“at 9”</span><span class="rtrack"><b>not read: a single time is not a range</b></span><span class="rv">asks you</span></div>
+      </figure>
+
+      <p class="sub">Days depend on when the message was sent</p>
+      <div class="days-tbl" role="table" aria-label="How day phrases resolve, for the week of Monday 9 November 2026">
+        <div class="dt-row dt-head" role="row"><span role="columnheader">Phrase</span><span role="columnheader">Sent</span><span role="columnheader">Read as</span></div>
+        <div class="dt-row" role="row"><span role="cell">“Tuesday”</span><span role="cell">Mon 2 Nov</span><span role="cell"><b class="res ok">Tue 10 Nov</b> the planning week</span></div>
+        <div class="dt-row" role="row"><span role="cell">“Next Tuesday”</span><span role="cell">Tue 3 Nov</span><span role="cell"><b class="res ok">Tue 10 Nov</b> both readings agree</span></div>
+        <div class="dt-row" role="row"><span role="cell">“Next Tuesday”</span><span role="cell">Mon 9 Nov</span><span role="cell"><b class="res ask">10 or 17 Nov?</b> you pick</span></div>
+        <div class="dt-row" role="row"><span role="cell">“11/12”</span><span role="cell">Tue 3 Nov</span><span role="cell"><b class="res ok">Thu 12 Nov</b></span></div>
+        <div class="dt-row" role="row"><span role="cell">“Tomorrow morning”</span><span role="cell">Tue 10 Nov</span><span role="cell"><b class="res ok">Wed 11 Nov</b> 09:00–12:00</span></div>
+        <div class="dt-row" role="row"><span role="cell">“this Saturday”</span><span role="cell">Wed 4 Nov</span><span role="cell"><b class="res off">Sat 7 Nov</b> outside the week, not applied</span></div>
+        <div class="dt-row" role="row"><span role="cell">“one day this weekend”</span><span role="cell">Tue 10 Nov</span><span role="cell"><b class="res ask">14 or 15 Nov?</b> you pick</span></div>
+      </div>
+      <p class="fine">Week planned: Monday 9 to Sunday 15 November 2026 (the demo week). Each row is a unit test in <code>tests/test_ledger.py</code>.</p>
+    </section>
+
+    <!-- ======================================================== review -->
+    <section id="review" aria-labelledby="t-review">
+      <p class="label"><span class="num-inline">05</span>Reviewing</p>
+      <h2 id="t-review">Reviewing</h2>
+      <p class="prose">Every suggestion is a card beside its message, with the quote highlighted. Nothing reaches the final sheet until you accept it.</p>
+
+      <figure class="states" aria-label="What happens to a suggestion">
+        <div class="st st-pending">Suggested<small>pending</small></div>
+        <div class="st-arrows">
+          <div class="st-arrow"><span>Accept <kbd>A</kbd> or edit a field</span></div>
+          <div class="st-arrow"><span>Reject <kbd>R</kbd></span></div>
+        </div>
+        <div class="st-ends">
+          <div class="st st-ok">Accepted<small>reaches the final sheet</small></div>
+          <div class="st st-no">Rejected<small>never exported</small></div>
+        </div>
+        <div class="st st-drop">Not applied<small>words not in the message</small></div>
+        <div class="st-arrows st-arrows-1"><div class="st-arrow"><span>Use it anyway</span></div></div>
+        <div class="st-ends st-ends-1"><div class="st st-ok">Accepted</div></div>
+        <figcaption>Reset sends any card back to pending. Separately, each message is marked reviewed only when you press <kbd>M</kbd> or its button.</figcaption>
+      </figure>
+
+      <div class="two two-top">
+        <div>
+          <p class="sub">Keyboard</p>
+          <ul class="keys">
+            <li><kbd>J</kbd><kbd>K</kbd><span>next / previous</span></li>
+            <li><kbd>A</kbd><span>accept</span></li>
+            <li><kbd>R</kbd><span>reject</span></li>
+            <li><kbd>E</kbd><span>edit</span></li>
+            <li><kbd>M</kbd><span>mark reviewed</span></li>
+            <li><kbd>Esc</kbd><span>leave a field</span></li>
+          </ul>
+          <p class="sub sub-gap">Shortcuts</p>
+          <ul class="ticks">
+            <li><em>Accept all suggestions without warnings</em> accepts every pending card that has only grey badges.</li>
+            <li><em>Accept all and mark reviewed</em> appears on a message only when all its cards are clean and fully resolved.</li>
+          </ul>
+        </div>
+        <div>
+          <p class="sub">Badges on a card</p>
+          <p class="bk">Yellow: check this first</p>
+          <div class="badges-demo">
+            <span class="bd">Which volunteer? The name matches more than one</span>
+            <span class="bd">Which day? The message does not settle it</span>
+            <span class="bd">Outside the selected week</span>
+            <span class="bd">Could not read a time, so not applied</span>
+            <span class="bd">Some words are not in this message</span>
+            <span class="bd">Model and rules read this differently</span>
+            <span class="bd">Added by the rules: possible cancellation the model missed</span>
+          </div>
+          <p class="bk">Grey: for information</p>
+          <div class="badges-demo">
+            <span class="bd bd-info">A similar name is on the roster</span>
+            <span class="bd bd-info">No time given</span>
+            <span class="bd bd-info">Conditional</span>
+            <span class="bd bd-info">Replaces this person's earlier answer for the day</span>
+            <span class="bd bd-info">Edited by you</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== export -->
+    <section id="export" aria-labelledby="t-export">
+      <p class="label"><span class="num-inline">06</span>Exports</p>
+      <h2 id="t-export">Exports</h2>
+      <p class="prose">The final sheet says plainly whether you can rely on it.</p>
+
+      <figure class="gates" aria-label="When the final sheet is complete">
+        <div class="gate">Every message marked reviewed?</div>
+        <span class="g-yes">yes</span>
+        <div class="gate">Nothing pending?</div>
+        <span class="g-yes">yes</span>
+        <div class="gate">No blocking issue?<small>unclear person, day or time; conflict in one message</small></div>
+        <span class="g-yes">yes</span>
+        <div class="gate gate-ok">complete</div>
+        <div class="gate-no"><span>any “no”</span> → <b>provisional</b>, and the affected person-days are marked <code>needs_review</code></div>
+      </figure>
+
+      <div class="two two-top">
+        <div class="xcard">
+          <p class="xcard-k">Final sheet</p>
+          <p class="xfile">availability-final-2026-11-09-complete.csv</p>
+          <p>Accepted records only, with corrections and cancellations already applied. Use this one to plan shifts.</p>
+          <p class="xcols">volunteer · date · start · end · status · condition · cell_state · sources</p>
+        </div>
+        <div class="xcard">
+          <p class="xcard-k">Review log</p>
+          <p class="xfile">availability-log-2026-11-09.csv</p>
+          <p>Every reviewed record in message order, with its quote and warnings: the audit trail. An offer and its later cancellation are both rows, so it is not the sheet.</p>
+          <p class="xcols">record_id · review · volunteer · date · start · end · status · … · warnings</p>
+        </div>
+      </div>
+      <p class="fine">In both files, a cell that a spreadsheet would run as a formula (starting with =, +, - or @) gets a leading apostrophe.</p>
+    </section>
+
+    <!-- ======================================================== limits -->
+    <section id="limits" aria-labelledby="t-limits">
+      <p class="label"><span class="num-inline">07</span>Privacy and limits</p>
+      <h2 id="t-limits">Privacy and limits</h2>
+      <div class="two two-top">
+        <ul class="ticks">
+          <li>Messages, roster and decisions stay in the browser tab and the local server. No account, no cloud database, no telemetry by default.</li>
+          <li>Opt-in tracing sends timings, token counts and the model name only, never text, names, quotes, prompts or replies.</li>
+          <li>The hosted replay serves only the fictional week with saved model outputs and refuses pasted messages.</li>
+        </ul>
+        <ul class="ticks ticks-warn">
+          <li>Reloading the tab loses the review; saving a session isn't built yet.</li>
+          <li>It records availability, not shift assignments.</li>
+          <li>A real quote with invented day or time words is flagged, not held back.</li>
+          <li>All accuracy figures come from fictional messages; time saved has not been measured.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================================================== dev -->
+    <section id="dev" aria-labelledby="t-dev">
+      <p class="label"><span class="num-inline">08</span>For developers</p>
+      <h2 id="t-dev">For developers</h2>
+      <div class="devlinks">
+        <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/ARCHITECTURE.md"><b>Architecture</b><span>data, flow, boundaries</span></a>
+        <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/API.md"><b>API</b><span>routes, formats, flags</span></a>
+        <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/specs/final-export.md"><b>Final-sheet spec</b><span>the CSV contract</span></a>
+        <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/evaluation/RESULTS.md"><b>Results</b><span>scores and caveats</span></a>
+        <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/DECISIONS.md"><b>Decisions</b><span>why it is built this way</span></a>
+        <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/TESTING.md"><b>Testing</b><span>unit and browser checks</span></a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="foot-brand">
+      <a class="brand" href="/"><svg class="glyph" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path class="g-margin" d="M9.5 6v20M11.5 6v20"/><path class="g-rule" d="M15 11h10M15 16h10M15 21h6"/></svg><span>Availazy</span></a>
+      <p>Every name and message in this guide is fictional.</p>
+    </div>
+    <nav class="foot-links" aria-label="Project links">
+      <a href="/">Home</a>
+      <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger">Source on GitHub</a>
+      <a target="_blank" rel="noopener" href="/app" data-cta><span>Open the replay</span></a>
+    </nav>
+    <p class="legal">Code under the <a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/LICENSE">MIT License</a>.</p>
+  </div>
+</footer>
+</body>
+</html>

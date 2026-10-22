@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Availability Ledger turns dated volunteer chat messages into reviewed **availability** records (not shift assignments) for a volunteer coordinator. A local open model only copies phrases; ordinary Python decides dates, times, evidence, history and counts. After the handoff and this guide, read [README.md](README.md) for setup and user flow.
+Availazy (formerly Availability Ledger; the repository keeps `availability-ledger`) turns dated volunteer chat messages into reviewed **availability** records (not shift assignments) for a volunteer coordinator. A local open model only copies phrases; ordinary Python decides dates, times, evidence, history and counts. After the handoff and this guide, read [README.md](README.md) for setup and user flow.
 
 ## Source of truth
 
@@ -35,7 +35,7 @@ This direction authorizes documentation and planning, not installation, account 
 python3 -m unittest discover -s tests           # 91 checks (2026-10-21), offline, < 1 s
 node tests/browser/session_rerun.mjs            # optional browser check (Node 22+, local Chrome)
 python3 -m evaluation.score_final FILE.csv --set A   # final-sheet scorer (timing study)
-python3 server.py [port]                         # http://127.0.0.1:8765
+python3 server.py [port]                         # http://127.0.0.1:8765/app (landing page at /, UI-09)
 python3 -m evaluation.compare [frozen]           # results tables
 # CI-style re-score, never calls the model (fails on a missing saved output), results to a temp folder:
 python3 -m evaluation.run --set A --extractor hybrid --model gemma4:e2b-it-qat --cache-only --out /tmp/rescore

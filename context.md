@@ -1,6 +1,14 @@
 # Availability Ledger: project context (main handoff)
 
+**Owner-selected public identity (2026-10-22):** **Availazy — Local AI for Coordinators Who Have Better Things to Do**. **Applied locally 2026-10-22 (BRAND-01, uncommitted, not deployed):** the landing page, app, guide, 404 page, startup lines, README and demo script say Availazy; the landing hero and README carry the exact headline. Repository, Render, Sentry and code identifiers keep `availability-ledger`, and historical records keep the old name. Brief: [docs/prompts/availazy-branding.md](docs/prompts/availazy-branding.md).
+
 **Current Sentry handoff (2026-10-22; owner evidence through 00:37 IST):** read [docs/SENTRY_HANDOFF.md](docs/SENTRY_HANDOFF.md) for the complete setup, run chronology, SDK review correction, timeout/log findings, privacy verification, billing evidence, cleanup and open checks. Real delivery and a useful finding are verified: four 300 s timeouts in c26d2afd, followed by successful trace 969d7ee9 (1.42 min, 49 calls, 0 errors). A separate one-message trace bc88af7a shows filtered geo values on inspected chat/parent attributes and no content in the chat Input/Output tabs; this is not a complete payload audit. Public Developer Free / 1 user / 5M spans is verified; actual account remains Business Trial with no payment method, and post-trial Agents entitlement is unknown. Cleanup is owner-confirmed, not process-inspected. **INT-03 remains in progress** with scoped open checks; no further inference or billing clicks needed for completed findings. PROGRESS preserves the dated chronology. The morning handoff below is historical and must not override this current summary.
+
+**Landing page (UI-09, 2026-10-22, uncommitted until the owner commits):** `/` now serves a landing page (`ui/home.html`, `home.css`, `home.js`) and the review app, including the hosted replay, moved to `/app` ([D-34](docs/DECISIONS.md#d-34-landing-page-at--review-app-at-app-ui-09)). The live Render site changes only after the owner pushes and Render redeploys. Link the replay as `/app` in the demo recording and the post. Every figure on the page is traced in [PROGRESS](PROGRESS.md#ui-09-landing-page-at--review-app-at-app-2026-10-22).
+
+**Colour theme (UI-13, 2026-10-22, uncommitted, not deployed):** the owner-approved Forest & Parchment palette ([D-35](docs/DECISIONS.md#d-35-forest--parchment-colour-palette-ui-13)) is applied to the landing page, app, guide and 404 (CSS custom properties in `home.css`, `style.css`, `docs.css`; favicons and theme-colour metadata). Colour only: copy, layout, behaviour and contracts are unchanged. Forest green is the action/brand colour; red is reserved for cancellations, rejects and errors. **Light only (UI-14, [D-36](docs/DECISIONS.md#d-36-light-appearance-only-ui-14)):** the dark-preference overrides were removed, so every page shows the light palette whatever the OS or browser prefers; there is no theme switcher.
+
+**Navbar divider (UI-15, 2026-10-22, uncommitted):** the shared landing/guide/404 navbar has a persistent 1px sage (`--rule-2`) bottom border before and after scrolling. Chrome desktop/mobile visual checks passed; see PROGRESS.
 
 **Read this first, then [CLAUDE.md](CLAUDE.md).** Written 2026-10-21, about 11:10–11:30 IST (Asia/Kolkata), by the Claude **project-lead (planning) session** before a context compaction. The previous version is preserved in [docs/archive/context-2026-10-20.md](docs/archive/context-2026-10-20.md): it is outdated in places but holds extra detail.
 
@@ -16,7 +24,7 @@ If source code or a fresh check contradicts this file, trust the source and fix 
 
 ## A. Project identity and purpose
 
-- **Name:** Availability Ledger. Repository: public [github.com/bipul724/availability-ledger](https://github.com/bipul724/availability-ledger) (GitHub API, 2026-10-20: public, default branch `main`) [H]. Licence: MIT ([LICENSE](LICENSE), owner decision 2026-10-21) [V].
+- **Name:** Availazy (formerly Availability Ledger; BRAND-01). Repository: public [github.com/bipul724/availability-ledger](https://github.com/bipul724/availability-ledger) (GitHub API, 2026-10-20: public, default branch `main`) [H]. Licence: MIT ([LICENSE](LICENSE), owner decision 2026-10-21) [V].
 - **Purpose [R]:** a local, single-user review tool for a volunteer coordinator. The coordinator pastes a week of dated chat messages and a roster (≤ 20 volunteers). The tool suggests **availability** records, each beside its source quote. It keeps per-person, per-day history (offers, corrections, cancellations, conditions) and exports a reconciled **final sheet built from accepted records only**. It records availability, **not shift assignments**.
 - **Core design [R]:** a local open model (Gemma 4 E2B through Ollama) only **copies phrases**. Ordinary Python decides people, dates, times, evidence, history and counts. A person reviews, and explicitly marks each message reviewed.
 - **Why it exists [C]:** built for the DEV **Hacktoberfest Open-Source AI Challenge, Week 3, "Slow and Steady"**: open-source AI at the core, a project that "rewards laziness". The owner chose this problem after an idea search in this session. Owner-supplied problem evidence: two Reddit threads, [r/nonprofit](https://www.reddit.com/r/nonprofit/comments/1apjpbc/volunteer_scheduling_help/) and [r/volunteer](https://www.reddit.com/r/volunteer/comments/1b2wrkl/way_of_scheduling_volunteers_where_they_can_pick/). **Neither could be read by any tool in this session** (Reddit is blocked for WebFetch and the browser pane), so problem demand is **unverified**.
@@ -42,7 +50,7 @@ If source code or a fresh check contradicts this file, trust the source and fix 
 | Python on this Mac | `/opt/homebrew/bin/python3` = **3.15.0**; also `python3.12` (`/Library/Frameworks/Python.framework/Versions/3.12`) | [V] |
 | Stated minimum | Python 3.10+ (README); only 3.15 and 3.12 have been run | [R] |
 | Server | `http.server.ThreadingHTTPServer`, always `127.0.0.1`, port = first CLI arg (default 8765) | [V] `server.py` |
-| Front end | `ui/index.html`, `ui/app.js`, `ui/style.css`; vanilla, no CDN | [R] |
+| Front end | `ui/index.html`, `ui/app.js`, `ui/style.css` (review app at `/app`); landing page `ui/home.*` at `/` (UI-09, D-34); vanilla, no CDN | [R] |
 | Model runtime | Ollama **0.40.6** (Homebrew; installed 2026-10-20 with owner approval); URL fixed in `ledger/model.py` as `OLLAMA = "http://127.0.0.1:11434"` | [V] |
 | Default model | `DEFAULT_MODEL = "gemma4:e2b-it-qat"` (Apache 2.0; 4.3 GB download; about 1.56–1.59 GB reported by Ollama when loaded); `PROMPT_VERSION = 3` | [V] constants; [H] sizes |
 | Installed models (11:10 IST) | Only the `gemma4` manifest is in `~/.ollama/models`. `qwen3.5:4b-q4_K_M` (used for A/B comparisons) **is no longer installed**; its cached outputs remain in `evaluation/runs/` | [V] |
@@ -197,7 +205,7 @@ Optional: **EVAL-11** set D (about 45 min of owner time) to test the fixes indep
 
 There are no secrets in the repo. Environment variables: the replay's `LEDGER_DEMO` and `PORT` (DEP-02), and `SENTRY_DSN` for opt-in tracing (INT-03; the owner keeps it in their own shell). The only external runtime dependency is local Ollama; GitHub Actions runs on GitHub's free hosted runners. No deployment, nothing to migrate.
 
-Local run: `python3 server.py` → http://127.0.0.1:8765. Use "Rules only" without Ollama; the model readers need `ollama serve` and `gemma4:e2b-it-qat`.
+Local run: `python3 server.py` → http://127.0.0.1:8765/app (the root is the UI-09 landing page). Use "Rules only" without Ollama; the model readers need `ollama serve` and `gemma4:e2b-it-qat`.
 
 ## K. Rules for future sessions
 

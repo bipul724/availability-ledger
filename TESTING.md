@@ -64,7 +64,10 @@ PYTHONDONTWRITEBYTECODE=1 node tests/browser/session_rerun.mjs
 | `sheet_display.mjs` | Pending vs accepted display at 1400 px and 390 px (UI-05/UI-01/UI-07) | 28/28 |
 | `review_safeguards.mjs` | "Check the wording" flag, the missed-change warning and the cue-replacement warning in the UI | 12/12 (re-run 2026-10-21, DEP-02) |
 | `demo_mode.mjs` | Hosted replay with `LEDGER_DEMO=1`: banner, hidden inputs, pasted text refused, Model only and Model + rules from saved outputs, accept/reject, both exports, no page overflow at 1400 and 390 px. Optional `[screenshot-dir]` | 23/23 (2026-10-21) |
-| `harness.mjs` | Shared helper, not a test | — |
+| `landing.mjs` | Landing page (UI-09) served with `LEDGER_DEMO=1`: nothing loaded from another site, every in-page link resolves, the hero demo plays to the final sheet and each step shows the right sheet, no page overflow at 1400 and 390 px, the button opens the replay at `/app`; locally (simulated status) the buttons say "Open the app". Since UI-10 also: the guide at `/docs` fits at 1400/390 px and unknown paths show the 404 page. Optional `[screenshot-dir]` | 18/18 (2026-10-22) |
+| `harness.mjs` | Shared helper, not a test. Opens `/app` (the review app) unless a page is given | — |
+
+**UI-09 (2026-10-22, lead):** all seven scripts re-run after the app moved to `/app`: 28/28, 23/23, 12/12, 10/10, 14/14, 4/4 and `landing.mjs` 15/15. Unit tests: **115** run, OK (8 skipped without `sentry-sdk`, Python 3.15); `tests/test_pages.py` adds 4 (landing page at `/` also with a query string, app at `/app` and `/index.html`, other paths unchanged, no external loads in the landing page).
 
 The agent also ran two checks kept in its own scratchpad, not in the repo: final export 13/13 and keyboard 18/18. They are not reproducible from the repo.
 

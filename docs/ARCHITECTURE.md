@@ -6,7 +6,7 @@ Related: [API.md](API.md) (interfaces), [DECISIONS.md](DECISIONS.md) (why it is 
 
 ## 1. System overview
 
-Availability Ledger is a single-user, local web tool. A coordinator pastes dated chat messages and a volunteer roster, picks a week, and gets **suggested availability records**. Each suggestion is shown beside the message it came from, and the coordinator accepts, edits or rejects it. The tool builds a per-person, per-day history, a sheet of who is available when, a half-hourly count chart and two CSV exports: the accepted-only reconciled final sheet and the separate review log.
+Availazy (formerly Availability Ledger) is a single-user, local web tool. A coordinator pastes dated chat messages and a volunteer roster, picks a week, and gets **suggested availability records**. Each suggestion is shown beside the message it came from, and the coordinator accepts, edits or rejects it. The tool builds a per-person, per-day history, a sheet of who is available when, a half-hourly count chart and two CSV exports: the accepted-only reconciled final sheet and the separate review log.
 
 It records **availability** (when someone says they can or cannot help). It does not assign anyone to a shift. There is no shift, rota or assignment object anywhere in the code.
 
@@ -27,9 +27,10 @@ The central design rule: **a local open model only copies phrases out of each me
 
 ```
 server.py              HTTP server (stdlib http.server), binds 127.0.0.1, serves ui/ and /api/*
-ui/index.html          single page
+ui/index.html          the review app, served at /app (UI-09)
+ui/home.*              landing page at / (home.html, home.css, home.js): system fonts, inline SVG, no external requests
 ui/app.js              all browser state, rendering, review, keyboard shortcuts, CSV export
-ui/style.css           styles (light and dark via prefers-color-scheme)
+ui/style.css           styles (light Forest & Parchment palette only, D-35/D-36)
 ledger/messages.py     Message type; parse pasted text / WhatsApp exports; roster parsing; duplicate marking
 ledger/names.py        roster matching; similar names flagged, never merged
 ledger/resolve.py      Calendar; day phrases -> dates; time phrases -> times (no model)
@@ -52,7 +53,7 @@ python3 server.py [port]        # default port 8765; host is always 127.0.0.1
 ```
 
 1. `server.py` starts a `ThreadingHTTPServer` on `127.0.0.1:<port>`. The port is the first command-line argument; nothing is read from `.env` files. `SENTRY_DSN` turns on opt-in tracing when the optional `sentry-sdk` is installed (INT-03, §12). The other environment variables are for the hosted read-only replay (DEP-02): with `LEDGER_DEMO=1` it binds `0.0.0.0:$PORT`, serves fictional set A only and answers suggestions from saved Gemma outputs instead of Ollama ([API: demo mode](API.md#demo-mode-hosted-replay)).
-2. The browser loads `/` → `ui/index.html`, `app.js`, `style.css` (sent with `Cache-Control: no-store`).
+2. The browser loads `/app` → `ui/index.html`, `app.js`, `style.css` (sent with `Cache-Control: no-store`). `/` is the landing page (`ui/home.html`, UI-09, D-34), whose buttons open `/app`.
 3. `app.js` calls `GET /api/status`, which asks Ollama at the hard-coded `http://127.0.0.1:11434/api/tags` for installed models (2 s timeout). If Ollama is unreachable the page says only "Rules only" will work.
 4. The coordinator loads the fictional demo (`GET /api/demo`) or pastes text, then clicks **Suggest records**.
 

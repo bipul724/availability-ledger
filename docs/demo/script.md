@@ -4,7 +4,7 @@ Target length: about 2 min 30 s. Narration is about 330 words at a calm pace. Ev
 
 **Where to record.**
 - **Shot 1:** the local app with live Gemma through Ollama. It proves the model runs on the laptop.
-- **Shots 2–8:** the Render replay (DEP-02), which uses the saved Gemma outputs. They are deterministic, so the moments below appear exactly as described.
+- **Shots 2–8:** the Render replay (DEP-02), which uses the saved Gemma outputs. Since UI-09 the replay is at `/app`; the site root is a landing page (usable for shot 8). They are deterministic, so the moments below appear exactly as described.
 - If the replay isn't deployed by Fri 23 Oct, record shots 2–8 locally with **Model + rules**. Do one dry run first, because live model output can differ from the saved outputs: if a moment below doesn't appear, skip it and its narration line.
 
 **The moments below** were checked against the saved Gemma 4 E2B outputs with the Model + rules reader on 2026-10-21. There are 67 suggestions from the 50 messages (one exact repeat is collapsed), and 10 items under Needs a decision (confirmed on the live replay). In shot 5, rejecting m48's suggestion was checked to turn Maria's Tuesday 09:00–12:00 from conditional back to available. Re-check on the replay before recording.
@@ -21,7 +21,7 @@ Target length: about 2 min 30 s. Narration is about 330 words at a calm pace. Ev
 ### 1. The problem (0:00–0:20) — local app, live run
 **Screen:** the message panel filled with the Riverside week. Choose the week of 9 Nov, keep **Model + rules**, click **Suggest**. Show the Ollama model running (`ollama ps` in a terminal corner, or the status line). Speed the wait up and caption it "sped up".
 
-> Every week, a volunteer coordinator asks: "When can you help?" The answers arrive as fifty chat messages: offers, corrections, cancellations, maybes. Availability Ledger turns them into a sheet you can trust. It runs on your own laptop, with Gemma 4, an open model, through Ollama. Nothing leaves your machine.
+> Every week, a volunteer coordinator asks: "When can you help?" The answers arrive as fifty chat messages: offers, corrections, cancellations, maybes. Availazy turns them into a sheet you can check. It runs on your own laptop, with Gemma 4, an open model, through Ollama. Your messages never leave your machine.
 
 ### 2. Model proposes, code decides (0:20–0:40)
 **Screen:** the replay banner, then one message with its suggestion card and the highlighted quote, e.g. Priya's "Monday after 3 works, and Wednesday afternoon."
