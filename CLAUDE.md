@@ -32,7 +32,7 @@ This direction authorizes documentation and planning, not installation, account 
 ## Commands (re-verified 2026-10-21)
 
 ```bash
-python3 -m unittest discover -s tests           # 91 checks (2026-10-21), offline, < 1 s
+python3 -m unittest discover -s tests           # 116 checks (2026-10-22; 8 skip without sentry-sdk), offline, < 3 s
 node tests/browser/session_rerun.mjs            # optional browser check (Node 22+, local Chrome)
 python3 -m evaluation.score_final FILE.csv --set A   # final-sheet scorer (timing study)
 python3 server.py [port]                         # http://127.0.0.1:8765/app (landing page at /, UI-09)

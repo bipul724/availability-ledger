@@ -1155,3 +1155,136 @@ The owner decided to drop ElevenLabs, after the rival scan rated demo narration 
 - the demo script: narrate live with the Mac microphone while recording each shot, or add on-screen captions.
 
 No ElevenLabs account, offer or audio was used.
+
+### DOC-09: diagrams for the guide and the developer docs (2026-10-22)
+
+Documentation only: no change to `server.py`, `ui/app.js`, `ledger/`, fixtures, saved runs or results (`git diff` on those paths is empty).
+
+**Read first:** AGENTS, context, CLAUDE. Then `ui/docs.html`/`docs.css`, README, ARCHITECTURE, API, `specs/final-export.md`, TESTING and the SENTRY_HANDOFF opening. Then the source: `server.py`, `ui/app.js`, `ui/index.html`, `ledger/messages.py`, `names.py`, `resolve.py`, `core.py`, `hybrid.py`, `model.py`, `export.py`, and the test names in `tests/`.
+
+**Added or improved on `/docs`:**
+- **01:** architecture with the optional Sentry path drawn separately (it had sat in the Ollama column), and the run pipeline with its re-resolve loop.
+- **02:** page-start check and the three readers' actual code paths.
+- **03:** the parsing decision flow and roster limits.
+- **04:** copied words → person, day and time outcomes, plus the evidence check. The time ruler and day table were kept.
+- **05:** a card's states, where each state counts, message marks and the one combined action, and failures.
+- **06:** status gates (provisional still downloads) and how each file is made.
+- **07:** where data goes (local, hosted replay, optional tracing) and how long a review lasts.
+- **08:** a developer map from code to route, tests and docs.
+
+Each figure has a caption and a "Sources" toggle.
+
+**Mermaid diagrams:**
+- README: workflow.
+- ARCHITECTURE: §4 corrected (marks are not claims; status call added), §10 card states and message marks, §13 data boundaries.
+- API: request sequence and demo-mode checks.
+- final-export spec: status and cell states.
+- TESTING: check layers.
+
+**Map:** new `docs/DIAGRAMS.md`.
+
+**Inaccuracies corrected:**
+- **/docs review log:** it said "every reviewed record". It is accepted cards, plus pending ones only with the checkbox, and never rejected or not-applied cards.
+- **/docs Model + rules card:** it implied both readers' suggestions are shown. Gemma's are shown; the rules flag disagreements and add only missed cancellations.
+- **/docs Sentry box:** it sat inside the Ollama column; it is now a separate outbound path, and its privacy claim is bounded by the handoff evidence.
+- **/docs prerequisites:** "macOS or Linux, 3.10+" is now "3.10+ stated, tested on 3.12 and 3.15".
+- **ARCHITECTURE:**
+  - §5 and §14 said JSON failures show no warning; they do since COR-03.
+  - §14 said there was no formula protection; COR-02 added it to both CSV writers.
+  - §11 said unknown GET paths return plain-text 404; they return the 404 page, and demo refusals are 403.
+  - §15 said "hosted demo: none"; it is deployed.
+  - §16 still listed ElevenLabs; it was dropped (D-37).
+  - The sheet-overflow note is now marked historical.
+
+**Checks run:**
+- Unit tests: 116 run, OK, 8 skipped (Python 3.15, no sentry-sdk).
+- `tests/browser/landing.mjs`: 18/18 PASS.
+- In the browser pane on the owner's running local server, `/docs` at 1400, 390 and 320 px:
+  - no horizontal page scroll after two fixes (a class clash with `home.css` `.flow`, renamed `.dflow`; the review matrix at 320 px now stacks);
+  - no clipped diagram text;
+  - phone branches redrawn as a left rail so options don't read as a chain.
+- Contrast of the new text/background pairs is at least 4.76:1.
+- The first "Sources" toggle opens with Enter and shows a focus outline.
+- All 18 figures have a caption or label.
+- Relative links and anchors in the edited Markdown: 0 problems.
+
+**Not run:**
+- GitHub rendering of the Mermaid blocks: no renderer is installed locally, so the syntax was reviewed by hand (semicolons and a `--` edge label removed).
+- Other browser scripts: `app.js` and the server are unchanged.
+- Safari, Firefox and screen readers.
+
+**Note:** `/docs` links to `docs/DIAGRAMS.md` on GitHub, which resolves only after the owner pushes.
+
+### DOC-10: independent review of DOC-09's completion report (2026-10-22)
+
+Owner pasted Claude's DOC-09 completion report after requesting source-accurate diagrams. Inspected the actual working-tree diff, diagram-source map, guide markup, Markdown diagrams and relevant `ui/app.js`, `server.py`, `ledger/model.py`, `ledger/export.py` and CI source. Two independent review subtasks checked review/export semantics and Mermaid/API/CI diagrams. Product source was not changed. This entry, TASKS and context record the review and proposed corrections; no commit, push, inference, installation or deployment.
+
+**Corrections proposed, not applied:**
+- `ui/docs.html` Reviewing introduction/card/matrix (lines 332, 339, 359 at review time) overstates accepted-card inclusion and the need for explicit message marks. Accepted claims enter reconciliation, so later accepted changes may remove/replace their ranges. Unreviewed accepted availability can still be exported with `needs_review`; explicit marks determine complete status. Source: `ledger/export.py` `confirmed_export`, especially accepted/pending split, row generation and `complete` predicate.
+- The `cap-card` caption says only “Use it anyway” restores a not-applied card, contradicting its preceding note and `ui/app.js` `onFieldChange`, which sets any edited card accepted. Retain the narrower A-key limitation.
+- The final-export spec status diagram filters to accepted claims, then checks for pending claims along that sole path. Show a separate original-session pending branch or otherwise label the independent inputs; `confirmed_export` counts pending from the original live claims, not the accepted ledger.
+- The startup figure asks only whether Ollama answers, then declares all readers ready. `available_models` also returns an empty list for a reachable Ollama with no installed models; `init` checks list length. Show the actual non-empty model-list condition. The reader caption should distinguish the default Gemma model from the selectable local installed model.
+- API sequence request objects omit required data: `/api/suggest` uses `week_start`, not `week`, and sends `timezone`; `/api/export` also needs roster/week context. Correct the labels or explicitly identify abbreviated summaries; compare `payload()`, `run()` and `server.calendar`.
+- Architecture arrows include J/K/E as if they mutate claims/recompute, while they navigate/focus only. Its Ollama node says model readers only even though `/api/tags` is queried at startup regardless of the selected reader; separate catalogue lookup from model inference. The card-state figure also omits valid Accept/Reject/edit transitions; either show them or label it as a selected-transition illustration.
+
+**Verification and limits:** `git diff --check` passed. No obvious Mermaid syntax blocker found by static inspection, but no bundled parser was found, so Mermaid rendering remains unverified. The pasted report's 116 unit-test run, 18 browser checks, contrast measurements and screenshots were not independently rerun; do not relabel them as fresh results from this review. The new GitHub DIAGRAMS link cannot establish published availability before the owner pushes. These are proposed documentation corrections, not application defects or permission to change runtime behaviour.
+
+### DOC-10: corrections to DOC-09's diagrams (2026-10-22)
+
+Documentation only. `git diff` on `server.py`, `ui/app.js`, `ui/index.html`, `ledger/`, fixtures and `evaluation/` is empty.
+
+**Each fix checked against source:**
+
+1. **Export inclusion vs completeness** (`ledger/export.py` `confirmed_export`):
+   - Accepted claims go into `build_ledger`, so a later accepted correction or cancellation replaces or removes their time.
+   - Rows include accepted availability from unreviewed messages; those cells are `needs_review`.
+   - Marks affect only complete vs provisional; `/api/export` always returns the file.
+   - Fixed in the `/docs` prose, the "where each card counts" matrix, the marks caption, the files figure and the Accepted node.
+2. **Not-applied cards** (`ui/app.js`):
+   - `onFieldChange` sets `accepted` on any card.
+   - `onKey` blocks only `a` for a dropped card; `r` rejects it.
+   - The `/docs` caption and node now say this; the claim that "only Use it anyway" restores a card is gone.
+3. **Pending-status diagram** (`docs/specs/final-export.md`): redrawn as one request feeding three separate inputs to the status decision: accepted claims → ledger → blocking issues; pending claims counted from the same session; unreviewed messages from `reviewed_messages`.
+4. **Startup** (`ledger/model.py` `available_models`, `ui/app.js` `init`):
+   - An empty list covers Ollama being down, too slow, or having no models; it shows the same message.
+   - With models, the menu lists all of them and preselects `gemma4:e2b-it-qat` when present.
+   - With none, the menu falls back to the default name.
+   - Gemma is described as the default model, not the only one.
+5. **API labels:**
+   - suggest: `{message, roster, week_start, timezone, extractor, model, run}`;
+   - resolve and export: `{messages, claims, roster, week_start, timezone, reviewed_messages}`.
+6. **ARCHITECTURE:**
+   - J/K/E/Esc are a separate dashed "no claim change, no request" node.
+   - `/api/tags` is shown on every page load for any reader; `/api/chat` is labelled as the only call that needs a model reader (in §4 and §13).
+   - The card state diagram now has every transition the code allows: accepted ⇄ rejected, dropped → rejected by R, dropped → accepted by edit, Reset from every state.
+
+**Also aligned:** the startup prose in ARCHITECTURE §3 and API `/api/status`.
+
+**Checks:**
+- **Mermaid rendering:** all 10 blocks render without errors in headless Chrome with Mermaid 11.16.1, copied from the owner's existing local `kestra/ui/node_modules` (nothing installed). Screenshots inspected, and three readability problems fixed: a J/K self-loop label overlapping the review-log label, two state labels overlapping, and a sequence note spilling outside its box.
+- **`/docs` in the browser pane** at 1400, 390 and 320 px: no horizontal page scroll and no clipped diagram text, after fixing a non-wrapping phone label (420 px at 390) and a long tag (347 px at 320).
+- **Unit tests:** 116 run, OK, 8 skipped.
+- **`landing.mjs`:** 18 PASS, 0 FAIL.
+
+**Not verified:** GitHub's own Mermaid version and rendering.
+
+
+### DOC-11: bounded verification of DOC-10 corrections (2026-10-22)
+
+Owner pasted Claude’s DOC-10 follow-up report. Source inspection confirmed the original fixes in the guide, export-spec flow, API payload labels and architecture arrows; an independent review confirmed the R-key rejection of dropped cards against `ui/app.js`. No product source edits, tests, browser/rendering checks, inference, installation, commit or deployment were performed in this verification. `git diff --check` passed. The working-tree diff for `server.py`, `ui/app.js`, `ui/index.html`, `ledger/`, fixtures and evaluation was empty. The report’s Mermaid 11.16.1 renders, unit and browser checks remain Claude-reported results, not fresh runs by this review.
+
+Two newly introduced guide statements still need correction (proposed, not applied): `ui/docs.html` line 181 says Gemma is the only model evaluated, contradicting Qwen model/hybrid A/B results in `evaluation/RESULTS.md` lines 24–25 and fresh-call provenance at 42–44; line 388 says marks only decide file status, while `ledger/export.py` lines 74–92 also changes `needs_review` cell flags and empty placeholder rows according to unreviewed messages. Suggested wording: Gemma is the default; marks help determine file status and cells needing review, and never block download. TASKS records proposed DOC-11, its DOC-10 summary no longer repeats the overly narrow marks claim, and context records this bounded follow-up. Other original DOC-10 findings were not reopened.
+
+### DOC-11: two guide wording corrections applied (2026-10-22)
+
+Wording only, in `ui/docs.html`:
+1. **Reader caption:** removed "and the only one evaluated". `evaluation/RESULTS.md` records Qwen3.5 4B model-only and Qwen + rules results on sets A and B.
+2. **Message-marks caption:** now reads "Message-review marks help determine complete/provisional status and which cells need review. They never block downloading the export."
+
+**Checked in source:**
+- `ledger/export.py` `confirmed_export`: unreviewed non-duplicate messages keep the status provisional, and their accepted or pending claims mark cells `needs_review`.
+- `ui/app.js` `exportFinal`: the CSV is downloaded whatever the status.
+
+**Also changed:** the matching `docs/DIAGRAMS.md` row. The DOC-10 records keep their earlier wording as history; DOC-11 supersedes the "marks decide only status" phrasing.
+
+**Checks:** see the hand-back. No layout or behaviour change.

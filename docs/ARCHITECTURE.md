@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the system **as it exists in the source on 2026-10-20**. Proposed changes are in clearly marked sections at the end. Status words (Implemented, Verified, Partial, Planned, Unverified, Deferred) mean the same as in [PROGRESS.md](../PROGRESS.md#status-vocabulary).
+This describes the system **as it exists in the source**; first written 2026-10-20, diagrams and the stale statements below re-checked against source on 2026-10-22 (DOC-09; sources per diagram in [DIAGRAMS.md](DIAGRAMS.md)). Proposed changes are in clearly marked sections at the end. Status words (Implemented, Verified, Partial, Planned, Unverified, Deferred) mean the same as in [PROGRESS.md](../PROGRESS.md#status-vocabulary).
 
 Related: [API.md](API.md) (interfaces), [DECISIONS.md](DECISIONS.md) (why it is built this way), [PRD.md](PRD.md) (intended behaviour), [INTEGRATIONS.md](INTEGRATIONS.md) (planned supporting services and gates), [COMPETITION.md](COMPETITION.md) (verified competition evidence). Start with [context.md](../context.md) and [CLAUDE.md](../CLAUDE.md).
 
@@ -54,7 +54,7 @@ python3 server.py [port]        # default port 8765; host is always 127.0.0.1
 
 1. `server.py` starts a `ThreadingHTTPServer` on `127.0.0.1:<port>`. The port is the first command-line argument; nothing is read from `.env` files. `SENTRY_DSN` turns on opt-in tracing when the optional `sentry-sdk` is installed (INT-03, §12). The other environment variables are for the hosted read-only replay (DEP-02): with `LEDGER_DEMO=1` it binds `0.0.0.0:$PORT`, serves fictional set A only and answers suggestions from saved Gemma outputs instead of Ollama ([API: demo mode](API.md#demo-mode-hosted-replay)).
 2. The browser loads `/app` → `ui/index.html`, `app.js`, `style.css` (sent with `Cache-Control: no-store`). `/` is the landing page (`ui/home.html`, UI-09, D-34), whose buttons open `/app`.
-3. `app.js` calls `GET /api/status`, which asks Ollama at the hard-coded `http://127.0.0.1:11434/api/tags` for installed models (2 s timeout). If Ollama is unreachable the page says only "Rules only" will work.
+3. `app.js` calls `GET /api/status`, which asks Ollama at the hard-coded `http://127.0.0.1:11434/api/tags` for installed models (2 s timeout). If Ollama is unreachable, too slow or has no models installed, the list is empty and the page says only "Rules only" will work; this check runs on every page load whichever reader is chosen. Otherwise the model menu lists every installed model, with `gemma4:e2b-it-qat` preselected when present.
 4. The coordinator loads the fictional demo (`GET /api/demo`) or pastes text, then clicks **Suggest records**.
 
 Ollama is a separate process the user starts (`ollama serve`). The server never starts, installs or downloads anything.
@@ -67,21 +67,24 @@ The browser sends the complete state on every recompute:
 
 ```mermaid
 flowchart TD
+    S[Page opens /app] -->|GET /api/status: server asks Ollama GET /api/tags, 2 s, for any reader| A
     A[Pasted text or WhatsApp export + roster] -->|POST /api/parse| B[parse_messages: sort by time, ids m01..., mark duplicates]
     B --> C{for each message, one request at a time}
     C -->|duplicate_of set| C2[skipped: no extraction call]
     C -->|POST /api/suggest| D{reader}
-    D -->|model| E[model.extract -> Ollama /api/chat, JSON schema]
+    D -->|model| E[model.extract -> Ollama POST /api/chat, JSON schema: the only call that needs a model reader]
     D -->|rules| F[rules.extract]
     D -->|hybrid| G[both, then hybrid.merge: replace cues, rules-only cancellations added, disagreement flags]
     E --> H[raw claims: said + id + review=pending]
     F --> H
     G --> H
-    H -->|every 5 messages and after edits: POST /api/resolve with ALL messages + claims| I[resolve_all: names, dates, times, evidence gate, flags]
+    H -->|after every 5th message read and after each decision or mark: POST /api/resolve with ALL messages + claims| I[resolve_all: names, dates, times, evidence gate, flags]
     I --> J[build_ledger: per person/day 15-min slots, history, issues, sheet, counts]
     J --> K[Browser renders cards beside messages, Needs a decision, chart, sheet, Changes over time]
-    K -->|accept / edit / reject / add / keyboard J K A R E| H
-    K -->|Mark message reviewed / M| H
+    K -->|Accept, Reject, Use it anyway, Reset, field edit, add record, keys A and R| H
+    K -.-> NAV[Keys J and K move between cards, E focuses a field, Esc leaves it:<br/>no claim change, no request]
+    K -->|Mark message reviewed / M| R[state.reviewed: message ids marked by the reviewer]
+    R -->|sent as reviewed_messages| I
     K -->|Export final sheet: POST /api/export| M[confirmed_export: accepted claims only, build_ledger, complete or provisional, needs_review cells]
     K -->|Export review log| L[CSV built in the browser: accepted claims, one row per date]
 ```
@@ -94,7 +97,7 @@ Implemented in `ledger/model.py`:
 - Default model `gemma4:e2b-it-qat` (`DEFAULT_MODEL`); the UI lets the user pick any model Ollama lists. The evaluation also used `qwen3.5:4b-q4_K_M`.
 - Request options: `temperature 0`, `seed 7`, `num_ctx 4096`, `think: false`, `keep_alive: "30m"`, `stream: false`, and a JSON schema in `format` (claims array with `person, day_text, time_text, status, condition, replaces_earlier, excerpt`).
 - Prompt: `SYSTEM` text plus six invented few-shot `EXAMPLES`; `PROMPT_VERSION = 3`. The user turn contains only the planning week, the send time, the sender and the message text. Earlier messages are **not** sent (see [TUNING.md](../evaluation/TUNING.md)).
-- Timeout 300 s per call. **No retries.** If the reply is not valid JSON, `extract` returns no claims and `json_ok: false` in its stats. With the model-only reader the message then has no suggestions; with model + rules the rules' cancellations are still added (flagged) but no availability. Either way the page shows no failure warning (see [TASKS.md](../TASKS.md) COR-03).
+- Timeout 300 s per call. **No retries.** If the reply is not valid JSON, `extract` returns no claims and `json_ok: false` in its stats. With the model-only reader the message then has no suggestions; with model + rules the rules' cancellations are still added (flagged) but no availability. Since COR-03 the page shows a warning on that message in both cases (`state.failures` in `ui/app.js`).
 - The model never sees the roster and never produces dates.
 
 The rules reader (`ledger/rules.py`) emits the same claim shape. It returns nothing for senders who are not on the roster (for example a coordinator).
@@ -175,12 +178,43 @@ Adds: `person`, `person_state` (`resolved | ambiguous | unknown`), `person_candi
 - Keyboard: J/K move, A accept, R reject, E focus the first field, Esc leave a field. Shortcuts do not fire inside inputs, selects or textareas.
 - **Message review marks.** "Mark message reviewed" (keyboard `M`) records an explicit decision per message in `state.reviewed`; nothing marks a message automatically. "Accept all and mark reviewed" is offered only when every undecided suggestion in the message is pending, has informational flags only, and has a resolved person, day and time. Duplicates are covered by their original. A re-run clears the marks.
 - Statistics (`accepts`, `edits`, `rejects`, `adds`, `bulk`, `marks`, review timer) are kept in memory and shown on export only.
+
+Card review states and the separate message mark (from `ui/app.js` `review()`, `onFieldChange`, `onClick`, and `ledger/core.py` `resolve_claim`):
+
+```mermaid
+stateDiagram-v2
+    [*] --> pending: suggestion arrives
+    pending --> dropped: evidence check fails (code, only while pending)
+    pending --> accepted: Accept / A / edit any field
+    pending --> rejected: Reject / R
+    accepted --> rejected: Reject / R
+    rejected --> accepted: Accept / A / edit any field
+    dropped --> accepted: "Use it anyway" / edit any field
+    dropped --> rejected: R key
+    accepted --> pending: Reset (clears overrides)
+    rejected --> pending: Reset
+    dropped --> pending: Reset
+    note right of dropped
+        A key does not accept a dropped card.
+        After any Reset the evidence check runs again.
+    end note
+```
+
+```mermaid
+stateDiagram-v2
+    [*] --> not_reviewed
+    not_reviewed --> reviewed: Mark message reviewed / M
+    reviewed --> not_reviewed: press again
+    not_reviewed --> reviewed: Accept all and mark reviewed (only when every undecided card is pending, info-flags only, person, day and time resolved, and the read did not fail)
+```
+
+Deciding every card never marks a message; a successful re-run clears all marks.
 - **Final-sheet export** (`ledger/export.py`, `POST /api/export`): built from **accepted** claims only through the ordinary `build_ledger`, so corrections replay exactly as in the app. It is `complete` only when every non-duplicate message is marked reviewed, nothing is pending and no `who`/`date`/`time`/`conflict` issue is open; otherwise `provisional`. Cells touched by pending claims, blocking issues, or accepted/pending claims of unreviewed messages are `needs_review` (dropped and rejected claims never mark cells); when an unreviewed message's scope is unknown, only the whole-file status shows it. Canonical rules: [specs/final-export.md](specs/final-export.md).
 - **Review-log export** is generated in the browser: one row per accepted suggestion per date (plus pending ones if "include records not yet reviewed" is ticked); rejected and dropped are excluded. It is a **record log, not the final sheet**: a cancelled offer and its cancellation both appear, in message order. The file cannot reliably reconstruct the sheet: it has no `replaces_earlier` column, and `evaluation/score_csv.py` replays every row as not replacing anything. Column details and an example: [API.md](API.md#csv-export).
 
 ## 11. Errors, retries, interruption
 
-- Every exception inside a POST handler becomes HTTP **400** with `{"error": "<ExceptionType>: <message>"}`; there is no 500 path. Unknown POST paths: 404 JSON. Unknown GET paths: 404 `text/plain` "not found".
+- Every exception inside a POST handler becomes HTTP **400** with `{"error": "<ExceptionType>: <message>"}`; there is no 500 path. Unknown POST paths: 404 JSON. Unknown GET paths: 404 with the styled page `ui/404.html` (UI-10). In demo mode a refused request returns 403 (`Forbidden`).
 - The browser processes messages one request at a time. Since COR-03 (2026-10-20), a request error or an unreadable model reply marks only that message with a warning and reading continues; the status line reports "N of M messages could not be read fully", and failed messages are never offered combined accept-and-review. A successful re-run starts a fresh session; a validation/parse failure before that preserves the old session, as described below. Failed requests are not retried; there is no cancel button or resume.
 - Model calls time out after 300 s. If Ollama is down, `/api/suggest` with the model or hybrid reader fails with a 400 (`URLError…`).
 - A failed request (including a lost connection to the local server) does **not** erase browser state: claims and decisions already held are kept. Reloading the page clears it; a re-run replaces it only after valid settings and a usable parse have been committed.
@@ -228,22 +262,39 @@ Adds: `person`, `person_state` (`resolved | ambiguous | unknown`), `person_candi
 | Evaluation caches and results | `evaluation/runs/`, `evaluation/results/` (fictional fixtures only) | No |
 | Tracing spans (opt-in, INT-03) | Built in process from allowlisted timing, count, model and stage fields, checked by both allowlists (`scrub()` and `clean_envelope()`) | Only when the user sets `SENTRY_DSN` (to Sentry); never in demo mode |
 
+```mermaid
+flowchart LR
+    subgraph local["Local app: your computer"]
+        B[Browser tab<br/>state in memory] <-->|127.0.0.1| S[server.py<br/>stateless]
+        S <-->|127.0.0.1 GET /api/tags at every page load| O[Ollama<br/>installed models, default gemma4:e2b-it-qat]
+        S <-->|127.0.0.1 POST /api/chat, model readers only| O
+        B -->|download| F[CSV files]
+    end
+    subgraph replay["Hosted replay: Render, LEDGER_DEMO=1"]
+        RB[Browser tab<br/>fictional set A only] <-->|internet| RS[server.py demo mode<br/>saved Gemma outputs, rules reader live]
+        RS -.->|403| X[any unserved message,<br/>roster, week or model]
+    end
+    S -.->|optional: SENTRY_DSN + sentry-sdk<br/>allowlisted spans only| T[(Sentry)]
+```
+
+The dashed arrow to Sentry exists only on the local server; demo mode returns before tracing is initialised. What Sentry may add after receipt is outside these allowlists ([Sentry handoff](SENTRY_HANDOFF.md)).
+
 Runtime integrations today: the local Gemma model, the opt-in Sentry tracing above, and the hosted replay (fictional data, no model calls). Any future runtime service must follow [DECISIONS.md](DECISIONS.md) D-17 and the detailed [integration contracts](INTEGRATIONS.md): opt-in/off by default, verified free allowance, no private content in telemetry, disclosure of external transfers, and no disruption to the local workflow. Development tools and demo narration are separate data paths, not application runtime dependencies.
 
 ## 14. Known technical limitations
 
 - No persistence or session save/load; one browser tab is the only copy of review work.
-- The review-log export cannot be replayed into the sheet (use the final-sheet export instead); no protection against spreadsheet formula injection in exported text (values starting with `=`, `+`, `-`, `@`).
+- The review-log export cannot be replayed into the sheet (use the final-sheet export instead). Both CSV writers prefix formula-like cells (starting with `=`, `+`, `-`, `@`, tab or carriage return) with an apostrophe (COR-02).
 - Evidence gate: a real quote with invented day or time words is applied provisionally (flagged, pending).
 - Pending suggestions count on the sheet and chart, so the sheet is provisional until everything is reviewed.
 - Timezone is not used; day start/end and period hours are fixed.
-- Model JSON failures produce no visible failure warning (model only: no suggestions; model + rules: only rules-added cancellations).
+- A failed or unreadable model reply is not retried; the message gets a warning (COR-03) and has no suggestions (model only) or only rules-added cancellations (model + rules).
 - Single-message extraction: context from earlier messages is never given to the model; "still on for Saturday" relies on the ledger's confirmation rule.
 - Roster capped at 20; names not on the roster are never applied.
 - Point times ("at 9") are not read; recurring phrases ("every other Tuesday") are not supported.
-- The availability sheet table can overflow its panel horizontally (observed in a 1400 px wide headless screenshot on 2026-10-20).
+- Historical (2026-10-20): the availability sheet table overflowed its panel in a 1400 px headless screenshot. UI-01 later changed the sheet layout; this note is kept as history and was not re-measured in DOC-09.
 - Accessibility (screen readers, contrast) has not been checked.
-- Tested on macOS with Python 3.15.0 only; the README's "Python 3.10+" is a stated requirement that has not been re-tested.
+- Unit tests run on macOS with Python 3.15 and 3.12 and in CI on Ubuntu with 3.12; the README's "Python 3.10+" is a stated requirement that has not been tested on 3.10 or 3.11.
 
 ## 15. Deployment
 
@@ -251,13 +302,11 @@ Runtime integrations today: the local Gemma model, the opt-in Sentry tracing abo
 
 `python3 server.py` on the coordinator's own computer, with Ollama on the same machine for the model readers. "Rules only" works without Ollama.
 
-### Hosted demo: none (not implemented)
+### Hosted replay (Implemented, deployed 2026-10-21, DEP-02)
 
-There is no hosted copy, deployment file or public URL. No free hosted Gemma runtime has been selected or verified. The existing server binds to `127.0.0.1`, and its hard-coded Ollama address points to the server's own machine; deploying it as-is does not connect it to Ollama on a coordinator's laptop.
+`https://availability-ledger-replay.onrender.com`, from [render.yaml](../render.yaml) on Render's free plan. With `LEDGER_DEMO=1` the server binds `0.0.0.0:$PORT`, serves only fictional set A, answers model readers from saved Gemma outputs in `evaluation/runs/gemma4_e2b_it_qat_prompt3/` (the rules reader runs live), never calls Ollama, never initialises tracing, and refuses with 403 any message, roster, week, timezone or model it did not serve ([API: demo mode](API.md#demo-mode-hosted-replay)). No hosted Gemma runtime exists.
 
-### Agreed demonstration direction (Planned, not built)
-
-The selected direction is an **interactive fictional replay on Render**, subject to free-plan, implementation and deployment approval gates. The existing code has no replay reader or deployment configuration; it would need a deliberately scoped mode that serves **saved Gemma outputs** only for fixed fictional fixtures. It must be labelled "replaying saved Gemma outputs for fictional messages; no model runs here", preserve actual review/correction/export interactions and prevent arbitrary pasted content from entering the hosted model-replay path. A local video remains a permitted submission path if hosting is not ready.
+*Earlier text here (2026-10-20) described the replay as planned and not built; superseded by the deployment above.*
 
 The owner's existing `bipulchamoli.tech` may point to that host after DNS configuration. A domain is an address, not hosting; the project name need not match it. Prize eligibility depends separately on evidence of acquisition through the Hacktoberfest offer. No DNS change, deployment, free-quota verification or public URL is recorded. The optional hosted demo must stop/degrade before charges and contain no pilot data, keys or private transcripts. See [INTEGRATIONS.md](INTEGRATIONS.md), [TASKS.md](../TASKS.md) DEP-02 and [DECISIONS.md](DECISIONS.md) D-19.
 
@@ -272,7 +321,7 @@ The core runtime stays browser → local Python → local Ollama. Supporting tec
 | Development: Backboard R-CLI | Optional bounded task using an existing local model if compatible and useful. | Verify model compatibility, local routing, external data handling and free allowance. Do not switch application inference to a cloud provider or upload private data to obtain eligibility. |
 | Optional runtime diagnostics: Sentry | Allow-listed operational metadata about extraction failure/latency and a documented real debugging/performance finding. No private text, names, quotes, prompts, replies or sensitive raw exceptions. | Explicit dependency/network/privacy architecture decision before code; verify Python/runtime support, default capture behavior, redaction with fictional data, opt-in/off-by-default operation and free quota. **Implemented 2026-10-21 (INT-03, D-33):** `SENTRY_DSN` plus optional `sentry-sdk` 2.72.0; see §12. Real failed/successful traces and a timeout finding are now verified by owner evidence; bounded privacy verification and explicit open checks are in [SENTRY_HANDOFF](SENTRY_HANDOFF.md). |
 | Public demo: Render + domain | Fixed fictional saved-output replay with useful review/export interactions, clearly disclosed. Domain supplies DNS only. | Implement and verify the replay boundary, server binding/deployment configuration, cost fail-safe, and domain acquisition/renewal evidence. |
-| Public video: ElevenLabs | Narrate a fictional demonstration script; the generated audio is a demo asset. | Verify free entitlement, output-publication rights and required attribution/disclosure. Do not send real messages/audio; in-product voice or transcription is not selected. |
+| Public video: ElevenLabs | **Dropped** by the owner on 2026-10-22 ([D-37](DECISIONS.md)); not used. The demo is narrated live or captioned. | — |
 
 Detailed acceptance/evidence gates are canonical in [INTEGRATIONS.md](INTEGRATIONS.md). Competition eligibility and strategic priority are canonical in [COMPETITION.md](COMPETITION.md). These plans are not evidence of completed integrations or permission to install, claim credits, deploy or publish.
 

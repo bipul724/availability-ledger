@@ -10,6 +10,22 @@ It records **availability** (when people say they can or cannot help), not shift
 
 **A local open model proposes and ordinary code decides.** The model (Gemma 4 E2B through Ollama) only copies phrases such as "next Tuesday", "after 3" or "if needed". Python code turns them into dates and times, checks each suggestion's words against the message and flags or drops unsupported ones (with one documented gap: a real quote with invented day or time words is only flagged and counts on the provisional sheet), keeps each person's history per day, keeps conditional offers conditional, and does every count. In the core workflow nothing leaves your computer.
 
+```mermaid
+flowchart LR
+    M[Messages + roster] --> R{Reader you pick}
+    R -->|Model + rules| G[Gemma copies phrases<br/>+ keyword rules cross-check]
+    R -->|Model only| G2[Gemma copies phrases]
+    R -->|Rules only| K[Keyword rules, no model]
+    G --> C[Code: people, dates, times,<br/>evidence check, history]
+    G2 --> C
+    K --> C
+    C --> Y[You: accept, reject or edit each card,<br/>mark each message reviewed]
+    Y --> F[Final sheet: accepted records only,<br/>complete or provisional]
+    Y --> L[Review log: audit trail]
+```
+
+The illustrated guide at `/docs` (served by the app; also on the hosted replay) walks through each step with diagrams; their sources are listed in [docs/DIAGRAMS.md](docs/DIAGRAMS.md).
+
 Status: validation prototype. Every message, name and organisation in `fixtures/` is **fictional**. No real-coordinator pilot or measured human time saving is recorded. Read [context.md](context.md) and [CLAUDE.md](CLAUDE.md) before changing the project.
 
 ## Example (fictional)

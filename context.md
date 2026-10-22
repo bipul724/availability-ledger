@@ -235,6 +235,12 @@ Lessons learned:
 - **Evaluation runs:** model/hybrid runs make **fresh model calls on cache misses**, even without `--refresh`. Verify cache coverage first.
 - **Documentation volume:** keep docs lean (D-27).
 
+**DOC-09 (2026-10-22, uncommitted):** the `/docs` guide now has source-checked diagrams for all eight sections, and Mermaid diagrams were added to README, ARCHITECTURE, API, the final-export spec and TESTING. `docs/DIAGRAMS.md` maps every diagram to its source and tests; keep it in step when code changes. ARCHITECTURE's stale statements (failure warnings, CSV formula protection, 404 page, hosted replay, ElevenLabs) were corrected.
+
+**DOC-10 (2026-10-22, uncommitted):** the six review findings (export inclusion vs completeness, restoring dropped cards, the pending-count source, startup readiness, API payload labels, architecture action and inference arrows) are corrected and checked in source. All 10 Mermaid blocks rendered with an existing local Mermaid 11.16.1; GitHub rendering not checked. Details in PROGRESS and `docs/DIAGRAMS.md`.
+
+**DOC-11 (2026-10-22, uncommitted):** the two residual guide wordings are corrected: Gemma is the default but not the only evaluated model (Qwen results exist), and message-review marks help determine complete/provisional status and which cells need review, never blocking the download.
+
 ## L. Immediate next action (updated 2026-10-21, about 13:00 IST)
 
 D-31 and COR-18 are reviewed, accepted and committed (`13e5527`). The owner chose to add four categories (D-33).

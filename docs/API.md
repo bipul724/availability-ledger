@@ -7,6 +7,7 @@ Related: [ARCHITECTURE.md](ARCHITECTURE.md) for data structures and flow; [INTEG
 ## Contents
 
 - [HTTP server basics](#http-server-basics)
+- [Request sequence](#request-sequence) (diagram)
 - [GET / and static files](#get--and-static-files)
 - [GET /api/status](#get-apistatus)
 - [GET /api/demo](#get-apidemo)
@@ -32,6 +33,39 @@ Related: [ARCHITECTURE.md](ARCHITECTURE.md) for data structures and flow; [INTEG
 - No request logging, rate limiting, CORS headers or streaming.
 - **Demo mode** (`LEDGER_DEMO=1`, DEP-02): the hosted read-only replay. See [Demo mode](#demo-mode-hosted-replay); refused requests return **403** `{"error": "<reason>"}`.
 
+## Request sequence
+
+One run of **Suggest records** in the local app, as `ui/app.js` performs it. The browser holds all state and sends it again on every recompute; the server keeps nothing between requests.
+
+```mermaid
+sequenceDiagram
+    participant B as Browser (app.js)
+    participant S as server.py
+    participant O as Ollama (127.0.0.1:11434)
+    B->>S: GET /api/status (on page load)
+    S->>O: GET /api/tags (2 s timeout)
+    O-->>S: models, or no answer
+    S-->>B: installed model names (empty if Ollama is down, slow or has none: only Rules only will work)
+    B->>B: week must be a Monday, else stop and keep the current session
+    B->>S: POST /api/parse {text, roster, day_first}
+    S-->>B: messages (ids, duplicates marked), roster (first 20)
+    Note over B: no dated messages: stop and keep the current session
+    loop each message that is not a duplicate, one at a time
+        B->>S: POST /api/suggest {message, roster, week_start, timezone, extractor, model, run}
+        opt extractor is model or hybrid
+            S->>O: POST /api/chat (JSON schema, 300 s timeout, no retry)
+            O-->>S: copied phrases, or unreadable reply
+        end
+        S-->>B: claims (pending), or 400 error: the message gets a warning and reading continues
+        Note over B,S: after every 5th message and at the end: POST /api/resolve, body as for export
+    end
+    B->>S: POST /api/resolve, same body, again after every decision or mark
+    S-->>B: resolved claims, ledger, export status
+    B->>S: POST /api/export {messages, claims, roster, week_start, timezone, reviewed_messages}
+    S-->>B: filename + CSV, complete or provisional (always returned)
+    B->>B: Export review log: CSV built in the browser, no request
+```
+
 ## Demo mode (hosted replay)
 
 Off unless the environment variable `LEDGER_DEMO` is exactly `1`. Then:
@@ -49,6 +83,20 @@ Off unless the environment variable `LEDGER_DEMO` is exactly `1`. Then:
   For `model` and `hybrid`, Gemma's claims come from `evaluation/runs/gemma4_e2b_it_qat_prompt3/<id>.json`, and `stats` is the saved one plus `"saved": true`. No model is called. The rules reader runs as normal. Claims are identical to a local run whose model call returns the same saved output (unit test).
 - **`POST /api/resolve`** and **`POST /api/export`** return 403 unless `messages` is a list of served messages (unchanged), with the served roster, week and timezone and no `coordinators`. Claims, review states and corrections are accepted as usual.
 - No other environment variable is read, and nothing is stored or logged.
+
+```mermaid
+flowchart TD
+    R[Request to the replay] --> P{Route}
+    P -->|POST /api/parse| A{text and roster exactly the served set A, no day_first?}
+    P -->|POST /api/suggest| B{message served and unchanged, roster, week and timezone served, no coordinators, model absent or gemma4:e2b-it-qat?}
+    P -->|POST /api/resolve or /api/export| C{all messages served and unchanged, roster, week and timezone served, no coordinators?}
+    A -->|yes| OK1[parse as usual]
+    B -->|yes| OK2[model claims from saved outputs, rules reader runs live, no Ollama call]
+    C -->|yes| OK3[resolve or export as usual, review decisions accepted]
+    A -->|no| F[403 with a reason]
+    B -->|no| F
+    C -->|no| F
+```
 
 Observed error responses (fictional calls):
 
@@ -78,7 +126,7 @@ Response 200:
 {"models": ["gemma4:e2b-it-qat"], "default_model": "gemma4:e2b-it-qat"}
 ```
 
-- `models` comes from Ollama `GET http://127.0.0.1:11434/api/tags` with a 2 s timeout. If Ollama cannot be reached, `models` is `[]` (still 200) and the page shows "Ollama is not reachable: only 'Rules only' will work."
+- `models` comes from Ollama `GET http://127.0.0.1:11434/api/tags` with a 2 s timeout. If Ollama cannot be reached in time, or answers with no installed models, `models` is `[]` (still 200) and the page shows "Ollama is not reachable: only 'Rules only' will work."
 - Side effects: one local request to Ollama.
 
 ## GET /api/demo

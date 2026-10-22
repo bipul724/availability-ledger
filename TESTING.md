@@ -2,6 +2,27 @@
 
 How to check this project, and what has actually been checked. Written 2026-10-21. Counts are snapshots: re-run before you rely on them.
 
+## How the checks fit together
+
+```mermaid
+flowchart LR
+    subgraph local["On a developer machine"]
+        U[Unit tests<br/>python3 -m unittest discover -s tests<br/>no model, no network]
+        BR[Browser checks<br/>node tests/browser/*.mjs<br/>Node 22+, local Chrome, own server]
+        EV[Evaluation<br/>python3 -m evaluation.run<br/>fresh Ollama calls on cache misses unless --cache-only]
+        TR[Tracing tests in .venv<br/>needs sentry-sdk]
+    end
+    subgraph ci["GitHub Actions on push and pull request to main"]
+        CU[Unit tests, Python 3.12<br/>8 tracing tests skipped: no sentry-sdk]
+        CI2[Integrity: sha256sum of frozen results,<br/>tuning results, set C manifest]
+        CR[Cache-only re-score of A, B, C<br/>fails on a cache miss or any score change]
+    end
+    U -.->|same command| CU
+    EV -.->|same runner with cache-only and out options| CR
+```
+
+Browser checks and model calls never run in CI. Frozen results are compared byte for byte; they are never rewritten.
+
 ## Unit tests (offline: no model, no network)
 
 ```bash

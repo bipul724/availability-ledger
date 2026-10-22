@@ -48,6 +48,26 @@ The export is **complete** only when all of these hold:
 
 Otherwise it is **provisional**.
 
+```mermaid
+flowchart TD
+    A[POST /api/export: messages, claims of the whole session, roster, week_start, timezone, reviewed_messages]
+    A -->|claims with review accepted, incl. reviewer-added| L[build_ledger on accepted claims only:<br/>later accepted corrections and cancellations replace or remove time]
+    A -->|claims with review pending, from the same session| PC[pending count]
+    A -->|reviewed_messages| U[unreviewed: non-duplicate messages not marked]
+    L --> BI[blocking issues: who, date, time, conflict]
+    L --> ROWS[rows: available and conditional segments,<br/>including those from unreviewed messages]
+    U --> D{unreviewed empty, pending 0 and no blocking issue?}
+    PC --> D
+    BI --> D
+    D -->|yes| K[status complete]
+    D -->|no| P[status provisional, affected cells needs_review]
+    ROWS --> W[CSV always returned and downloaded:<br/>status in the file name and line 1]
+    K --> W
+    P --> W
+```
+
+The status never blocks the download; it is written into the file name and the status line.
+
 ## 4. Cell states (person × date)
 
 A cell is `needs_review` when it is touched by any of the following:
@@ -63,6 +83,15 @@ A cell is `needs_review` when it is touched by any of the following:
 - one whose suggestions have no resolvable person or day.
 
 All other cells are `confirmed`.
+
+```mermaid
+flowchart LR
+    T{Does the cell person x date, inside the week and on the roster, get touched by...} -->|a pending claim| N[needs_review]
+    T -->|the claim behind a blocking issue| N
+    T -->|an accepted or pending claim of an unreviewed message| N
+    T -->|none of these| Y[confirmed]
+    X[dropped or rejected claims] -.->|never touch a cell| T
+```
 
 ## 5. File format, `availability-final v1`
 
