@@ -11,13 +11,20 @@
 <body>
 <div id="replay-banner" class="banner" role="note" hidden>Replay: fictional messages and saved Gemma 4 outputs. To use your own messages,
   <a href="https://github.com/bipul724/availability-ledger" target="_blank" rel="noopener">run it locally</a> — nothing leaves your machine.</div>
-<header>
-  <h1><svg class="glyph" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path class="g-margin" d="M9.5 6v20M11.5 6v20"/><path class="g-rule" d="M15 11h10M15 16h10M15 21h6"/></svg><a href="/" title="About Availazy">Availazy</a></h1>
-  <p>A local open model proposes. Ordinary code checks dates, history and counts. You decide.</p>
+<header class="app-header">
+  <div class="app-header-inner">
+    <h1><svg class="glyph" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path class="g-margin" d="M9.5 6v20M11.5 6v20"/><path class="g-rule" d="M15 11h10M15 16h10M15 21h6"/></svg><a href="/" title="About Availazy">Availazy</a></h1>
+    <nav class="app-nav" aria-label="App navigation"><a href="/">About</a><a href="/docs" class="guide-link">User guide <span aria-hidden="true">↗</span></a></nav>
+    <p>A local open model proposes. Ordinary code checks dates, history and counts. You decide.</p>
+  </div>
 </header>
 
-<section id="setup" class="panel">
-  <div class="row">
+<section id="setup" class="panel" aria-labelledby="setup-title">
+  <div class="setup-heading">
+    <div class="section-title"><span class="step-number" aria-hidden="true">01</span><h2 id="setup-title">Prepare your week</h2></div>
+    <p>Read the messages. Check the suggestions. Keep the final say.</p>
+  </div>
+  <div class="row setup-options">
     <label>Week starting (Monday) <input type="date" id="week"></label>
     <label>Timezone <input id="tz" value="America/New_York" size="20"></label>
     <label>Reader
@@ -30,31 +37,35 @@
     <label>Model <select id="model"></select></label>
     <label class="check local-only"><input type="checkbox" id="dayfirst"> WhatsApp dates are day-first</label>
   </div>
-  <div class="row grow local-only">
-    <label class="grow">Messages (YYYY-MM-DD HH:MM | Sender | text, or a WhatsApp export)
-      <textarea id="text" rows="7" spellcheck="false"></textarea></label>
-    <label>Volunteers (one per line, up to 20)
-      <textarea id="roster" rows="7" spellcheck="false"></textarea></label>
+  <div class="row source-inputs local-only">
+    <label class="source-field" for="text"><span class="field-title" id="messages-label">Messages</span>
+      <textarea id="text" rows="7" spellcheck="false" placeholder="Paste your dated chat messages or a WhatsApp export…" aria-labelledby="messages-label" aria-describedby="message-format"></textarea>
+      <span class="field-help" id="message-format">YYYY-MM-DD HH:MM | Sender | text, or a WhatsApp export</span></label>
+    <label class="source-field" for="roster"><span class="field-title" id="volunteers-label">Volunteers</span>
+      <textarea id="roster" rows="7" spellcheck="false" placeholder="One volunteer name per line…" aria-labelledby="volunteers-label" aria-describedby="roster-format"></textarea>
+      <span class="field-help" id="roster-format">One per line, up to 20 volunteers</span></label>
   </div>
-  <div class="row">
-    <input type="file" id="file" class="local-only" accept=".txt,.csv,text/plain">
-    <button id="demo" type="button" class="local-only">Load fictional demo</button>
-    <button id="run" type="button" class="primary">Suggest records</button>
-    <span id="progress" role="status"></span>
+  <div class="row setup-actions">
+    <div class="source-actions local-only">
+      <label class="upload-label"><span class="sr-only">Upload messages from a text file</span><input type="file" id="file" class="local-only" accept=".txt,.csv,text/plain"></label>
+      <button id="demo" type="button" class="local-only">Load fictional demo</button>
+    </div>
+    <button id="run" type="button" class="primary">Suggest records <svg class="action-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg></button>
   </div>
+  <p id="progress" role="status"></p>
 </section>
 
 <main id="workspace" hidden>
   <section id="review">
     <div class="review-head">
-      <h2>Messages and suggestions</h2>
+      <div class="section-title"><span class="step-number" aria-hidden="true">02</span><h2>Messages and suggestions</h2></div>
       <button id="accept-clean" type="button">Accept all suggestions without warnings</button>
     </div>
     <p class="hint" id="keys">Keyboard: J / K next / previous suggestion · A accept · R reject · E edit its first field · M mark its message reviewed · Esc leave a field</p>
     <p class="hint" id="review-state" role="status"></p>
     <div id="rows"></div>
   </section>
-  <aside id="summary">
+  <aside id="summary" aria-label="Week overview">
     <section class="panel">
       <h2>Needs a decision</h2>
       <ul id="issues"></ul>

@@ -38,6 +38,7 @@ em { font-style: italic; }
 
 /* ------------------------------------------------------------ header */
 .wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+.landing .wrap { max-width: 1340px; }
 .top { position: sticky; top: 0; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--rule-2); transition: border-color 0.2s; }
 .top.is-stuck { border-bottom-color: var(--rule-2); }
 .top-in { display: flex; align-items: center; gap: 28px; height: 64px; }
@@ -64,11 +65,12 @@ em { font-style: italic; }
 .btn-sm { height: 36px; padding: 0 15px; font-size: 14px; border-radius: 6px; box-shadow: none; }
 .top .btn-sm { margin-left: 4px; }
 
-/* ------------------------------------------------------------ the ledger: margin column + red double rule */
-.entry { max-width: 1240px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 60px minmax(0, 1fr); }
-.entry > .body { grid-column: 2; min-width: 0; border-left: 3px double var(--margin-line); padding: 120px 0 24px 40px; }
+/* ------------------------------------------------------------ the ledger: sage margin and section rules */
+.entry { max-width: 1340px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 60px minmax(0, 1fr); }
+.entry > .body { grid-column: 2; min-width: 0; border-left: 3px double var(--margin-line); padding: 48px 0 48px 40px; }
+.entry + .entry > .body { border-top: 1px solid var(--rule-2); }
 .entry > .margin { grid-column: 1; grid-row: 1; }
-.num { position: sticky; top: 92px; align-self: start; margin-top: 122px; padding-right: 12px; text-align: right; font: 500 13px/1 var(--mono); letter-spacing: 0.06em; color: var(--brand); }
+.num { position: sticky; top: 92px; align-self: start; margin-top: 50px; padding-right: 12px; text-align: right; font: 500 13px/1 var(--mono); letter-spacing: 0.06em; color: var(--brand); }
 .num::after { content: ""; display: inline-block; width: 10px; height: 1px; margin-left: 8px; vertical-align: middle; background: var(--brand); }
 .label { display: flex; align-items: center; gap: 10px; font: 500 12px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
 .num-inline { display: none; color: var(--brand); }
@@ -83,7 +85,7 @@ h2 { font: 400 clamp(34px, 4.3vw, 58px)/1.04 var(--serif); letter-spacing: -0.01
 .fn { margin-left: 2px; font: 600 0.72em/1 var(--mono); color: var(--brand); text-decoration: none; vertical-align: super; }
 
 /* ------------------------------------------------------------ hero */
-.hero > .body { padding-top: 64px; padding-bottom: 104px; }
+.hero > .body { padding-top: 64px; padding-bottom: 48px; }
 .hero-grid { display: grid; grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr); gap: 56px; align-items: center; }
 .kicker { font: 500 12px/1.5 var(--mono); letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
 .kicker .sep { color: var(--brand); margin: 0 4px; }
@@ -342,8 +344,8 @@ kbd { display: inline-grid; place-items: center; min-width: 30px; height: 30px; 
 .closing { margin-top: 72px; font: 400 clamp(26px, 2.9vw, 36px)/1.25 var(--serif); color: var(--ink); max-width: 30ch; }
 
 /* ------------------------------------------------------------ fine print */
-.fineprint > .body { padding-top: 96px; padding-bottom: 88px; }
-.fineprint .num { margin-top: 98px; }
+.fineprint > .body { padding-top: 48px; padding-bottom: 48px; }
+.fineprint .num { margin-top: 50px; }
 .fineprint .label { margin-bottom: 22px; max-width: none; }
 .notes { padding-left: 22px; columns: 2; column-gap: 56px; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
 .notes li { break-inside: avoid; margin-bottom: 10px; padding-left: 4px; }
@@ -401,9 +403,9 @@ kbd { display: inline-grid; place-items: center; min-width: 30px; height: 30px; 
   .brand { font-size: 17px; }
   .entry { display: block; padding: 0 16px 0 14px; }
   .entry > .margin { display: none; }
-  .entry > .body { padding: 76px 0 16px 18px; }
+  .entry > .body { padding: 32px 0 32px 18px; }
   .num-inline { display: inline; }
-  .hero > .body { padding-top: 40px; padding-bottom: 72px; }
+  .hero > .body { padding-top: 40px; padding-bottom: 32px; }
   .lede { font-size: 17.5px; }
   .cta-row .btn { flex: 1 1 auto; justify-content: center; }
   .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 14px; }
@@ -435,7 +437,7 @@ kbd { display: inline-grid; place-items: center; min-width: 30px; height: 30px; 
   .stack td:last-child { padding-left: 0; text-align: left; margin-top: 10px; }
   .run-card { padding: 22px 18px; }
   .closing { margin-top: 56px; }
-  .fineprint > .body { padding-top: 64px; padding-bottom: 64px; }
+  .fineprint > .body { padding-top: 32px; padding-bottom: 40px; }
 }
 @media (max-width: 380px) {
   .top .btn-sm { padding: 0 11px; font-size: 13px; }
