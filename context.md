@@ -10,6 +10,16 @@
 
 **Navbar divider (UI-15, 2026-10-22, uncommitted):** the shared landing/guide/404 navbar has a persistent 1px sage (`--rule-2`) bottom border before and after scrolling. Chrome desktop/mobile visual checks passed; see PROGRESS.
 
+**Desktop inset (UI-16, 2026-10-22, uncommitted):** the landing page now uses a 1340px frame (including its header/footer), placing the ledger line 149.5px from the left edge at 1455px available width and 100% zoom. Font sizes and phone spacing are unchanged; guide/404 frames remain 1240px. Eight viewport checks and the existing 18 landing browser checks passed; see PROGRESS.
+
+**Section rhythm (UI-17, 2026-10-22, uncommitted):** the landing page now has sage horizontal rules between sections and reduced whitespace (48px per side desktop, 32px phone; hero initial top spacing retained). Hero-to-Problem gap is 97px / 65px including the divider. Existing 18 landing checks passed; pre-existing 320px overflow is a separate proposed UI-18. See PROGRESS.
+
+**Review app polish (UI-19, 2026-10-22, uncommitted, not deployed):** `/app` has a compact header with guide navigation, clearer setup/review headings, a wider messages field, organised actions/status, and refined cards/summary panels in the same light Forest & Parchment palette. Review rows adapt to their column width; failed reads remain explicit and use amber summaries. No JavaScript, API, model or export changes. Seven browser suites passed (109 checks), unit suite 116 OK (8 skipped), and 11 app widths from 320–1455px fit without overflow. The screenshot's model connection refusal remains a separate runtime issue; verification used Rules only/saved replay/simulated failures. See PROGRESS.
+
+**Setup card (UI-20, 2026-10-22, uncommitted):** CSS-only refinements to Prepare your week: tagline under the title, settings in one recessed strip, one label style, format hints beside field titles, a solid file-picker button without the gap, and no empty action row in the replay. Behaviour unchanged; seven browser suites and unit tests pass. See PROGRESS.
+
+**Availability sheet card (UI-21, 2026-10-22, uncommitted):** CSS-only: tidier two-column legend, lighter table with zebra rows and row hover, solid edge on accepted times while pending stays dashed. Name column stays 17% because wider names overflow pending times (UI-01). See PROGRESS.
+
 **Read this first, then [CLAUDE.md](CLAUDE.md).** Written 2026-10-21, about 11:10–11:30 IST (Asia/Kolkata), by the Claude **project-lead (planning) session** before a context compaction. The previous version is preserved in [docs/archive/context-2026-10-20.md](docs/archive/context-2026-10-20.md): it is outdated in places but holds extra detail.
 
 **Evidence labels used below:**
@@ -116,13 +126,13 @@ Contracts: [docs/API.md](docs/API.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.
 | Session save/load (COR-04), roster-limit warning (COR-06), coordinator names in UI (COR-08), timezone use (COR-05), stop button (UI-03) | PLANNED, NOT IMPLEMENTED | Deferred (D-23) or P2 |
 | Human time saved | UNKNOWN: EVIDENCE INSUFFICIENT | Never measured; see [evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md) |
 | Real-world usefulness / demand | UNKNOWN: EVIDENCE INSUFFICIENT | No coordinator interviews or pilot |
-| Sponsor integrations for this submission: Actions automation (INT-11), Render replay (DEP-02), Sentry tracing (INT-03), ElevenLabs narration (INT-04) | INT-11 and DEP-02 done and verified; INT-03 real delivery verified; timeout and privacy follow-up open; INT-04 planned (D-33, 2026-10-21; each has a dated gate) | [briefs](docs/prompts/d33-integrations.md) |
+| Sponsor integrations for this submission: Actions automation (INT-11), Render replay (DEP-02), Sentry tracing (INT-03) | INT-11 and DEP-02 done and verified; INT-03 real delivery verified; timeout and privacy follow-up open; ElevenLabs (INT-04) dropped by the owner (D-37, 2026-10-22) | [briefs](docs/prompts/d33-integrations.md) |
 | Other sponsor integrations (.tech, Entire, Copilot coding agent, R-CLI) | PLANNED, NOT IMPLEMENTED; deferred (D-23) | — |
 
 ## F. Decisions (canonical: [docs/DECISIONS.md](docs/DECISIONS.md))
 
 Key recent decisions:
-- **D-23:** the Week 3 entry targeted **overall + Gemma**, with Actions CI as the only addition. **Overridden in part by D-33** (owner, 2026-10-21): also Copilot (via Actions), Render, Sentry and ElevenLabs, each dropped if it misses its gate.
+- **D-23:** the Week 3 entry targeted **overall + Gemma**, with Actions CI as the only addition. **Overridden in part by D-33** (owner, 2026-10-21): also Copilot (via Actions), Render, Sentry and ElevenLabs, each dropped if it misses its gate. **D-37** (owner, 2026-10-22): ElevenLabs dropped.
 - **D-32:** COR-15 accepted; cue-only replacements raise a warning (COR-18, done). **D-33:** see above; deadline planning unchanged (25 Oct 12:29 IST).
 - **D-24:** set C was frozen outside the repo by hash.
 - **D-25:** missed cancellations get a warning first; no vocabulary tuning.
@@ -230,7 +240,7 @@ Lessons learned:
 D-31 and COR-18 are reviewed, accepted and committed (`13e5527`). The owner chose to add four categories (D-33).
 
 1. The owner gives the coding agent brief 1 (INT-11) from [docs/prompts/d33-integrations.md](docs/prompts/d33-integrations.md). The lead reviews the report the same way as D-31: tests, protected paths, then the diff. Then briefs 2 and 3, one at a time, each by its D-33 gate.
-2. Meanwhile, the lead writes the DEP-03 demo script with ElevenLabs narration text, then the REL-05 post draft.
-3. The owner does the account steps (Render, Sentry, ElevenLabs offer) and never pastes keys into chat.
+2. Meanwhile, the lead writes the DEP-03 demo script (narrated live by the owner or captioned; ElevenLabs dropped, D-37), then the REL-05 post draft.
+3. The owner does the account steps (Render, Sentry) and never pastes keys into chat.
 
 If the agent hasn't reported, ask the owner for its status rather than inspecting half-finished files as if they were final.

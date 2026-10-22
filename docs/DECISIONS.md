@@ -51,6 +51,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 | D-34 | Landing page at `/`, review app at `/app` (UI-09) | accepted (owner request; routing by the project lead, 2026-10-22) |
 | D-35 | Forest & Parchment colour palette (UI-13) | accepted (owner approved, 2026-10-22) |
 | D-36 | Light appearance only (UI-14) | accepted (owner request, 2026-10-22) |
+| D-37 | Drop ElevenLabs (INT-04); demo narrated live or captioned | accepted (owner decision, 2026-10-22) |
 
 ---
 
@@ -368,3 +369,13 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 - **Decision:** the landing page, review app, guide and 404 always use the light palette of [D-35](#d-35-forest--parchment-colour-palette-ui-13). The `@media (prefers-color-scheme: dark)` overrides are removed from `ui/home.css` and `ui/style.css` (setting `color-scheme: light` alone would not have disabled them); `color-scheme: light` stays so native controls, pickers and scrollbars are light; each page has one `theme-color` tag, `#f4f2e8`.
 - **Tradeoffs:** visitors who prefer dark mode get the light pages. The dark values D-35 lists were removed from the stylesheets rather than left as unused code; they are in git history (the UI-13 state) if a dark theme is wanted again.
 - **Revisit if:** the owner wants dark mode back, automatic or as a switcher.
+
+### D-37 Drop ElevenLabs (INT-04); demo narrated live or captioned
+
+- **Date:** 2026-10-22. **Status:** accepted (owner decision).
+- **Decision:** the entry will not claim Best Use of ElevenLabs. No ElevenLabs account, offer or audio is used.
+- **Why:**
+  - The 2026-10-22 rival scan rated demo narration the weakest of our routes: the rival read (SlothFridge) uses in-app streaming voice.
+  - Generated narration needs per-shot syncing that the owner judged not worth the time.
+- **Demo instead:** record each shot with the Mac microphone on, reading the script while clicking, so voice and video can't drift. Or record silently and add text captions in iMovie.
+- **Remaining target categories:** Overall, Gemma, Render, GitHub Copilot (through Actions) and Sentry Agent Tracing. At most one prize per entry.

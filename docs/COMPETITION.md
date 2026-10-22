@@ -178,3 +178,21 @@ The [Monthly MLH × DEV Writing Challenge](https://dev.to/mlh-hackathon) offers 
 - The documentation alignment rechecked the HF26 hub and Week 3 full details, including multiple eligible categories/one prize, meaningful sponsor use, demo narration and GitHub Actions routes. The written-rules page could not be reopened through the web tool during this last alignment; its earlier inspected deadline and the still-conflicting API timestamp remain labelled above. Do not silently resolve that conflict.
 - Account-specific quotas, domain acquisition, licensing/redemption state and final category selection remain unresolved until actual evidence is recorded. The available ElevenLabs offer/skills listings are described in the integration plan; no code was claimed and no third-party skill was installed.
 - Source/date changes belong here and in the handoff; implementation status belongs in [PROGRESS.md](../PROGRESS.md), next work in [TASKS.md](../TASKS.md). Keep these distinctions when future agents update the repo.
+
+### Week 3 rival scan (2026-10-22)
+
+**Method:**
+- Pages 1–2 of the `hf26challenge` tag API (200 posts): 144 descriptions name Week 3, so that is a lower bound; the window is still open.
+- Sponsor tags (`sentry`, `render`, `elevenlabs`, `githubcopilot`) and semantic searches used to find category rivals.
+- 8 rival posts read in full. Not a census: many entries name their categories only in the body, so per-category counts are unknown.
+
+| Category | Rivals read | What they show | Our relative position (lead's judgement) |
+|---|---|---|---|
+| Sentry Agent Tracing | [SlothSRE](https://dev.to/gde/slothsre-napops-an-overnight-gemma-4-adk-agent-that-compresses-418-lines-of-3-am-alerts-into-a-1pk6) (Gemma 4 27B + ADK); [SlothLog](https://dev.to/alessio_bianchini/slothlog-why-i-built-an-offline-ai-powered-timesheet-generator-for-lazy-developers-2mak) | SlothSRE: a span table but no Sentry screenshot and no debugging story; sub-second 27B timings look like demo values (unverified). SlothLog: a code snippet only. | **Strongest.** The rubric asks for setup, latency/tokens/cost, what you found and how you debugged it, with traces. We have real traces, a real finding (4 cold-start timeouts in 49 calls, clean retry) and a privacy design. |
+| Render | [SlothFinance](https://dev.to/vidisha_gupta_/slothfinance-the-autonomous-open-source-ai-financial-tamer-that-rewards-your-laziness-5bp5); SlothLog | Both show a `render.yaml`. SlothFinance's live links are GitHub Pages and Vercel, not Render. | **Good.** Ours is actually live on Render, with a read-only design. Weaker than hosting the model itself (Week 1's Golden Hour hosted Ollama). |
+| GitHub Copilot | [LazyDeskOrg](https://dev.to/lasya_lingam/lazydesk-less-time-organizing-notes-more-time-getting-things-done-1pne); [cryocooler monitor](https://dev.to/pahorton/i-got-tired-of-coming-into-my-lab-to-check-the-pressure-of-my-cryocooler-so-i-built-a-tool-to-do-it-4ob7) | Both used the Copilot agent directly, with screenshots; LazyDeskOrg also has Actions CI. | **Weak to moderate.** We qualify only through the Actions route, with no Copilot tool use. |
+| ElevenLabs | SlothFridge (dev.to user `pratyushpanda`, article id 4888265) | In-app streaming voice. | **Weak.** Demo narration is the shallowest listed route. |
+| Gemma | nightshift (dev.to user `ninefyi`, article id 4889457), SlothSRE, many more | The most crowded category. nightshift is close to our approach: model proposes, checks verify, planted-error probes, candid limits. | **Hard.** Our edge is the frozen, independent held-out set C and its published first score. |
+| Overall | about 144+ entries | Writing quality is weighted most. | Competitive with the top tier only if the post is excellent. |
+
+At most one prize per entry. Best bets: Sentry, then Render. None of this is a probability.

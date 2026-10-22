@@ -172,7 +172,7 @@ Two allowlists in `ledger/tracing.py` guard what leaves the process. The SDK's `
 | Render read-only replay | **Deployed** (DEP-02, 2026-10-21): https://availability-ledger-replay.onrender.com, from [render.yaml](render.yaml) on the free plan. |
 | GitHub Actions (Copilot category) | **Running** (`.github/workflows/tests.yml`, INT-10, INT-11): on every push and pull request, unit tests, a SHA-256 check that the frozen evidence is unchanged, and a re-score of sets A, B and C from saved outputs, with the score table in the job summary. No secrets or model. Run "tests #5" (`8c5f975`) passed. |
 | Sentry Agent Tracing | **Real delivery verified** (INT-03, 2026-10-21/22): four 300 s timeouts identified, later successful retry received, and targeted geo redaction verified on a separate fictional trace. Wider privacy/account checks remain open; [handoff](docs/SENTRY_HANDOFF.md). |
-| ElevenLabs | **Planned** (INT-04): narration of the demo video; script in [docs/demo/script.md](docs/demo/script.md). |
+| ElevenLabs | **Dropped** ([D-37](docs/DECISIONS.md#d-37-drop-elevenlabs-int-04-demo-narrated-live-or-captioned)): not used, category not claimed. |
 | Everything else listed above | **Deferred**; not implemented. |
 
 **Work order ([TASKS.md](TASKS.md#order-of-work)):** done: set C scored once (EVAL-07, 2026-10-21); post-hoc fixes COR-13 to COR-18; GitHub Actions automation (INT-11); hosted replay (DEP-02). In progress: Sentry tracing (**INT-03**: real delivery/finding verified; scoped privacy/account checks remain) → narrated demo (**DEP-03**, **INT-04**) → submission post (**REL-05**; the owner checks eligibility, **REL-04**). A small fresh set D (**EVAL-11**) is optional.

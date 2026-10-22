@@ -1,4 +1,4 @@
-# Demo script (DEP-03) with ElevenLabs narration (INT-04)
+# Demo script (DEP-03)
 
 Target length: about 2 min 30 s. Narration is about 330 words at a calm pace. Everything shown is fictional ("Riverside Community Pantry", set A).
 
@@ -11,8 +11,8 @@ Target length: about 2 min 30 s. Narration is about 330 words at a calm pace. Ev
 
 **Tools (₹0):**
 - macOS screen recording (Cmd+Shift+5).
-- iMovie to lay the narration over the video.
-- ElevenLabs (your Hacktoberfest offer, a stock voice, never a cloned real voice) to generate one MP3 per shot, so each clip lines up with its shot.
+- iMovie to join the shots and add captions.
+- **Narration (D-37, ElevenLabs dropped):** in the Cmd+Shift+5 toolbar choose **Options → Microphone**, and read each shot's lines aloud while you click. Voice and video are recorded together, so they can't drift. Retake a single shot if you stumble. Or record silently and put the lines on screen as iMovie titles.
 
 ---
 

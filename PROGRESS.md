@@ -1086,3 +1086,72 @@ Owner request: make the approved light appearance the default on all four pages 
 Owner requested a line separating the navbar and hero. Changed only the two header-border declarations in `ui/home.css`: `.top` now has a 1px solid `--rule-2` (#B9C9B2) bottom border from initial load, and `.top.is-stuck` keeps the same colour after scrolling. The existing transparent border already reserved the space, so header geometry is unchanged. The shared navbar on the guide and 404 inherits the divider. No JavaScript, application logic, model, API, export, fixture or evaluation changes; previous uncommitted work preserved. TASKS and context updated.
 
 **Verification:** installed Google Chrome driven with the existing bundled Playwright, temporary local server with Sentry disabled and Python bytecode writes disabled. At 1440 and 390 px, with a dark OS preference emulated, the landing page, guide and 404 passed 12 checks (page top and after scrolling): 1px solid rgb(185, 201, 178) border, parchment background, no horizontal page overflow and no page exceptions. Desktop landing screenshot visually inspected. Screenshots and JSON report are outside the repository in `/Users/bipulchamoli/.codex/visualizations/2026/10/22/01a16160-ed4b-7e12-a603-78f5643745cf/` (`navbar-divider-1440.png`, `navbar-divider-390.png`, `navbar-divider-verification.json`). No new tests added; full behavioural suites and unit tests were not rerun for this border-only change. Not committed, pushed or deployed.
+
+
+### UI-16: reduce the desktop left inset (2026-10-22)
+
+Owner approved reducing the left-edge-to-ledger-line distance from approximately 200px to 150px at the current desktop size and normal 100% zoom. `ui/home.css`: increased `.entry` max-width from 1240px to 1340px and added `.landing .wrap { max-width: 1340px; }` so the landing header/footer remain aligned with its wider content. `ui/home.html`: added `class="landing"` to the body to scope that wrapper change; guide and 404 retain their original 1240px frames. At 1455px of available width, `(1455 - 1340) / 2 + 32 + 60 = 149.5px`, down from 199.5px. Wider/narrower desktop windows continue to use the existing centred responsive layout rather than a fixed 150px margin. Font sizes, colours, inner padding, navbar divider and all mobile breakpoints are unchanged. No JavaScript, review-app, backend, model, API, export, fixture or evaluation changes; existing uncommitted work preserved. TASKS and context updated.
+
+**Verification:** installed Chrome with the existing bundled Playwright, temporary local server with tracing disabled and Python bytecode writes disabled. Checked landing layouts at 1455, 1440, 1280, 1180, 1060, 900, 720 and 390px; measured the requested 199.5px to 149.5px change, identical heading font/colour and inner padding, no horizontal overflow, retained sage navbar border, and identical measured layouts before/after below 1240px. Guide and 404 still have 1240px desktop wrappers; no page exceptions. Inspected desktop and phone screenshots. Re-ran the existing `tests/browser/landing.mjs`: all 18 checks passed (demo replay/steps, links, local vs hosted labels, desktop/phone landing and guide layouts, styled 404, no external loads or console errors). No fresh model calls. Full unit/other browser suites were not rerun for this scoped layout change. Browser evidence and before/after screenshots are outside the repo under `/Users/bipulchamoli/.codex/visualizations/2026/10/22/01a16160-ed4b-7e12-a603-78f5643745cf/landing-spacing/`. Not committed, pushed or deployed.
+
+
+### UI-17: tighter landing sections and sage separators (2026-10-22)
+
+Owner requested less blank space between sections and a line at each boundary. Changed `ui/home.css` only: standard landing `.entry > .body` padding is now 48px top/bottom on desktop and 32px on phones; hero initial top padding stays 64px desktop / 40px phone, with bottom padding reduced to 48px / 32px; fineprint uses 48px top/bottom desktop and 32px top/40px bottom phone. A 1px `--rule-2` top border on `.entry + .entry > .body` separates all seven boundaries, joining the existing vertical ledger line and stopping at the content right edge. Normal and fineprint margin-number offsets are 50px to align with the labels. Existing UI-15 navbar divider, UI-16 frame/inset, font sizes, palette, copy, JS, app/guide/404 behaviour, server, exports and protected evidence preserved. TASKS and context updated.
+
+**Verification:** installed Google Chrome driven by the existing bundled Playwright, temporary local server with Sentry and bytecode writes disabled. Compared the pre-change stylesheet with current CSS at 1455, 1100, 900, 720, 390 and 320px. All seven section gaps shrink at each width; desktop hero-to-Problem gap is 224px → 97px, phone 148px → 65px (including the 1px divider). All seven rules have the intended sage colour, numbering stays aligned and nav targets remain below the sticky navbar. Existing font values and 149.5px desktop line position retained; no external resource loads or page exceptions. Desktop hero/Problem, review/evidence and phone transition screenshots visually reviewed, including an independent review. Re-ran the existing `tests/browser/landing.mjs`: 18/18 passed. No unit/other browser suites rerun for this CSS-only spacing change; no new test file or inference. `git diff --check` clean.
+
+**Existing limit found, not hidden or fixed:** first scratch pass passed five widths then stopped on horizontal overflow at 320px. A fresh before/after comparison confirmed overflow at that width with both the old and new CSS; there is no overflow at the other five widths. Recorded separately as proposed UI-18, without expanding this task. Scratch comparisons, before/after screenshots and report are outside the repo under `/Users/bipulchamoli/.codex/visualizations/2026/10/22/01a16160-ed4b-7e12-a603-78f5643745cf/section-spacing/`. Not committed, pushed or deployed.
+
+
+### UI-19: clearer setup and review page (2026-10-22)
+
+Owner requested UI improvements to `/app`, showing a populated page with model connection-refused warnings. Changed `ui/index.html` and `ui/style.css`: compact header aligned with the page frame, serif Availazy wordmark and About/User guide navigation; numbered “Prepare your week” and review headings; settings grid; messages/roster inputs in a 2:1 desktop split with short labels and separate format hints; upload/demo actions grouped apart from the primary Suggest records action; run status on its own line. Refined source/suggestion cards, summary headings and export-button layout. The review column uses a container query to stack source/suggestion rows when its own available width is small, retaining the existing 432px desktop summary column and sheet width. Phone controls and fields stack. Existing semantic states, hatching, dashed pending outlines, review actions, focus styling and explicit failure alerts remain; failure summaries now use amber when failed-message elements are present.
+
+Approved light Forest & Parchment colour tokens retained, including under a dark browser preference. Existing form IDs and action hooks retained; added explicit textarea names/descriptions and an upload label. No dependencies, JavaScript, server, API, ledger, export, model, fixture or evaluation changes. Previous uncommitted landing work preserved. TASKS and context updated. No commit, push or deployment.
+
+Independent final markup audit confirmed all 31 original IDs retained, five new IDs, no duplicates, and all label/ARIA targets resolving. Existing status roles, hidden workspace, hosted `.local-only` restrictions, replay banner and JavaScript action hooks remain intact. This was a source audit, not a screen-reader test.
+
+**Verification:** installed Chrome, existing bundled Node/Playwright/Python, temporary local servers with Sentry and Python bytecode writes disabled. The six existing app browser scripts passed: `sheet_display` 28/28, `demo_mode` 23/23, `review_safeguards` 12/12, `session_rerun` 10/10, `extraction_failures` 14/14, `csv_safety` 4/4. After the final replay-grid, label and amber-summary refinements, `demo_mode` 23/23 and `extraction_failures` 14/14 were re-run and passed. The existing landing suite passed 18/18. Unit discovery ran 116 tests: OK, 8 skipped (optional tracing SDK); Python also emitted a ResourceWarning about an unclosed subprocess stream, without a test failure. No browser console exceptions reported. `git diff --check` clean.
+
+A scratch browser check on the final source loaded fictional set A using Rules only, exercised accepted/rejected/reviewed states, and checked 1455, 1400, 1200, 1100, 1024, 901, 900, 720, 600, 390 and 320px: no horizontal page/control/sheet overflow, no external resource loads, parchment body even with dark preference. A simulated `/api/suggest` failure retained all 49 per-message `role="alert"` warnings and the overall failure count. Desktop setup/workspace, phone setup/workspace and failure-state screenshots visually inspected, with an independent review of desktop layout and regression results. Scratch scripts, before/after captures and reports are outside the repo under `/Users/bipulchamoli/.codex/visualizations/2026/10/22/01a16160-ed4b-7e12-a603-78f5643745cf/app-ui/`.
+
+**Limits:** no fresh model inference, runtime installation/start, Firefox, Safari, screen-reader pass or full new contrast audit. The model connection refusal visible in the owner's screenshot is separate from presentation and is not resolved or hidden by this change. Rules-only, saved replay outputs and simulated failures were used for browser verification. UI-18's pre-existing narrow landing overflow remains separately proposed; the app checks here do not claim to fix it.
+
+
+### UI-20: setup card refinements (2026-10-22)
+
+Owner request: "improve the ui of this card", with a screenshot of the Prepare your week card (uncommitted UI-19 state, preserved and built on). Standing owner instruction from UI-08: do not change functionality. Changed `ui/style.css` only.
+
+- **Heading:** the tagline now sits under "Prepare your week", aligned with the title text, instead of floating at the far right; the 01 step number is a filled chip.
+- **Settings:** week, timezone, reader, model and the day-first option sit in one recessed strip (`--bg`), separating how to read from what to read; the day-first checkbox is boxed to the input height so the row lines up.
+- **Labels:** settings labels now use the same ink, size and weight as Messages and Volunteers (they were smaller and muted).
+- **Source fields:** each format hint sits on the title line, right-aligned (under the box on phones), which shortens the card.
+- **Actions:** the file picker's button is solid like Load fictional demo (it was dashed) and the input is 210px wide, removing the gap after "No file chosen"; a probe with a real fixture file showed Chrome shortening a long filename in the middle ("rivers…ek.txt"). In the hosted replay, where the source actions are hidden, the empty divided row is removed.
+
+Checks run (2026-10-22, fictional set A, Rules only or saved replay outputs, no model inference): `node tests/browser/{sheet_display,demo_mode,review_safeguards,session_rerun,extraction_failures,csv_safety,landing}.mjs`: 28/28, 23/23, 12/12, 10/10, 14/14, 4/4, 18/18; `python3 -m unittest discover -s tests`: 116 OK, 8 skipped. Scratch screenshots of the card (outside the repo) at 1455, 1100, 720 and 390px locally and 1455/390px in replay mode: no page overflow, no element outside the card, no console errors. Not run: new contrast audit (no colour value changed; label text moved from `--muted` to `--text`, which only raises contrast), Firefox/Safari.
+
+
+### UI-21: availability sheet card refinements (2026-10-22)
+
+Owner request: "improve the ui of this card", with a screenshot of the Availability sheet after a run whose model reads failed (empty 18-row grid). Changed `ui/style.css` only; the sheet's markup, legend wording, JavaScript, ledger and export are unchanged.
+
+- **Legend:** a two-column key in a recessed box; samples never wrap ("pending change" stays on one line) and its long explanation spans the full width.
+- **Table:** row rules and faint day-column lines instead of a full cell grid, a quieter header with a stronger underline, zebra rows and a row hover to follow one volunteer across the week, volunteer names in ink.
+- **Status:** accepted segments get a solid 2px edge in the status colour; pending segments keep the dashed outline and "pending" label, so accepted and pending differ by line style as well as colour (UI-05 unchanged). Phone cards keep plain backgrounds.
+
+**Tried and reverted (UI-01):** a 20% name column and tabular numerals each made pending times overflow the day columns at 1400px (`sheet_display`: 5 overflowing cells in the test week and 28 in the demo, then 12 from the column width alone); the name column stays at 17% (day columns 47px) and digits stay proportional, with comments in the CSS. Long names still wrap to two lines.
+
+Checks run (2026-10-22, fictional set A, Rules only; Model only with Ollama unreachable for the empty state; no model inference): `node tests/browser/{sheet_display,demo_mode,review_safeguards,session_rerun,extraction_failures,csv_safety,landing}.mjs`: 28/28, 23/23, 12/12, 10/10, 14/14, 4/4, 18/18; `python3 -m unittest discover -s tests`: 116 OK, 8 skipped; scratch screenshots of the filled and empty card at 1455 and 390px, no page overflow, no console errors. Not run: contrast audit (no new colour values; names moved from muted-on-sunken to ink), Firefox/Safari.
+
+### D-37: ElevenLabs dropped (2026-10-22)
+
+The owner decided to drop ElevenLabs, after the rival scan rated demo narration the weakest of our routes and syncing generated audio was judged not worth the time.
+
+**Updated:**
+- DECISIONS (D-37, index row);
+- the TASKS INT-04 row (dropped);
+- README, INTEGRATIONS and context.md status lines;
+- the demo script: narrate live with the Mac microphone while recording each shot, or add on-screen captions.
+
+No ElevenLabs account, offer or audio was used.
