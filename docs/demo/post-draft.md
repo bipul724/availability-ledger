@@ -1,5 +1,6 @@
 <!--
-REL-05 submission post, v2 rewrite 2026-10-23 (after reading the Week 1 / Weekend winners and the current Week 3 field). NOT PUBLISHED.
+REL-05 submission post, v2 rewrite 2026-10-23. PUBLISHED by the owner 2026-10-23T15:19Z: https://dev.to/bipul_chamoli_09b5f0cc719/availazy-gemma-4-reads-the-volunteer-group-chat-on-my-laptop-python-does-the-dates-and-i-just-1nm8
+This file mirrors the live text plus the suggested Sentry caption; the live post uses DEV-uploaded copies of the images. See docs/demo/post-live-fixes.md.
 Owner checklist before publishing (nothing here has been posted or sent):
   1. IMAGES VERIFIED 2026-10-23: all seven public image URLs return HTTP 200 and match the local PNG files byte for byte.
      Use cover.png in DEV's cover-image field. Body image links are live; you may instead replace each image line with DEV's upload result.
@@ -66,6 +67,8 @@ It records **availability**, not shift assignments. The person who gets to be la
 ## Demo
 
 {% embed https://www.youtube.com/watch?v=Qlq_kEsDr4g %}
+
+*For readable interface details, select ⚙️ → Quality → 1080p HD.*
 
 The video opens with the local app: Gemma 4 reads two invented messages live, through Ollama, on my laptop. Then it switches to the hosted replay for the full week.
 
@@ -212,7 +215,9 @@ All suggestions were left pending and nobody reviewed them: this scores the draf
 - ✅ **GitHub Actions** runs on every push and pull request to `main`, with three jobs: 116 unit tests (8 tracing tests skip without the optional SDK); a SHA-256 check that the frozen evaluation results haven't been touched; and a re-score of all three test sets from the saved model outputs, with no model calls. [Run #18](https://github.com/bipul724/availability-ledger/actions/runs/39852270754) passed all three jobs for the release.
 - 🔭 **Sentry Agent Tracing** is opt-in and off by default. When on, two allowlists in my adapter limit what's sent to structure: timings, token counts, model and stage names. Message text, names, quotes, prompts and replies are excluded, and offline tests check that planted fake content never appears. The traces earned their keep. In one run, **four model calls hit the 300-second client deadline** waiting for Ollama. A later run made **49 calls in 1.42 minutes with no errors**. (The traces don't say *why* the earlier calls stalled, and I won't pretend they do.) One caveat I found: received traces showed location (geo) attributes that my code doesn't send. After a settings change, the four I inspected appeared filtered, but I haven't audited everything Sentry receives ([dated evidence](https://github.com/bipul724/availability-ledger/blob/main/docs/SENTRY_HANDOFF.md)).
 
-<!-- OPTIONAL IMAGE 7 (not captured): one real redacted Sentry trace goes here, immediately after the Sentry bullet and before the GitHub embed. Show model-call duration/status only; exclude DSN, location values and message text. Caption only what that trace shows. Omit this image if unavailable; do not use a mock dashboard. -->
+![Sentry Agent Activity timeline: four consecutive gemma4:e2b-it-qat chat calls each last 5.00m and end in error; the selected span's Input tab says "No input for this span"](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/ddgw27fknlzgl8iqzi2h.png)
+
+*One traced run: four Gemma calls in a row each hit the 5-minute client timeout. The selected call shows "No input for this span": no message text was sent.*
 
 {% github bipul724/availability-ledger %}
 

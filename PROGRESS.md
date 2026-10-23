@@ -1644,3 +1644,31 @@ Added an owner capture checklist to `docs/demo/post-image-guide.md`, grounded in
 - The owner checklist now gives the conflicting deadline and recommends publishing before 25 Oct 12:29 PM IST (event API `ends_at` 2026-10-25T06:59Z, rechecked today), not 26 Oct.
 
 **Not checked:** DEV Preview rendering.
+
+### REL-05: published post checked (2026-10-23)
+The owner published the post at 2026-10-23T15:19Z (8:49 PM IST): https://dev.to/bipul_chamoli_09b5f0cc719/availazy-gemma-4-reads-the-volunteer-group-chat-on-my-laptop-python-does-the-dates-and-i-just-1nm8
+
+**Checked through the DEV API and the live page in the built-in browser:**
+- The text matches the fact-checked draft. Fourteen key facts were found in the rendered body, with no placeholders or editor comments.
+- The YouTube and GitHub embeds render.
+- The 2000×840 cover loads. Tags: devchallenge, hf26challenge, gemma, opensource.
+- **Six screenshots:** each live image matches its local file's pixel size, in the planned order. DEV re-encodes uploads, so the hashes differ.
+- **Owner additions:**
+  - a 1080p viewing tip under the video;
+  - a Sentry Agent Activity screenshot (1600×865). It shows four consecutive 5.00m errored `gemma4:e2b-it-qat` chat spans and "No input for this span", with no DSN, location values, names or message text visible.
+
+**Issues found:**
+- Every image renders with an empty alt.
+- The Sentry image has no caption.
+
+Paste-ready fixes are in `docs/demo/post-live-fixes.md`. `post-draft.md` now mirrors the live post, plus the suggested caption.
+
+**Not checked:** the social-card crop of the cover (`og:image` is 1200×627 with fit=cover).
+
+### REL-05: live fixes applied (2026-10-23)
+Re-checked the live post in the built-in browser:
+- All seven images have descriptive alt text and load in order.
+- The Sentry caption sits directly below the Sentry image and above the GitHub embed.
+- The cover, the YouTube embed and the GitHub embed render, and no raw Markdown or liquid tags show.
+
+The fixes in `docs/demo/post-live-fixes.md` are complete.
