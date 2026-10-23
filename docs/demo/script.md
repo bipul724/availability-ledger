@@ -58,9 +58,12 @@ Narration: about 640 words, which is about 4¼ minutes at 150 words a minute and
 > And here's why it reads every message twice. Maria cancels Thursday. Gemma picked up her Tuesday and her new Friday, but it missed the cancellation. A simple keyword reader runs alongside the model, caught it, and added it, flagged, so I can check it. Until I decide, the sheet marks Thursday as a pending change. I accept it, and Thursday won't reach the final sheet.
 
 ### 6. Changing minds, kept in order · 2:05–2:25
-**Screen:** open **Changes over time**.
-- Show Kofi Mensah, Thu 12 Nov: conditional from m13 ("I might be able to do Thursday afternoon if my work shift gets moved"), then available from m29 ("my shift got moved, so Thursday afternoon is a yes").
-- Then show Olu Adeyemi's m49 entries ("drop out for the rest of this week").
+**Screen:**
+- Press Cmd+F and find "shift gets moved". Show m13's Kofi card: Thu 12 Nov 13:00–17:00, conditional ("if my work shift gets moved").
+- Find "shift got moved". Show m29's card: Thu 13:00–17:00, available.
+- In the right-hand panel, scroll to **Changes over time** and point at the m49 lines for Olu Adeyemi ("marked unavailable, cancelled" on Thu 12 and Sat 14).
+
+This list only shows changes (corrections, cancellations, settled conditions), so Kofi's first "maybe" is shown on its message card instead.
 
 > Every change is kept in order. Kofi's "maybe, if my shift moves" stays conditional until he confirms. Olu drops out "for the rest of this week". He sent that on a Wednesday, so code cancels Wednesday through Sunday, which takes out his Thursday evening and his Saturday morning.
 

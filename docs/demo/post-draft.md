@@ -1,7 +1,7 @@
 <!--
 REL-05 submission-post DRAFT, prepared 2026-10-22; source/evidence audit refreshed 2026-10-23. NOT PUBLISHED.
 Owner, before publishing (each item is yours; nothing here has been posted or sent):
-  1. Replace [VIDEO LINK — not recorded yet] with the real video URL, or delete that line if you rely on the replay link alone.
+  1. Video added 2026-10-23: https://www.youtube.com/watch?v=Qlq_kEsDr4g (5:48). Check that the embed shows in DEV's preview.
   2. Confirm your personal eligibility and the deadline (sources conflict: see docs/COMPETITION.md and TASKS REL-04).
   3. Confirm the Prize Categories list against what is actually shown in the post and video.
   4. Fill in the AI-assistance credit with the tools you actually used, and set DEV's ai_disclosure_level in its editor or front matter according to actual authorship. Official dev.to/llms.txt (checked 2026-10-23) distinguishes some_ai from fully_autonomous; merely reviewing an AI-written draft does not make it human-authored. No value has been invented here. Do not publish with this field undisclosed.
@@ -33,7 +33,10 @@ It records availability, not shift assignments. The person who gets to be lazier
 
 ## Demo
 
-- **Video:** [VIDEO LINK — not recorded yet]
+- **Video (5:48):** the local app reads two invented messages live with Gemma 4, then the hosted replay walks through a fictional week.
+
+{% embed https://www.youtube.com/watch?v=Qlq_kEsDr4g %}
+
 - **Try it in your browser:** <https://availability-ledger-replay.onrender.com/app>. This is a fixed-data **replay**: a fictional pantry's week (50 messages, 18 volunteers) with Gemma's answers saved in advance, so it runs on free hosting without a model. Review decisions, history, the chart and both exports work; pasting your own messages is switched off. The free instance sleeps when idle, so the first visit can take about a minute; [Render describes this as an approximate wake time](https://render.com/docs/free), not a maximum.
 - **Read your own messages:** follow the [README's local setup](https://github.com/bipul724/availability-ledger#readme). Live Gemma inference happens only in the local app.
 

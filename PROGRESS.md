@@ -1502,3 +1502,48 @@ It also has a pre-recording checklist, a do-not-say list, fallbacks and a fact-s
 - The accept-cancellation line: the provisional sheet already drops Thursday while the cancellation is pending.
 
 **Not done:** no recording, no live full-week model run, no browser walk-through of the replay this time (the UI code behind these moments was last changed before the 2026-10-22 replay checks).
+
+### DEP-03: click-by-click run sheet (2026-10-23)
+
+Added `docs/demo/run-sheet.md`: the setup commands, six tabs with exact links, the Ana/Ben input, and three takes (A: shots 1–2, B: 3–9, C: 10–11). Each take is a table with video time, click/type and narration, followed by the iMovie steps.
+
+**Labels and links checked against source:**
+- `ui/index.html`: the page layout (messages on the left; Needs a decision, chart, sheet, Changes over time and export in the right panel) and button names.
+- `ui/app.js`:
+  - the progress texts ("Replayed … from saved outputs", "Accepted … suggestions that had no warnings");
+  - the review-state line;
+  - issue links to message rows;
+  - the "Changes over time" filter, `cancelled|condition|replaced|now`.
+- `evaluation/RESULTS.md` headings; GitHub run #20 on `2ada0d9` succeeded.
+
+**Corrected in `script.md` shot 6:** Kofi's first conditional answer (m13) is not listed under Changes over time; that list shows only changes. The shot now finds m13 and m29 on their message cards.
+
+No recording made; no browser walk-through in this step.
+
+### DEP-03: YouTube upload kit (2026-10-23)
+The owner has recorded the demo video (owner's report; the video itself was not reviewed here). Added:
+- [docs/demo/youtube.md](docs/demo/youtube.md): three title options, a ready-to-paste description (3,645 characters, no `<` or `>`), chapters that follow the run sheet's times, upload settings and a fact-source table.
+- [docs/demo/thumbnail.png](docs/demo/thumbnail.png) (1280 × 720, about 128 KB), rendered with local headless Chrome from [docs/demo/thumbnail.html](docs/demo/thumbnail.html). Its text is the fictional m02/m28 messages exactly as written in `fixtures/riverside_week.txt` and `ui/home.html`, plus Maria's post-review rows from the run sheet.
+
+**Checks:**
+- Every quoted phrase was found in `fixtures/riverside_week.txt`.
+- Set C figures match `evaluation/RESULTS.md`.
+- The CI triggers match `.github/workflows/tests.yml`.
+- The replay wake time matches the `ui/home.html` fine print.
+
+**Not checked:**
+- The chapter times against the actual edited video; the owner must adjust them.
+- Whether YouTube accepts the upload.
+
+Nothing was uploaded or published.
+
+### DEP-03: demo video uploaded (2026-10-23)
+- **Video:** https://www.youtube.com/watch?v=Qlq_kEsDr4g (the owner uploaded it).
+- **Checked in the built-in browser:**
+  - The title matches option 1 in `docs/demo/youtube.md`.
+  - The duration is 348 s (5:48), longer than the run sheet's plan of about 4:15.
+  - The custom thumbnail is served (`maxresdefault.jpg`, 1280×720).
+  - The description is the prepared text, minus the CHAPTERS and "What you'll see" blocks, so it has no timestamps that could be wrong.
+- **Not checked:** the video's content (not watched) and its visibility setting.
+- `docs/demo/post-draft.md` now embeds the video; owner note 1 was updated. DEP-03 is marked done in TASKS.
+- **Remaining:** REL-05 (credits/disclosure, then publish) and REL-04 (eligibility).

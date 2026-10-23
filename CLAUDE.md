@@ -70,7 +70,7 @@ Without `--cache-only`, model/hybrid evaluation makes fresh calls on cache misse
 
 ## Work order
 
-Follow the current order in [TASKS.md](TASKS.md#order-of-work). EVAL-07, D-31/COR-18, Actions/replay implementation and the post-push release check (REL-02) are done. INT-03 retains only the explicit unknowns in [SENTRY_HANDOFF](docs/SENTRY_HANDOFF.md); setup/delivery does not need another full run or billing click. The owner still records the demo (DEP-03), finishes the drafted post (REL-05), confirms eligibility/entries (REL-04) and publishes. CFG-02 verified the two-message Model-only review/export path; older full-week inference/trace runs are separate evidence, not proof of general accuracy. Per D-27, update the TASKS row and dated PROGRESS evidence for each task.
+Follow the current order in [TASKS.md](TASKS.md#order-of-work). EVAL-07, D-31/COR-18, Actions/replay implementation and the post-push release check (REL-02) are done. INT-03 retains only the explicit unknowns in [SENTRY_HANDOFF](docs/SENTRY_HANDOFF.md); setup/delivery does not need another full run or billing click. The demo video is uploaded (DEP-03). The owner still finishes the drafted post (REL-05), confirms eligibility/entries (REL-04) and publishes. CFG-02 verified the two-message Model-only review/export path; older full-week inference/trace runs are separate evidence, not proof of general accuracy. Per D-27, update the TASKS row and dated PROGRESS evidence for each task.
 
 ## Mandatory documentation for every task
 
