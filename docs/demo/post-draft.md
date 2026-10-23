@@ -1,14 +1,17 @@
 <!--
 REL-05 submission post, v2 rewrite 2026-10-23 (after reading the Week 1 / Weekend winners and the current Week 3 field). NOT PUBLISHED.
 Owner checklist before publishing (nothing here has been posted or sent):
-  1. PUSH FIRST. The cover and screenshots load from raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/.
-     Push this commit, then check every image in DEV's Preview tab. If one doesn't load, drag the file from docs/demo/post/ into DEV's editor instead.
+  1. IMAGES VERIFIED 2026-10-23: all seven public image URLs return HTTP 200 and match the local PNG files byte for byte.
+     Use cover.png in DEV's cover-image field. Body image links are live; you may instead replace each image line with DEV's upload result.
+     Check every image in Preview. The exact placements, filenames and captions are in docs/demo/post-image-guide.md.
+     There is one cover and six inline screenshots; placement comments are editor instructions, not article text.
   2. AI disclosure (required by DEV guidelines): the last line says what was AI-assisted. Make sure it's true for you, name your coding tools if you want,
      and set the AI-disclosure option in DEV's editor to match. This post was drafted by an AI assistant from the project's records.
   3. Optional, but it strengthens the Sentry category: add ONE redacted Sentry trace screenshot where the comment in "Sentry Agent Tracing" says so.
      No DSN, no location values, no message text. If you don't have a clean one, leave the comment; the text stands on its own.
   4. Optional: save your agent session with DevRelay and add a "My Agent Session" section. Judges like it; it isn't required.
-  5. Deadline: 25 Oct 11:59 PM PDT = 26 Oct 12:29 PM IST. Confirm your eligibility (REL-04).
+  5. Deadline: the sources conflict. The rules text says 25 Oct 11:59 PM PDT (26 Oct 12:29 PM IST), but the event API's end time is
+     2026-10-25T06:59Z = 25 Oct 12:29 PM IST. Publish before 25 Oct 12:29 PM IST to be safe (TASKS REL-04). Confirm your eligibility.
   6. Title alternatives if you prefer a shorter one:
        - "Let AI read, you decide: Gemma 4 turns a week of volunteer chat into a sheet I just say yes to"
        - "Gemma 4 missed Maria's cancellation. A keyword list caught it. That's the whole design."
@@ -46,7 +49,10 @@ Riverside Community Pantry doesn't exist. The pantry, its 18 volunteers and all 
 
 **Availazy** is a local review tool for the person who asks "when can you help?" and then has to make sense of the answers.
 
+<!-- IMAGE 1: upload landing.png immediately below this paragraph. Keep the caption below the uploaded image. -->
 ![Availazy landing page: Local AI for Coordinators Who Have Better Things to Do](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/landing.png)
+
+*Availazy turns volunteer messages into suggestions you can review beside their source.*
 
 You paste dated chat messages (or a WhatsApp text export) and your volunteer list, pick the week, and Availazy:
 
@@ -73,7 +79,10 @@ When Gemma read Maria's Thursday message in the saved run, it got her Tuesday ri
 
 So Availazy doesn't trust one reader. In the default mode, a plain keyword reader reads every message alongside the model. When the rules see a cancellation the model didn't, the app adds it, **flagged**, so I can check it:
 
+<!-- IMAGE 2: upload maria-change-of-plans.png here, before the paragraph beginning "Until I accept it". -->
 ![Maria's "change of plans" message. Two cards come from the model; the third, Thursday unavailable, is marked "Added by the rules: possible cancellation the model missed"](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/maria-change-of-plans.png)
+
+*Gemma found Tuesday and Friday. The rules added the Thursday cancellation for review.*
 
 Until I accept it, the sheet shows Thursday as a *pending change*. One click on **Accept** and Thursday is gone from the final sheet. In **Model only** mode, the same replay leaves Maria on Thursday morning. That one message is the whole argument for running two readers.
 
@@ -100,11 +109,11 @@ message ──▶ Gemma 4 E2B (Ollama, local) ──▶ copied words + a propose
 
 ```json
 {"person": "SENDER", "day_text": "Tuesday", "time_text": "morning",
- "status": "available", "condition": "", "replaces_earlier": true,
+ "status": "available", "condition": "", "replaces_earlier": false,
  "excerpt": "Tuesday morning still good"}
 ```
 
-No date and no hours, just the words. **Python** works out that "Tuesday", sent on Thursday 5 November for the week of 9 November, means **10 November**, and that "morning" means a fixed window:
+No date and no hours, just the words. Gemma didn't even mark it as a replacement (`"replaces_earlier": false`). Python spotted "Change of plans" and marked Maria's new answers as replacing her old ones, with a visible note on each card. **Python** also works out that "Tuesday", sent on Thursday 5 November for the week of 9 November, means **10 November**, and that "morning" means a fixed window:
 
 ```python
 DEFAULT_PERIODS = {
@@ -116,21 +125,33 @@ DEFAULT_PERIODS = {
 
 Open ranges are code too. "After 3" runs to 20:00, the end of the planning day, and the card says so:
 
+<!-- IMAGE 3: upload priya-after-3.png here, after the explanation of the 20:00 cutoff. -->
 ![Priya's message "Monday after 3 works, and Wednesday afternoon." becomes Mon 9 15:00–20:00 and Wed 11 13:00–17:00, with the note "'after 3' runs to 20:00"](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/priya-after-3.png)
+
+*“After 3” becomes 15:00–20:00, with the assumption written on the card.*
 
 **2. Every quote is checked against the message.** If the model's quote *and* its day/time words are both missing from the message, the suggestion is **not applied** unless you choose "Use it anyway". If only some words are missing, it's flagged.
 
 **3. History is kept in order.** Later messages change only the days and times they mention. Kofi's "if my work shift gets moved" stays *conditional* until his later "my shift got moved, so Thursday afternoon is a yes". Olu's "I have to drop out for the rest of this week", sent on a Wednesday, cancels Wednesday through Sunday, taking out his Thursday evening and Saturday morning:
 
-![Changes over time: every replacement and cancellation, in order, each linked to its message](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/changes-over-time.png)
+<!-- IMAGE 4: upload changes-over-time.png here, at the end of point 3 and before point 4. -->
+![An excerpt of the change history, with replacements and cancellations linked to their source messages](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/changes-over-time.png)
+
+*An excerpt of the change history, with replacements and cancellations linked to their source messages.*
 
 **4. When the words don't settle it, it asks.** "Next Tuesday" sent on a Monday could be two dates. "This Saturday" sent the week before is outside the week. A name that matches nobody on the roster isn't guessed:
 
+<!-- IMAGE 5: upload needs-a-decision.png here, at the end of point 4 and before point 5. -->
 ![Needs a decision: ten items, including "Which day? 'next tuesday' sent on Mon 09 Nov could be 10 Nov or 17 Nov" and "2026-11-07 is outside the selected week"](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/needs-a-decision.png)
+
+*Ambiguous dates, unmatched names and unresolved conditions stay on the decision list.*
 
 **5. The calm wrong answer.** Marta asks: *"Is Maria still doing Tuesday morning? If not I can take it."* Gemma filed Marta's offer **under Maria**, as a conditional Tuesday. It's wrong, and it looks perfectly reasonable. That's why every suggestion sits beside its message, and why this one carries "Only one of the two readers found this":
 
+<!-- IMAGE 6: upload m48-wrong-person.png here, before "One click on Reject". -->
 ![m48 from Marta Lopes, with the model's suggestion filed under Maria Lopez as conditional Tuesday 09:00–12:00 and the flag "Only one of the two readers found this"](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/m48-wrong-person.png)
+
+*Marta wrote the message, but Gemma assigned the offer to Maria. Reviewing the source makes the mistake visible.*
 
 One click on **Reject** and Maria's Tuesday is firm again.
 
@@ -191,7 +212,7 @@ All suggestions were left pending and nobody reviewed them: this scores the draf
 - ✅ **GitHub Actions** runs on every push and pull request to `main`, with three jobs: 116 unit tests (8 tracing tests skip without the optional SDK); a SHA-256 check that the frozen evaluation results haven't been touched; and a re-score of all three test sets from the saved model outputs, with no model calls. [Run #18](https://github.com/bipul724/availability-ledger/actions/runs/39852270754) passed all three jobs for the release.
 - 🔭 **Sentry Agent Tracing** is opt-in and off by default. When on, two allowlists in my adapter limit what's sent to structure: timings, token counts, model and stage names. Message text, names, quotes, prompts and replies are excluded, and offline tests check that planted fake content never appears. The traces earned their keep. In one run, **four model calls hit the 300-second client deadline** waiting for Ollama. A later run made **49 calls in 1.42 minutes with no errors**. (The traces don't say *why* the earlier calls stalled, and I won't pretend they do.) One caveat I found: received traces showed location (geo) attributes that my code doesn't send. After a settings change, the four I inspected appeared filtered, but I haven't audited everything Sentry receives ([dated evidence](https://github.com/bipul724/availability-ledger/blob/main/docs/SENTRY_HANDOFF.md)).
 
-<!-- Owner: optional redacted Sentry trace screenshot goes here. No DSN, no location values, no message text. -->
+<!-- OPTIONAL IMAGE 7 (not captured): one real redacted Sentry trace goes here, immediately after the Sentry bullet and before the GitHub embed. Show model-call duration/status only; exclude DSN, location values and message text. Caption only what that trace shows. Omit this image if unavailable; do not use a mock dashboard. -->
 
 {% github bipul724/availability-ledger %}
 

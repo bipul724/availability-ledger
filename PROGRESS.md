@@ -1565,7 +1565,7 @@ Nothing was uploaded or published.
   - a closing question to readers.
 
 **New assets (all fictional data):**
-- **Seven screenshots** in `docs/demo/post/`. Six were captured from a local `LEDGER_DEMO=1` replay with headless Chrome over CDP, using the existing `tests/browser/harness.mjs`. The landing page is the seventh. They follow the run-sheet steps:
+- **Six retained screenshots** in `docs/demo/post/` (count corrected during the image-placement follow-up below). Five are app captures from a local `LEDGER_DEMO=1` replay with headless Chrome over CDP, using the existing `tests/browser/harness.mjs`; the landing page is the sixth. They follow the run-sheet steps:
   - m03 Priya;
   - m28 Maria with the rules-added Thursday;
   - Needs a decision (10 items);
@@ -1587,3 +1587,60 @@ Nothing was uploaded or published.
 - How DEV renders the post. The images use `raw.githubusercontent.com` URLs that work only after the owner pushes.
 
 **Owner steps:** push, preview on DEV, confirm the AI-disclosure line and setting, optionally add a redacted Sentry screenshot, publish before the deadline, and confirm eligibility (REL-04).
+
+
+### REL-05: exact image placement and captions (2026-10-23)
+
+**Owner request:** help assemble the post with the exact location of each image and what to put there.
+
+**Changed:**
+- Added `docs/demo/post-image-guide.md`: existing file links, exact before/after text anchors, what must remain visible, and captions for one cover and six body screenshots; separate guidance for the already-embedded video, text/code/CSV/results, and the optional uncaptured Sentry image.
+- Updated `docs/demo/post-draft.md` with six HTML placement comments and six visible italic captions. Cover upload/replacement guidance is in the owner checklist. Timeline alt text now accurately describes an excerpt rather than every change. The Sentry comment describes an optional real trace and does not imply a screenshot exists.
+- Corrected the prior screenshot count: the directory contains seven PNGs total, comprising the cover, landing screenshot and five app screenshots. No final-sheet screenshot was retained; the CSV excerpt remains the evidence.
+- Updated REL-05 in TASKS and the current handoff. Removed the contradictory stale handoff sentence saying no video URL was established; the embedded uploaded video was already recorded in DEP-03.
+
+**Checks actually run:** read the existing draft and repository guidance; visually inspected all seven PNGs; independently reviewed image order/captions; checked the six inline image filenames/order, six matching comments/captions, cover field, local image existence, all guide file links, corrected timeline wording, and uncaptured Sentry marker. All local checks passed; `git diff --check` was clean.
+
+**Attempt/limits:** a DevRelay posting-guide HTTP fetch failed with DNS resolution unavailable; no new platform-policy or competition-rule verification is claimed. No DEV preview, remote image availability check, external draft creation or publication. No application tests were needed for this documentation-only change. Images, application behavior and protected evaluation evidence were not changed. No installation, model run, commit, push or deployment.
+
+**Next:** owner pastes the article, uses the cover field, replaces linked image lines with upload results if needed, and previews all images/captions; existing disclosure, eligibility and publication tasks remain open. The optional Sentry screenshot may be omitted.
+
+
+### REL-05: repeat image and nearby evidence verification (2026-10-23)
+
+**Owner request:** verify the post guidance again.
+
+**Fresh checks:**
+- Re-read the full draft and image guide; independent read-only review confirmed the six before/after anchors, image order and captions against the screenshots, fixtures and saved model outputs.
+- Parsed all seven local PNG headers: cover is 2000 × 840; six body images exist and each has exactly one matching placement comment and caption. The guide contains the same six captions. The decision panel shows ten items; the timeline is accurately described as an excerpt.
+- Public URL verification initially failed through the restricted shell (DNS) and web fetch (cache miss). A read-only network check then succeeded: all seven `raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/*.png` URLs returned HTTP 200 and `image/png`; SHA-256 comparisons matched the corresponding local PNG files. These are successful fresh public checks, unlike the initial failed attempts.
+
+**Corrections:**
+- The article introduced a JSON block as Gemma's real saved m28 answer but gave `replaces_earlier: true`; `evaluation/runs/gemma4_e2b_it_qat_prompt3/m28.json` actually says `false`. Corrected only the documentation example, then parsed it and compared the entire object to the saved first claim: exact equality. The protected saved output was not edited.
+- Replaced the stale image-push prerequisite in the draft and current handoff; the guide and TASKS now record the successful public image checks. Earlier dated observations remain historical.
+
+**Limits/next:** DEV's rendered preview was not inspected; no Sentry screenshot exists. No broad re-verification of competition rules, other external claims, or video content is claimed. No application/model/image/evaluation change, install, external article write, publication, commit, push or deployment. The owner still previews the article and confirms existing disclosure/eligibility/publication items.
+
+
+### REL-05: owner Sentry screenshot instructions (2026-10-23)
+
+**Owner request:** explain how to take the optional Sentry screenshot.
+
+Added an owner capture checklist to `docs/demo/post-image-guide.md`, grounded in `docs/SENTRY_HANDOFF.md` and the recorded run chronology. It identifies the actual `python` project, availability-reader agent, 21 October trace prefix c26d2afd (26.93 min, 49 calls, four errors), and a failed gen_ai.chat at positions 37–40 with about 300 s/TimeoutError. It gives macOS region capture, sensitive-field exclusions, proposed filename, exact post placement and a caption scoped to one call. Alternate two-row screenshot/caption uses the separately recorded 969d7ee9 successful run; no unrecorded full trace URL or cause is invented.
+
+**Verification:** read the handoff, script and run sheet; independent read-only review agreed on trace choice/limits. Fresh public Sentry walkthrough confirms Insights → AI Agents and View Full Trace navigation. Direct product docs could not be fetched because of content-type/access limitations; account navigation/access was not inspected. Guide links checked locally; whitespace verification before handoff.
+
+**State:** instructions prepared; no screenshot was captured, no Sentry account/setting was changed, no new inference or tracing was started, no image/article was uploaded or published. The optional image remains owner work.
+
+### REL-05: lead review of the image-guide pass (2026-10-23)
+**Independently confirmed:**
+- All seven `raw.githubusercontent.com` image URLs return 200, with SHA-256 matching the local files. `origin/main` is `56279ab`.
+- The six captions match their screenshots.
+- The guide's Sentry capture steps match SENTRY_HANDOFF: trace `c26d2afd`, four `TimeoutError` chat spans at positions 37–40 (about 300 s each), agent `availability-reader`.
+- **The JSON correction is right.** `evaluation/runs/gemma4_e2b_it_qat_prompt3/m28.json` has `"replaces_earlier": false`. The earlier `true` came from the post-merge claim, because `hybrid.merge` sets it when `rules.REPLACE` matches "Change of plans".
+
+**Changed:**
+- The post now says that Python, not Gemma, marked Maria's answers as replacements.
+- The owner checklist now gives the conflicting deadline and recommends publishing before 25 Oct 12:29 PM IST (event API `ends_at` 2026-10-25T06:59Z, rechecked today), not 26 Oct.
+
+**Not checked:** DEV Preview rendering.
