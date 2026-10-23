@@ -8,7 +8,7 @@ A local review tool for volunteer coordinators who collect availability through 
 
 It records **availability** (when people say they can or cannot help), not shift assignments.
 
-**A local open model proposes and ordinary code decides.** The model (Gemma 4 E2B through Ollama) only copies phrases such as "next Tuesday", "after 3" or "if needed". Python code turns them into dates and times, checks each suggestion's words against the message and flags or drops unsupported ones (with one documented gap: a real quote with invented day or time words is only flagged and counts on the provisional sheet), keeps each person's history per day, keeps conditional offers conditional, and does every count. In the core workflow your messages go only to programs on your own computer (127.0.0.1); optional tracing, off by default, sends timing metadata, never message content.
+**A local open model proposes and ordinary code decides.** The model (Gemma 4 E2B through Ollama) copies phrases such as "next Tuesday", "after 3" or "if needed" and proposes an availability status and replacement hint. Python computes dates, times, history and counts. It checks each suggestion's words against the message and flags or drops unsupported ones (with one documented gap: a real quote with invented day or time words is only flagged and counts on the provisional sheet). In the core workflow your messages go only to programs on your own computer (127.0.0.1); optional tracing, off by default, allowlists operational metadata and excludes message content from the application payload.
 
 ```mermaid
 flowchart LR
@@ -41,8 +41,8 @@ With the week of Monday 2026-11-09 selected and the **Rules only** reader (check
 
 Implemented (which items are verified, and how, is in [PROGRESS.md](PROGRESS.md#capabilities)):
 
-- Paste text or upload a `.txt`, in `YYYY-MM-DD HH:MM | Sender | text` lines or a WhatsApp export (Android or iOS, month-first or day-first).
-- Roster of up to 20 volunteers; similar names are flagged and short names that match several people are left unresolved, never guessed (a short name matching only one person resolves).
+- Paste text or upload a text file, in `YYYY-MM-DD HH:MM | Sender | text` lines or a WhatsApp text export (Android or iOS, month-first or day-first). **No input CSV is required.** The app reads text; it does not connect to WhatsApp or unpack media/ZIP archives. CSV is the output format.
+- Roster of up to 20 volunteers; extra names are currently silently truncated. Similar names are flagged and short names that match several people are left unresolved, never guessed (a short name matching only one person resolves).
 - Three readers: **Model + rules cross-check** (default), **Model only**, **Rules only** (no model needed).
 - Day and time phrases resolved in code: relative days, "next/this" weekdays, numeric dates, ranges, "after 3", "4 onwards", morning/afternoon/evening, "the same" (within one message). Ambiguous days are shown with their candidates, not guessed.
 - Suggestions beside their source message with the quote highlighted; warnings in plain English. Suggestions with neither their quote nor their day/time words in the message are not applied unless you choose "Use it anyway" (a real quote with invented day/time words is only flagged; see Limitations).
@@ -52,7 +52,7 @@ Implemented (which items are verified, and how, is in [PROGRESS.md](PROGRESS.md#
 - **Needs a decision** list, half-hourly **People available** chart, **Availability sheet**, **Changes over time**.
 - **Provisional vs accepted display (UI-05):** sheet segments backed by any suggestion not yet accepted have a dashed outline and a "pending" label; "pending change" marks a day where a pending suggestion cancels or replaces availability; the chart stacks accepted and pending layers; both panels say **Provisional** until the final export would be complete. The sheet fits its panel at desktop and phone widths, switching to one card per volunteer when narrow (UI-01).
 - **Possible missed change (COR-07a):** when a later message from the same person contains a general-English change word (cancel, can't, drop, skip, scratch, …) and names a day on which they still have open time, but no suggestion from that message touches that day, **Needs a decision** shows "Possible change not applied (mXX mentions <day>)". It is a warning only: it never edits the sheet or the export.
-- Explicit message review marks; **Accept all and mark reviewed** appears only when every undecided suggestion in the message is unflagged and fully resolved.
+- Explicit message review marks; **Accept all and mark reviewed** is offered for an unmarked message without a read failure and with at least one undecided suggestion, when all undecided suggestions are pending, have resolved people/dates, no unparsed time and only allowed informational flags. Unstated times are eligible.
 - A confirmed **final-sheet CSV** (complete or clearly provisional, COR-01) and a **review-log CSV**; in both, cells that a spreadsheet would run as a formula (starting with `=`, `+`, `-`, `@`) are written with a leading apostrophe (COR-02).
 - **Landing page (UI-09):** `/` introduces the project, with a step-through of four demo-week messages becoming the sheet as the replay reads them; the review app is at `/app`. System fonts and inline SVG only: it loads nothing from another site.
 
@@ -64,14 +64,15 @@ Implemented (which items are verified, and how, is in [PROGRESS.md](PROGRESS.md#
 - Pending suggestions count on the in-app sheet and chart (marked as pending); only the final-sheet export is limited to accepted records. Adjacent accepted and pending time ranges that the ledger merges are shown wholly as pending.
 - A failed extraction request is not retried; read that message yourself.
 - The timezone field is stored but not used; timestamps are read as written.
-- Point times ("at 9") are not read. Names not on the roster are never applied.
+- Point times ("at 9") are not read. Automatic matching leaves names outside the roster unresolved. Direct API reviewer overrides are trusted and do not have full schema/roster validation; this is a local single-user tool, not an authenticated multi-user API (see [API validation limits](docs/API.md)).
+- Rules only misreads some negation inside conditions: "Saturday 9–12 if it isn't raining" was read as unavailable rather than conditional (COR-19, not fixed). Every proposal needs review against its quote.
 - Accuracy figures come from fictional messages only; human time saved has **not** been measured.
 
 Full list: [docs/ARCHITECTURE.md §14](docs/ARCHITECTURE.md#14-known-technical-limitations) and [TASKS.md](TASKS.md).
 
 ## Prerequisites
 
-- macOS or Linux with Python 3.10+ (stated requirement; the unit tests have been run on Python 3.15 and 3.12 on macOS, and CI is configured for 3.12). Standard library only: nothing to `pip install`.
+- macOS or Linux with Python 3.10+ (stated requirement; the unit tests have been run on Python 3.15 and 3.12 on macOS, and CI is configured for 3.12). The core uses the standard library and needs no pip install; opt-in tracing has a separate optional SDK.
 - A modern browser (checked with Chrome).
 - For the model readers only: [Ollama](https://ollama.com) and the `gemma4:e2b-it-qat` model (about 4.3 GB download; about 1.6 GB of memory once loaded, recorded on an 8 GB Mac). **Rules only** needs neither.
 
@@ -129,6 +130,8 @@ The subshell exports the settings only for that server session. Use port 8765 in
 | Default model | `DEFAULT_MODEL` in `ledger/model.py` |
 | Day start/end (09:00–20:00) and period hours | `Calendar` in `ledger/resolve.py` (not exposed in the UI) |
 
+There is no database, database schema, migration or account setup. Review state lives in the browser; the server reads the shipped fictional fixtures/caches for demos and temporarily processes requests. Optional tracing also retains in-process run metadata while spans are active. None of this provides saved review sessions.
+
 ## Reviewing and exporting
 
 Each message appears on the left with its suggestions on the right. Warnings (yellow) mean "check this"; grey badges are informational. Editing any field marks the suggestion accepted. Work through **Needs a decision** for unresolved people, ambiguous days, unreadable times, same-message conflicts and open conditions.
@@ -155,17 +158,19 @@ The status line then shows review time and counts of accepts, edits, rejects, ad
 
 **Live:** https://availability-ledger-replay.onrender.com (free instance: after 15 minutes without visitors it sleeps, and the first visit takes about a minute to wake it). The root is the landing page and the replay itself is at https://availability-ledger-replay.onrender.com/app (UI-09; served since `a4bebb7`).
 
-`LEDGER_DEMO=1 python3 server.py` starts a **read-only replay** (DEP-02, D-33). It listens on `0.0.0.0:$PORT` and serves only fictional set A. Suggestions come from the saved Gemma 4 outputs in `evaluation/runs/gemma4_e2b_it_qat_prompt3/`, by message ID, and Ollama is never called. The paste box and file upload are hidden, and the server refuses (403) any message, roster, week or model it did not serve. Review, accept and reject, history, warnings, the chart and both CSV exports work as locally. A banner on every page says it is a replay and links here. Without `LEDGER_DEMO` nothing changes.
+`LEDGER_DEMO=1 python3 server.py` starts a **saved-output replay with no persisted review changes** (DEP-02, D-33). It listens on `0.0.0.0:$PORT` (default 8765 when PORT is absent) and serves fictional set A. Suggestions come from saved Gemma outputs in `evaluation/runs/gemma4_e2b_it_qat_prompt3/`, by message ID; Ollama is never called. The paste box and file upload are hidden. The server checks the served message fields, roster, week, timezone and model and refuses unsupported source inputs with 403. These checks are not a general private-data detector or a full schema validator for arbitrary claim/override fields; do not send private payloads to the public service. Review, accept/reject, history, warnings, chart and both exports work in the visitor's browser session. The review app shows a persistent replay banner linking to this repository. Only the exact value `LEDGER_DEMO=1` selects this mode; otherwise the server binds to loopback.
+
+**Last release verification, 2026-10-23:** the public pages and five CSS/JS assets matched commit `d4b2f76` byte for byte; the live replay processed 50 fictional messages into 67 suggestions without failures, and review actions and both exports worked. Server source and Render's dashboard/logging were not directly inspected. See [PROGRESS.md](PROGRESS.md#rel-02-pushed-release-fresh-clone-ci-and-live-render-verified-2026-10-23).
 
 **Deploying (owner steps, Render dashboard):**
 1. Sign in to Render and choose **New → Blueprint**.
 2. Connect this GitHub repository. Render reads [render.yaml](render.yaml): one free web service, Python 3.12.6, no install step, start command `python3 server.py` with `LEDGER_DEMO=1`, health check `/api/status`. There are no secrets to enter.
 3. Check that the plan shown is **Free** and that no payment method is required, then apply. The first deploy prints the service URL.
 
-**Free tier behaviour** ([render.com/docs/free](https://render.com/docs/free), read 2026-10-21):
+**Free tier behaviour** ([Render's free-service documentation](https://render.com/docs/free), checked 2026-10-23):
 - **Sleep:** the service spins down after 15 minutes without traffic. The next visit wakes it, which takes about one minute, so open the URL once before a demo.
 - **Hours:** a workspace gets 750 free instance hours a month. After that, free services are suspended until the next month.
-- **Overages:** bandwidth and build-minute overages are **billed if a payment method is on file**. Without one, Render suspends the services for the rest of the month instead. For ₹0, add no payment method.
+- **Overages:** bandwidth and build-minute overages can incur charges if a payment method is on file. Without one, bandwidth exhaustion suspends free services for the rest of the month; build-minute exhaustion disables new builds while existing services remain active. For ₹0, add no payment method.
 
 ## Opt-in tracing (Sentry)
 
@@ -191,12 +196,12 @@ For this owner, hidden-input attempts did not reliably activate tracing; the wor
 - exception messages, logs, breadcrumbs or error events;
 - request bodies, host name or user details.
 
-Two allowlists in `ledger/tracing.py` guard what leaves the process. The SDK's `before_send_transaction` hook (`scrub()`) rebuilds each transaction and its spans. A wrapper around the SDK's transport (`clean_envelope()`) rebuilds every envelope item just before it is sent, including the model-call spans the SDK sends as separate streamed items, and drops every other item type. Either one alone stops a leak. The SDK's default integrations are off. Tests with invented names, phone numbers and addresses check both layers ([TESTING.md](TESTING.md#opt-in-tracing-int-03)).
+Two allowlists in `ledger/tracing.py` guard what leaves the process. The SDK's `before_send_transaction` hook (`scrub()`) rebuilds each transaction and its spans. A wrapper around the SDK's transport (`clean_envelope()`) rebuilds every envelope item just before it is sent, including the model-call spans the SDK sends as separate streamed items, and drops every other item type. With the pinned SDK, tests confirm that each layer removes injected fictional content when tested alone; both remain active. The SDK's default integrations are off. Tests with invented names, phone numbers and addresses check both layers ([TESTING.md](TESTING.md#opt-in-tracing-int-03)).
 
-**Received-data boundary:** Sentry can enrich received records beyond the application payload. Earlier owner traces exposed `user.geo` values. After project IP/sensitive-field settings, a new fictional trace showed four geo values as `[Filtered]` on inspected chat/parent attributes, with no content in the chat Input/Output tabs. This verifies that bounded check, not every stored payload or retroactive removal. Setup/clipboard instructions, exact evidence, free-plan/trial distinctions and remaining checks are in the [Sentry handoff](docs/SENTRY_HANDOFF.md). Startup saying tracing is on proves initialization, not delivery.
+**Received-data boundary:** received traces have shown location attributes that our code does not send; their origin remains unverified. After project IP/sensitive-field settings, a fictional trace showed four geo values as `[Filtered]` on inspected chat/parent attributes, with no content in the chat Input/Output tabs. This verifies that bounded check, not every stored payload or retroactive removal. Setup/clipboard instructions, dated evidence, free-plan/trial distinctions and remaining checks are in the [Sentry handoff](docs/SENTRY_HANDOFF.md). Startup saying tracing is on proves initialization, not delivery.
 
 - **Not traced:** the hosted replay, which makes no model calls and ignores `SENTRY_DSN`, and the app without the DSN or the package.
-- **Cost:** inference is local, so there is no per-token charge ($0 per token). Sentry's free plan limits apply; this app sends a few hundred spans per run.
+- **Cost:** inference is local; the app's $0 token estimate is not a hardware, energy or provider-billing audit. Tracing volume depends on message count and review actions. Sentry's account limits and the owner's dated trial/free-plan observations are in the handoff; current account entitlement is not inferred from local code.
 
 ## Week 3 scope, work order and costs
 
@@ -206,7 +211,7 @@ Two allowlists in `ledger/tracing.py` guard what leaves the process. The SDK's `
 |---|---|
 | Gemma 4 E2B via local Ollama | **Implemented.** Phrase extraction, cross-checked by rules and reviewed by a person. |
 | Render read-only replay | **Deployed** (DEP-02, 2026-10-21): https://availability-ledger-replay.onrender.com, from [render.yaml](render.yaml) on the free plan. |
-| GitHub Actions (Copilot category) | **Running** (`.github/workflows/tests.yml`, INT-10, INT-11): on every push and pull request, unit tests, a SHA-256 check that the frozen evidence is unchanged, and a re-score of sets A, B and C from saved outputs, with the score table in the job summary. No secrets or model. Latest observed run: "tests #17" on `a4bebb7` passed all three jobs (2026-10-22). |
+| GitHub Actions (Copilot category) | **Running** (`.github/workflows/tests.yml`, INT-10, INT-11): on pushes and pull requests targeting `main`, unit tests, a SHA-256 check that the frozen evidence is unchanged, and a re-score of sets A, B and C from saved outputs, with the score table in the job summary. No secrets or model. Latest observed run: [tests #18](https://github.com/bipul724/availability-ledger/actions/runs/39852270754) on `d4b2f76` passed all three jobs (2026-10-23). |
 | Sentry Agent Tracing | **Real delivery verified** (INT-03, 2026-10-21/22): four 300 s timeouts identified, later successful retry received, and targeted geo redaction verified on a separate fictional trace. Wider privacy/account checks remain open; [handoff](docs/SENTRY_HANDOFF.md). |
 | ElevenLabs | **Dropped** ([D-37](docs/DECISIONS.md#d-37-drop-elevenlabs-int-04-demo-narrated-live-or-captioned)): not used, category not claimed. |
 | Everything else listed above | **Deferred**; not implemented. |
@@ -219,20 +224,24 @@ Two allowlists in `ledger/tracing.py` guard what leaves the process. The SDK's `
 
 On fictional held-out messages (set A: 20 messages, 30 units; set B: 20 messages, 35 units), at first (frozen) scoring ([evaluation/RESULTS.md](evaluation/RESULTS.md)):
 
-- Rules alone: 20/30 and 17/35 units right, with many silent errors.
-- Gemma alone: 20/30 and 28/35; it left 7 of 12 set A cancellations on the final sheet (a ledger figure computed over all 50 set A messages, dev included).
-- Gemma + rules: 26/30 and 30/35; no cancellations left on either final sheet (the set B result was partly luck).
+The unit figures are extraction metrics; the ledger figures use all pending proposals, without human review. They do not measure accuracy of a human-reviewed accepted-only CSV. Frozen denominators retain the historical metric; current duplicate-aware denominators differ. See RESULTS for exact scopes and provenance.
 
-Changes made after reading held-out errors moved these numbers, some up and some down; they are labelled post-hoc and are not independent evidence. Two metric definitions were also corrected on 2026-10-20: duplicate messages are no longer counted as missed units (EVAL-10), and a condition interval that is only partly lost now counts as an error (EVAL-09); the before/after tables are in [PROGRESS.md](PROGRESS.md). The same author wrote the fixtures, references and rules. **Independent set C** (24 fictional messages written by an isolated ChatGPT session, 5 rewritten by the owner, scored once on 2026-10-21): Gemma + rules got 17/20 units right but only 0.527 final-sheet slot agreement with 2 of 8 cancellations missed. Rules alone scored 15/20 and 0.433; Gemma alone 17/20 and 0.403. The failures came mostly from deterministic reconciliation rules (explicit dates, replacement cues, settling conditions), not from the model ([evaluation/RESULTS.md](evaluation/RESULTS.md)). Fixes are in progress and will be post-hoc. Human time saved has **not** been measured: the final-sheet export and strict scorer exist, but the timing study (matched workloads, several participants) has not been run ([evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md)).
+- Rules alone: 20/30 and 17/35 units right, with many silent errors.
+- Gemma alone: 20/30 and 28/35; it left 7 of 12 set A cancellations in the provisional ledger (computed over all 50 set A messages, dev included).
+- Gemma + rules: 26/30 and 30/35; no missed cancellations in either provisional ledger (the set B result was partly luck).
+
+Changes made after reading held-out errors moved these numbers, some up and some down; they are labelled post-hoc and are not independent evidence. Two metric definitions were also corrected on 2026-10-20: duplicate messages are no longer counted as missed units (EVAL-10), and a condition interval that is only partly lost now counts as an error (EVAL-09); the before/after tables are in [PROGRESS.md](PROGRESS.md). The A/B fixtures, references and baseline rules were authored by the assistant in this project; C was separately authored as described below. **Independent set C** (24 fictional messages written by an isolated ChatGPT session, 5 rewritten by the owner, scored once on 2026-10-21): Gemma + rules got 17/20 units right but only 0.527 provisional-ledger slot agreement with 2 of 8 cancellations missed. Rules alone scored 15/20 and 0.433; Gemma alone 17/20 and 0.403. The failures came mostly from deterministic reconciliation rules (explicit dates, replacement cues, settling conditions), not from the model ([evaluation/RESULTS.md](evaluation/RESULTS.md)). COR-13 to COR-18 are implemented. Re-scoring the same saved C outputs after those fixes gives 1.0 slot agreement for each reader, explicitly post-hoc rather than new independent evidence. Human time saved has **not** been measured: the final-sheet export and strict scorer exist, but the timing study (matched workloads, several participants) has not been run ([evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md)).
 
 ### Checks
 
 Full list, per-file counts and what has and hasn't been verified: [TESTING.md](TESTING.md).
 
 ```bash
-python3 -m unittest discover -s tests                 # 66 offline unit tests at commit c5a2e05; no model, no network (CI runs these)
+env -u SENTRY_DSN -u LEDGER_DEMO PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
+# 116 discovered at d4b2f76; 8 optional SDK tests skip without sentry-sdk. No live model/external network.
 python3 -m evaluation.compare                         # saved results; add "frozen" for first scoring
-python3 -m evaluation.run --set A --extractor rules   # re-score with the rules reader; writes evaluation/results/
+doc_eval_out=$(mktemp -d)
+python3 -m evaluation.run --set A --extractor rules --out "$doc_eval_out"  # temporary results
 python3 -m evaluation.score_final my_final.csv --set A  # score a final-sheet CSV (timing study)
 ```
 
@@ -244,10 +253,11 @@ node tests/browser/extraction_failures.mjs  # per-message failure warnings; read
 node tests/browser/csv_safety.mjs           # formula-like cells are neutralised in both exports
 node tests/browser/sheet_display.mjs        # pending vs accepted display, chart layers, no overflow at 1400 px and 390 px
 node tests/browser/review_safeguards.mjs    # wording check (COR-10) and possible-missed-change warning (COR-07a)
+node tests/browser/demo_mode.mjs            # saved-output replay, source-input restrictions and review/exports
 node tests/browser/landing.mjs              # landing page: demo steps, links, layout, nothing loaded from another site
 ```
 
-Model and hybrid evaluation use per-message caches in `evaluation/runs/`, but a missing cache entry triggers a fresh model call even without `--refresh`; check cache coverage first ([CLAUDE.md](CLAUDE.md)).
+Model and hybrid evaluation use per-message caches in `evaluation/runs/`. For a verification-only run, always supply `--cache-only` and a temporary `--out`; a miss then fails instead of making a model call, and current result files stay untouched. Without those options, cache misses can trigger inference and results are overwritten ([CLAUDE.md](CLAUDE.md)).
 
 ## Documentation
 
@@ -264,6 +274,8 @@ Model and hybrid evaluation use per-message caches in `evaluation/runs/`, but a 
 | [TASKS.md](TASKS.md) | backlog |
 | [PROGRESS.md](PROGRESS.md) | current status and evidence |
 | [context.md](context.md) | persistent starting point and verified hand-off for agents |
+| [docs/DOCUMENTATION_AUDIT.md](docs/DOCUMENTATION_AUDIT.md) | complete documentation inventory, source audit, checks and unresolved/manual items |
+| [docs/DIAGRAMS.md](docs/DIAGRAMS.md) | diagram-to-source map for the guide and developer documentation |
 | [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md) | discovery entrypoint and canonical detailed rules for coding agents |
 | [evaluation/TUNING.md](evaluation/TUNING.md), [evaluation/MEASUREMENT.md](evaluation/MEASUREMENT.md) | prompt tuning log; human timing protocol |
 
@@ -280,7 +292,7 @@ ledger/model.py      Ollama call: copy phrases into JSON (schema-constrained)
 ledger/rules.py      keyword baseline
 ledger/hybrid.py     model + rules cross-check
 tests/               offline unit tests; tests/browser/ optional headless-Chrome checks
-.github/workflows/   CI: unit tests on push and pull request to main
+.github/workflows/   CI: unit tests, protected-evidence integrity and cache-only scoring on main pushes/PRs
 evaluation/          scoring, cached model outputs, results, tuning and measurement notes
 fixtures/            fictional message sets, rosters, references
 ```
