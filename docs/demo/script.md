@@ -1,90 +1,136 @@
-# Demo script (DEP-03)
+# Demo script (DEP-03) · about 4–5 minutes
 
-Target length: about 2 min 30 s. Everything shown is fictional: the Ana/Ben live example and the "Riverside Community Pantry" replay (set A). Script/source audit refreshed 2026-10-23; no new recording or model run was made by that audit.
+Version 2, written 2026-10-23. Every on-screen moment below was re-checked that day against the current code, replaying the fictional week from saved Gemma outputs with no model calls; the facts behind each spoken line are listed in [Fact sources](#fact-sources). Everything shown is fictional.
 
-**Where to record.**
-- **Shot 1:** the local app with live Gemma through Ollama (which you start yourself), reading the **two invented Ana/Ben messages** of the owner's verified check (CFG-02, 2026-10-23: Model only, `gemma4:e2b-it-qat`). It shows the model running on the laptop. Caption it **"Local app · live Gemma 4 on this laptop · two invented messages"**. This two-message flow has explicit person/date/time/source-quote and provisional/complete-export verification. Earlier full-week live runs exist in the Sentry history, but their resulting availability was not checked end to end for correctness; do not present trace completion as full-week or hybrid accuracy validation. Use the two-message live opening.
-- **Shots 2–8:** the Render replay at `https://availability-ledger-replay.onrender.com/app` (deployed; DEP-02). It uses saved Gemma outputs. Caption the first replay shot **"Hosted replay · fictional week · saved Gemma outputs, no live model"**. The site root is the landing page (usable for shot 8). Open the replay early: [Render's free-service policy](https://render.com/docs/free), checked 2026-10-23, says it sleeps after 15 idle minutes and takes about one minute to wake; that is not a guaranteed maximum.
-- If Render is down on recording day, run the same replay on the laptop instead of a live run: `env -u SENTRY_DSN LEDGER_DEMO=1 PORT=8781 python3 server.py`, then `http://127.0.0.1:8781/app`. It serves the same saved outputs and never calls the model, but it listens on all network interfaces (0.0.0.0), so use a trusted network and stop it (Ctrl+C) after recording. Caption it **"Replay on this laptop · saved Gemma outputs, no live model"**.
-
-**The moments below** were re-checked on 2026-10-22 on the replay code path (`LEDGER_DEMO=1`, saved Gemma 4 E2B outputs, Model + rules, no model calls): 67 suggestions from the 50 messages (one exact repeat is collapsed); 10 items under Needs a decision, including m26 (outside the week), m41 (which Tuesday) and m29 (earlier answer replaced); Changes over time lists m28 replacing Maria's Thursday and m29 replacing Kofi's Thursday; rejecting m48's suggestion turns Maria's Tuesday 09:00–12:00 from conditional back to available. REL-02 on 2026-10-23 matched nine served front-end files to pushed release `d4b2f76`, verified 67 suggestions and passed 22 bounded live replay checks covering review, history and both exports. This checks public behavior and served UI files, not deployed server source. Glance at the intended scenes before recording. Shot 1's expected result is the owner's verified live run (2026-10-23), not the replay. [tests #18](https://github.com/bipul724/availability-ledger/actions/runs/39852270754) passed all three jobs on that release.
-
-**Tools (₹0):**
-- macOS screen recording (Cmd+Shift+5).
-- iMovie to join the shots and add captions.
-- **Narration (D-37, ElevenLabs dropped):** in the Cmd+Shift+5 toolbar choose **Options → Microphone**, and read each shot's lines aloud while you click. Voice and video are recorded together, so they can't drift. Retake a single shot if you stumble. Or record silently and put the lines on screen as iMovie titles.
+Narration: about 640 words, which is about 4¼ minutes at 150 words a minute and under 5 minutes at a slower 135. Read it with the microphone on while you click (Cmd+Shift+5 → Options → Microphone), one shot at a time, so voice and picture can't drift (D-37: no ElevenLabs). Retake a single shot if you stumble.
 
 ---
 
-## Shots and narration
+## Before you record (15 minutes)
 
-### 1. The problem (0:00–0:20) — local app, live run
-**Before recording:** `ollama serve` in one terminal (skip if Ollama is already running), then from the repository run `env -u SENTRY_DSN -u LEDGER_DEMO python3 server.py 8780` and open `http://127.0.0.1:8780/app`. This explicitly starts the local untraced mode without reading `.env`. Leave an existing server alone if the port is occupied; use another free port consistently. No `.env` is needed for this shot.
+1. **Wake the replay.** Open `https://availability-ledger-replay.onrender.com/app` and wait until the fictional week appears. Render's free service sleeps after 15 idle minutes and can take about a minute to wake.
+2. **Start the local app for shot 2 (not traced).**
+   - In one terminal: `ollama serve` (skip it if Ollama is already running).
+   - In another, from the repository: `env -u SENTRY_DSN -u LEDGER_DEMO python3 server.py 8780`, then open `http://127.0.0.1:8780/app`.
+3. **Close heavy apps.** The 8 GB Mac ran the model with other apps open, but memory warnings were seen during the slow first traced run.
+4. **Dry run shot 2 once.** Use the take only if it gives exactly the expected result.
+5. **Browser zoom 110–125%**, so text is readable in the video. Use one browser window and hide bookmarks.
 
-**Screen:** Reader **Model only**, Model `gemma4:e2b-it-qat`, Week starting **2026-11-09**. Roster:
+## Shot list and narration
 
-```
-Ana Example
-Ben Example
-```
+### 1. Cold open · 0:00–0:15
+**Screen:** the replay site's landing page (`https://availability-ledger-replay.onrender.com/`), headline "Local AI for Coordinators Who Have Better Things to Do". Scroll slowly once.
 
-Messages:
+> Every week, a volunteer coordinator sends one question: "When can you help?" And every week, the answers come back as dozens of chat messages. This is Availazy.
 
-```
-2026-11-09 08:00 | Ana Example | I can help Tuesday 09:00-12:00.
-2026-11-09 08:05 | Ben Example | I can help Thursday 13:00-15:00.
-```
+### 2. The problem, and a live local read · 0:15–0:55
+**Screen:** the local app at `127.0.0.1:8780/app`.
+- **Settings:** Week starting `2026-11-09`; Reader **Model only**; Model `gemma4:e2b-it-qat`.
+- **Volunteers:** `Ana Example`, `Ben Example`, one per line.
+- **Messages:**
+  ```
+  2026-11-09 08:00 | Ana Example | I can help Tuesday 09:00-12:00.
+  2026-11-09 08:05 | Ben Example | I can help Thursday 13:00-15:00.
+  ```
+- Click **Suggest records**. Optionally show `ollama ps` in a terminal corner.
+- **Expected (owner-verified 2026-10-23):** Ana Tue 10 Nov 09:00–12:00 and Ben Thu 12 Nov 13:00–15:00, both available, each beside its highlighted quote; nothing under **Needs a decision**.
+- **Caption:** "Local app · live Gemma 4 on this laptop · two invented messages".
 
-Click **Suggest records**. Show the Ollama model running (`ollama ps` in a terminal corner, or the status line); speed up any wait and caption it "sped up". Expected, as verified: Ana Example, Tue 10 Nov, 09:00–12:00, available; Ben Example, Thu 12 Nov, 13:00–15:00, available; each beside its highlighted quote, nothing under Needs a decision. If either differs, stop and don't use the take. Optional, if time allows: accept both, then mark both messages reviewed; the status line then says the final sheet would be complete (also verified, including both CSVs).
+> Offers, corrections, cancellations, maybes, all mixed together. Turning that into a sheet means reading every message and retyping it, and then reading it again when someone changes their mind. Here are two invented messages. Gemma 4, an open model, reads them live, through Ollama, on this laptop. The messages are read right here, not sent to a cloud AI service. Each suggestion sits next to the exact words it came from.
 
-> Every week, a volunteer coordinator asks: "When can you help?" The answers arrive as chat messages: offers, corrections, cancellations, maybes. Availazy turns them into a sheet you can check. Here are two invented messages, read live by Gemma 4, an open model, through Ollama on this laptop, so your messages are read right here, not by a cloud service.
+### 3. A whole week, replayed · 0:55–1:10
+**Screen:** switch to the replay tab. Hold on the banner "Replay: fictional messages and saved Gemma 4 outputs…". Keep **Model + rules cross-check**, click **Suggest records**, and let the 50 messages fill in.
+- **Caption:** "Hosted replay · fictional week · saved Gemma outputs, no live model".
 
-### 2. Model proposes, code decides (0:20–0:40)
-**Screen:** switch to the hosted replay. Hold on its banner ("Replay: fictional messages and saved Gemma 4 outputs…"), then one message with its suggestion card and the highlighted quote, e.g. Priya's "Monday after 3 works, and Wednesday afternoon."
+> For a full week, here's the public replay: fifty fictional messages, with answers Gemma gave earlier on a laptop, saved and replayed. No model runs on this server.
 
-> From here on this is the public replay: fifty fictional messages with Gemma's answers saved earlier. Gemma proposes copied phrases, status and replacement hints. Plain code turns "Monday" and "after 3" into dates and times, checks source evidence, and keeps each person's history. The model never does the arithmetic.
+### 4. The model copies words; code decides · 1:10–1:35
+**Screen:** message m03, Priya Nair: "Monday after 3 works, and Wednesday afternoon." Show its two cards: Mon 9 Nov 15:00–20:00 and Wed 11 Nov 13:00–17:00, with the quote highlighted.
 
-### 3. History: a cancellation and a settled condition (0:40–1:05)
-**Screen:** open **Changes over time**. Show Maria Lopez on Thu 12 Nov: her first offer, then the m28 entry "Thu 12 replaced earlier answer for this day" after "Change of plans — Thursday doesn't work anymore"; the provisional sheet shows **pending change** while the cancellation is pending. Check its source and click **Accept** on the cancellation before explaining its effect on the accepted-only export. Then show Kofi Mensah on Thu 12 Nov: conditional ("if my work shift gets moved", m13), then available after "my shift got moved, so Thursday afternoon is a yes" (m29). Distinguish the provisional display from decisions already accepted.
+> Here's the rule that makes it trustworthy. Gemma only copies phrases, like "Monday", "after 3" and "afternoon". Plain Python turns them into dates and hours: "after 3" runs to eight, the end of the planning day, and "afternoon" is one to five. Code checks every phrase against the message, keeps each person's history day by day, and does every count.
 
-> Messages change their minds, and the ledger keeps the history. Check Maria's cancellation and accept it: her earlier Thursday offer no longer reaches the final export. Kofi's "maybe, if my shift moves" stays conditional until he confirms, and only then does it become a firm yes.
+### 5. Two readers catch more than one · 1:35–2:05
+**Screen:** message m28, Maria Lopez, sent Thu 5 Nov: "Change of plans — Thursday doesn't work anymore, sorry! Tuesday morning still good. I can add Friday 2-5."
+- Point at the Thursday card's yellow badge "Added by the rules: possible cancellation the model missed".
+- In the **Availability sheet**, point at Maria's Thursday showing **pending change**.
+- Click **Accept** on that Thursday card.
 
-### 4. It doesn't guess (1:05–1:25)
-**Screen:** **Needs a decision**. Point at Kofi's "this Saturday" sent on Wed 4 Nov flagged as outside the selected week (m26). Point at Rui's "next Tuesday" sent on Monday, flagged as ambiguous between two Tuesdays (m41). Point at the "Earlier answer replaced — check" item on Kofi's Thursday (m29).
+> And here's why it reads every message twice. Maria cancels Thursday. Gemma picked up her Tuesday and her new Friday, but it missed the cancellation. A simple keyword reader runs alongside the model, caught it, and added it, flagged, so I can check it. Until I decide, the sheet marks Thursday as a pending change. I accept it, and Thursday won't reach the final sheet.
 
-> When a message is unclear, the ledger asks instead of guessing. "This Saturday", sent on the fourth, is a different week, so it stays out. "Next Tuesday", sent on a Monday, could mean two dates, so you pick. When a change word replaces an earlier answer, it tells you so you can check.
+### 6. Changing minds, kept in order · 2:05–2:25
+**Screen:** open **Changes over time**.
+- Show Kofi Mensah, Thu 12 Nov: conditional from m13 ("I might be able to do Thursday afternoon if my work shift gets moved"), then available from m29 ("my shift got moved, so Thursday afternoon is a yes").
+- Then show Olu Adeyemi's m49 entries ("drop out for the rest of this week").
 
-### 5. A real model mistake, caught (1:25–1:50)
-**Screen:** m48, Marta Lopes: "Is Maria still doing Tuesday morning? If not I can take it." The model's suggestion puts the conditional offer on **Maria** Lopez, the wrong person, and the sheet shows Maria's Tuesday as conditional. Click **Reject**. Maria's Tuesday returns to a firm morning.
+> Every change is kept in order. Kofi's "maybe, if my shift moves" stays conditional until he confirms. Olu drops out "for the rest of this week". He sent that on a Wednesday, so code cancels Wednesday through Sunday, which takes out his Thursday evening and his Saturday morning.
 
-> Gemma isn't perfect. Here Marta offers to cover Maria's Tuesday, and the model files the offer under Maria. That's exactly why every suggestion sits beside its message. One click rejects it, and Maria's Tuesday is firm again.
+### 7. It doesn't guess · 2:25–2:45
+**Screen:** **Needs a decision**. Point at three items:
+- m26, Kofi Mensah, sent Wed 4 Nov: 7 Nov is outside the selected week.
+- m41, Rui Costa: "Which day? 'next tuesday' sent on Mon 09 Nov could be 10 Nov or 17 Nov".
+- m29: "Earlier answer replaced — check".
 
-### 6. Review and the final sheet (1:50–2:10)
-**Screen:** only after reading and checking the affected suggestions, use **Accept all suggestions without warnings**, then mark a few actually read messages reviewed with **M** (or **Mark message reviewed**). Warning-free does not establish correctness. Point out that accepting a suggestion and marking its message reviewed are separate steps, and show the status line count the reviewed messages. Click **Export final sheet**: it still downloads while provisional. Open the CSV in Numbers and show the first line (`status=provisional`, the unreviewed message IDs) and the `cell_state` column.
+> When the words don't settle it, it asks instead of guessing. "This Saturday", sent on the fourth, is a different week, so it stays out. "Next Tuesday", sent on a Monday, could be two dates, so I pick. And when a change word replaces an earlier answer, it tells me, so I can check.
 
-> You review by deciding, not retyping: accept suggestions you've checked, decide the flagged ones, and mark each message once you've read it. Only accepted records reach the final sheet. The file says "complete" only when every message, apart from exact repeats, is marked reviewed, nothing is pending and no blocking issue is open. Until then it says "provisional", and it still downloads.
+### 8. A real model mistake, caught · 2:45–3:05
+**Screen:** message m48, Marta Lopes: "Is Maria still doing Tuesday morning? If not I can take it." Show the card filed under **Maria Lopez**, conditional, and Maria's Tuesday conditional on the sheet. Click **Reject**. Maria's Tuesday 09:00–12:00 is firm again.
 
-### 7. How we know it works (2:10–2:25)
-**Screen:** [GitHub Actions tests #18](https://github.com/bipul724/availability-ledger/actions/runs/39852270754) on `d4b2f76`, with the score table (INT-11). Then the frozen set C table from `evaluation/RESULTS.md`, with its slot agreement of 0.527, if showing the number. Caption that score **"Frozen fictional set C · provisional ledger before human review"**; it does not score the owner's accepted-only CSV. The isolated ChatGPT session wrote C and the owner rewrote five messages; no independent reference review was done.
+> Gemma isn't perfect. Marta offers to cover Maria's Tuesday, and the model files the offer under Maria. That's exactly why every suggestion sits beside its message. One click rejects it, and Maria's Tuesday is firm again.
 
-> An isolated AI session wrote new fictional messages, with owner edits, frozen before scoring. The first result stays published with its mistakes. It measures the provisional ledger before human review. Pushes to main re-check saved-output scores on GitHub Actions.
+### 9. Review, then export · 3:05–3:30
+**Screen:**
+1. Click **Accept all suggestions without warnings**; the status line says how many were accepted.
+2. Mark m02 and m28 reviewed (**Mark message reviewed**, or **M**).
+3. Click **Export final sheet (CSV)** and open the file. Show line 1 (`status=provisional`, the unreviewed message IDs) and the `cell_state` column: Maria's rows (Tue 09:00–12:00 and Fri 14:00–17:00) are `confirmed`, and her Thursday is gone.
 
-### 8. Close (2:25–2:35)
-**Screen:** the repo README, then the replay URL.
+> The review is fast because it's decisions, not typing. Once I've checked them, the clean suggestions go in with one button; flagged ones wait for me. Accepting a card and marking a message as read are separate on purpose. The final sheet takes only accepted records, and it calls itself complete only when every message is marked reviewed, nothing is pending and nothing is unresolved. Until then it says "provisional", but it still downloads.
 
-> Slow and steady: the model reads, the code reconciles, and you decide. Try the replay on the fictional week, or run Availazy locally to read your own messages on your own computer.
+### 10. How we know · 3:30–3:55
+**Screen, three quick cuts:**
+1. The frozen set C table in `evaluation/RESULTS.md` (Gemma 4 E2B + rules row: 17/20, slot agreement 0.527). Caption: "Frozen first score · fictional set C · before human review".
+2. The latest GitHub Actions run on `main`, all three jobs green, with the score table.
+3. *(Optional)* One redacted Sentry trace (no DSN, account details or location values). Leave out its line if you don't show it.
+
+> We tested it on twenty-four messages it had never seen, written by a separate AI session and edited by me, then frozen before scoring. It read seventeen of twenty person-days right, but its draft sheet, before any human review, matched the answer key on only about half the time slots. Most of the misses were in our own code, not the model: a correction that didn't replace the old answer, and a dated cancellation put on the wrong Saturday. We kept that first score as it was, fixed the code, and label everything after it as after-the-fact. Every push to main re-checks the frozen evidence on GitHub Actions. *(Optional:)* And with tracing switched on, Sentry showed four model calls hitting the five-minute limit on one run, and none on the next.
+
+### 11. Close · 3:55–4:10
+**Screen:** the guide at `/docs` (scroll one diagram), then the replay URL on screen.
+
+> Slow and steady: the model reads, the code reconciles, and you decide. The model is open, it runs on an eight-gigabyte laptop, and your volunteers' messages never go to a cloud AI. Try the replay on the fictional week, or run Availazy on your own computer.
 
 ---
 
-## Optional lines (only with real evidence on screen)
-- **Sentry (INT-03), after shot 7:** show one owner-selected, redacted trace screenshot (no DSN, account details or location values) and say only what that trace showed. Recorded evidence: an early traced run had four model calls hit the 300-second timeout; a later 49-call run took 1.42 minutes with no errors ([Sentry handoff](../SENTRY_HANDOFF.md)). Say tracing is opt-in and off by default, and never call the received data fully audited. If location comes up, say only this: received traces displayed geo attributes; after a settings change, four visible geo values on one inspected chat span and its parent appeared filtered; where that enrichment comes from, and a complete audit of the received data, are unverified.
-- **Render:** if the replay is down on recording day, drop "Try the replay" from shot 8.
-- **Captions instead of voice (D-37):** every narration line above can be an iMovie title; keep the two captions that say which shots are the local live app and which are the hosted replay.
+## Do not say (each would be false or unproven)
+- **Any time saved, or "minutes per week".** No human timing has been measured.
+- **"Nothing leaves your machine."** Opt-in tracing sends timing metadata to Sentry, and the replay runs on Render. Say messages are read on your own computer.
+- **"The replay runs Gemma."** Its answers were saved earlier.
+- **That shot 2 proves accuracy.** It is a two-message check.
+- **The post-hoc set C score of 1.0 as the result.** The frozen first score is the result.
+- **What caused the four Sentry timeouts.** It was never established.
+- **"Only Gemma was tested."** Qwen 3.5 4B was evaluated too; Gemma is the default.
 
-## Honesty rules for the recording
-- Say "fictional" on screen (the replay banner does this) and don't claim time saved: no human timing has been measured.
-- Don't say "nothing leaves your machine": optional tracing sends timing metadata to Sentry when turned on, and the replay runs on Render. Say messages are read on your own computer in the local app.
-- Don't call the replay live inference: its Gemma answers were saved earlier.
-- Don't present shot 1 as general accuracy evidence: it is a two-message check. Historical full-week/hybrid trace delivery exists, but full-week availability and review/export correctness were not validated end to end.
-- Don't show the post-hoc 1.0 set C score as the headline. If set C appears at all, show the frozen first score.
-- Don't hide the model mistake in shot 5. It's the clearest evidence that review matters.
+## If something goes wrong on the day
+- **Shot 2 gives different times or a warning:** don't use the take. Re-run once; if it differs again, drop shot 2 and start at shot 3 with the replay caption.
+- **Render is down:** run the replay locally with `env -u SENTRY_DSN LEDGER_DEMO=1 PORT=8781 python3 server.py` and open `http://127.0.0.1:8781/app`.
+  - Caption it "Replay on this laptop · saved Gemma outputs, no live model".
+  - It listens on all network interfaces, so stop it (Ctrl+C) right after recording.
+  - Drop "Try the replay" from shot 11.
+- **Running long:** cut shot 6's Olu line, then shot 10's optional Sentry line.
+
+## Fact sources
+
+| Line | Verified against |
+|---|---|
+| Two live messages read on the laptop; exact results | Owner run, PROGRESS "CFG-02 / DEP-03: owner manual live-model smoke check passed" (screenshots and both CSVs parsed) |
+| Replay uses saved outputs, no model; banner text | `server.py` (`DEMO`, `saved_output`, `status`), `ui/index.html` `#replay-banner`; live `/api/status` returned `"demo": true` on 2026-10-23 |
+| Priya m03 → Mon 15:00–20:00, Wed 13:00–17:00 | Replay through current code, 2026-10-23; `ledger/resolve.py` (`after` runs to `day_end` 20:00; afternoon 13:00–17:00) |
+| Maria m28: model missed Thursday, rules added it, flagged; pending change; accepting removes Thursday | Replay through current code: Thursday card `added_by_rules`; Model-only replay leaves Thu 09:00–12:00 on the sheet; export with m02 and m28 accepted has no Thursday row |
+| Kofi m13 → m29 conditional then available; m29 "Earlier answer replaced — check" | History `Kofi Mensah\|2026-11-12`; issue `cue_replacement` m29 |
+| Olu m49 sent Wed 11 Nov → Wed 11–Sun 15 unavailable, removing Thu 17:00–20:00 and Sat 09:00–12:00 | m49 claim dates 2026-11-11 to 2026-11-15; Olu's history (m24, m38, then m49 "cancelled"); `resolve_day` "rest of this week" |
+| m26 outside the week; m41 next Tuesday ambiguous | Issues `outside` m26 and `date` m41 |
+| m48 filed under Maria; Reject restores Tue 09:00–12:00 available | m48 claim person Maria Lopez, conditional; ledger after rejecting m48 |
+| Final sheet: accepted only; complete conditions; provisional still downloads; Maria rows confirmed | `ledger/export.py` `confirmed_export`, `final_csv`; `ui/app.js` `exportFinal`; export check above |
+| Set C: 24 messages, separate AI session, owner edits, frozen; 17/20 units; slot agreement 0.527 on the provisional ledger; misses mainly in code (m21 correction not replacing, m13 dated cancellation on the wrong Saturday); later fixes post-hoc | `evaluation/RESULTS.md`, Set C section (frozen table, "Why unit and sheet numbers diverge", post-hoc section) |
+| CI on every push re-checks frozen evidence | `.github/workflows/tests.yml` (integrity and cache-only re-score jobs); run #19 on `d322342` succeeded, read from the GitHub API on 2026-10-23 |
+| Sentry: four calls hit the 300 s limit on one run, none on the next | `docs/SENTRY_HANDOFF.md`: traces `c26d2afd` (four errors) and `969d7ee9` (49 calls, zero errors) |
+| Open model; runs on an 8 GB laptop | `evaluation/RESULTS.md`: Gemma 4 E2B, Apache 2.0, measured on an Apple M2 with 8 GB |

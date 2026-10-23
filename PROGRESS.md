@@ -1471,3 +1471,34 @@ Owner requested verification of DOC-12 using repository evidence and artifacts, 
 **Artifacts:** /private/tmp/availazy-docs-independent.RxgFw6/ contains new verbose unit/tracing logs and exit records, initial restricted-failure logs, verify_evidence.py, independent-evidence.json, additional-checks.json, fresh checksum/summary/syntax/help logs and fresh link report. Original /private/tmp/availazy-docs-audit-rppxdor3/ artifacts preserved. No new project file; scope remains 25 existing docs updated, three unchanged and two created by DOC-12.
 
 **Still unverified/manual:** complete Sentry received-payload/geo-origin/account/post-trial/export-span audit; VoiceOver/Safari/Firefox and UI-22; independent real-user/timing study; competition eligibility/deadline clarification; recording/upload, disclosures/credits and final publication. Existing task records keep these open. No fresh external rules/pricing, CI or Render requests; prior evidence is not upgraded to a new check. No real messages, .env read, fresh inference, install, account/config/data/deployment change, staging, commit or push. Final whitespace/link/scope checks follow the text corrections.
+
+### DEP-03: demo script v2, about 4–5 minutes (2026-10-23)
+
+The owner asked for a 3–5 minute script, with every fact verified. `docs/demo/script.md` was rewritten:
+- 11 shots, about 640 narration words: a landing-page open, the verified two-message live local read, then the hosted replay;
+- the m28 cancellation the model missed and the rules caught, Kofi's settled condition, Olu's "rest of this week", three Needs-a-decision items, the m48 model error rejected, the review/export split, the frozen set C score with its causes, CI, and optional Sentry.
+
+It also has a pre-recording checklist, a do-not-say list, fallbacks and a fact-source table.
+
+**Verified on 2026-10-23:**
+- **Current code, saved Gemma outputs, Model + rules, no model calls:**
+  - 50 messages (m12 a repeat), 67 suggestions, 10 Needs-a-decision items.
+  - m03 resolves to Mon 15:00–20:00 and Wed 13:00–17:00.
+  - m28's Thursday cancellation is `added_by_rules`; a Model-only replay leaves Maria's Thu 09:00–12:00 on the sheet.
+  - Kofi m13 → m29 conditional → available, with m29 `cue_replacement`.
+  - m49 marks Olu Wed 11 – Sun 15 unavailable, removing Thu 17:00–20:00 and Sat 09:00–12:00.
+  - m26 is outside the week; m41 is ambiguous.
+  - m48 is filed under Maria; rejecting it restores Tue 09:00–12:00 available.
+  - With m02/m28 accepted and reviewed and m48 rejected, the export is provisional and Maria's Tue and Fri rows are `confirmed`, with no Thursday.
+  - "Accept all suggestions without warnings" would accept 39 of 67 on a fresh run.
+- **UI labels** from `ui/index.html` and `ui/home.html`.
+- **Replay:** live `/app` returned 200 and `/api/status` reported demo mode.
+- **CI:** run #19 on `d322342` succeeded (GitHub API).
+- **Set C and Sentry facts:** from `evaluation/RESULTS.md` and the frozen-setC JSON (0.527, 2 of 8 cancellations missed, 17/20), and from `docs/SENTRY_HANDOFF.md` (traces `c26d2afd` with four timeouts, `969d7ee9` with zero errors).
+
+**Corrected while fact-checking:**
+- Olu's line: he had no Monday or Tuesday availability.
+- The set C explanation: for Gemma + rules the misses were m21 (a correction not replacing) and m13 (wrong-Saturday cancellation), not "two corrections".
+- The accept-cancellation line: the provisional sheet already drops Thursday while the cancellation is pending.
+
+**Not done:** no recording, no live full-week model run, no browser walk-through of the replay this time (the UI code behind these moments was last changed before the 2026-10-22 replay checks).

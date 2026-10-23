@@ -2,6 +2,8 @@
 
 Updated 2026-10-23 during DOC-12. Start with [AGENTS.md](AGENTS.md), then [CLAUDE.md](CLAUDE.md). This file is the current handoff; dated snapshots and prompts preserve history and must not override current source or superseding decisions.
 
+**DEP-03 script v2 (2026-10-23):** `docs/demo/script.md` is now an 11-shot, roughly 4–5 minute script. Its moments were re-verified on current code from saved outputs (no model calls), with a fact-source table and a do-not-say list. The owner records next.
+
 ## Current assignment and release state
 
 - **DOC-12 complete locally:** comprehensive implementation/history review and all 28 existing project docs inspected; 25 updated, 3 retained, current handoff archived and audit report created. Fresh unit/browser/optional-SDK/cache-only/link/diagram/scope checks are in [DOCUMENTATION_AUDIT](docs/DOCUMENTATION_AUDIT.md). Application/configuration/protected evidence is unchanged. The three existing local post-push record changes were preserved. These documentation updates remain uncommitted.
