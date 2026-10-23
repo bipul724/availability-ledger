@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the system **as it exists in the source**; first written 2026-10-20, diagrams and the stale statements below re-checked against source on 2026-10-22 (DOC-09; sources per diagram in [DIAGRAMS.md](DIAGRAMS.md)). Proposed changes are in clearly marked sections at the end. Status words (Implemented, Verified, Partial, Planned, Unverified, Deferred) mean the same as in [PROGRESS.md](../PROGRESS.md#status-vocabulary).
+This describes the system **as it exists in the source**, rechecked on 2026-10-23. Dated verification records remain historical evidence; current commands and test results are in [TESTING.md](../TESTING.md). Diagram sources are mapped in [DIAGRAMS.md](DIAGRAMS.md). Status words (Implemented, Verified, Partial, Planned, Unverified, Deferred) mean the same as in [PROGRESS.md](../PROGRESS.md#status-vocabulary).
 
 Related: [API.md](API.md) (interfaces), [DECISIONS.md](DECISIONS.md) (why it is built this way), [PRD.md](PRD.md) (intended behaviour), [INTEGRATIONS.md](INTEGRATIONS.md) (planned supporting services and gates), [COMPETITION.md](COMPETITION.md) (verified competition evidence). Start with [context.md](../context.md) and [CLAUDE.md](../CLAUDE.md).
 
@@ -10,11 +10,11 @@ Availazy (formerly Availability Ledger) is a single-user, local web tool. A coor
 
 It records **availability** (when someone says they can or cannot help). It does not assign anyone to a shift. There is no shift, rota or assignment object anywhere in the code.
 
-The central design rule: **a local open model only copies phrases out of each message.** Ordinary Python decides everything else:
+The central design rule: **the local model copies phrases and proposes status/replacement hints; it computes no dates, times, history or counts.** Ordinary Python resolves and checks those proposals:
 
 | Responsibility | Done by | Where |
 |---|---|---|
-| Copy who / which day words / which time words / status / condition / quote | Model (Ollama) or keyword rules | `ledger/model.py`, `ledger/rules.py` |
+| Copy who / day words / time words / condition / quote; propose status and replacement hints | Model (Ollama) or keyword rules | `ledger/model.py`, `ledger/rules.py` |
 | Cross-check model against rules | Code | `ledger/hybrid.py` |
 | Match names to the roster | Code | `ledger/names.py` |
 | Turn day and time phrases into dates and times | Code | `ledger/resolve.py` |
@@ -26,9 +26,11 @@ The central design rule: **a local open model only copies phrases out of each me
 ## 2. Repository map
 
 ```
-server.py              HTTP server (stdlib http.server), binds 127.0.0.1, serves ui/ and /api/*
+server.py              HTTP server (stdlib http.server), local 127.0.0.1 or hosted replay 0.0.0.0, serves ui/ and /api/*
 ui/index.html          the review app, served at /app (UI-09)
 ui/home.*              landing page at / (home.html, home.css, home.js): system fonts, inline SVG, no external requests
+ui/docs.html, docs.css public user guide at /docs; home.css/home.js are shared with it
+ui/404.html            styled missing-page response
 ui/app.js              all browser state, rendering, review, keyboard shortcuts, CSV export
 ui/style.css           styles (light Forest & Parchment palette only, D-35/D-36)
 ledger/messages.py     Message type; parse pasted text / WhatsApp exports; roster parsing; duplicate marking
@@ -39,12 +41,16 @@ ledger/export.py       confirmed final sheet (accepted records only), its CSV wr
 ledger/model.py        Ollama /api/chat call with a JSON schema; prompt v3 (SYSTEM + EXAMPLES)
 ledger/rules.py        keyword/regex baseline extractor
 ledger/hybrid.py       model + rules merge and cross-check flags
-tests/                 49 unittest checks (stdlib only): test_ledger.py, test_export.py; browser/session_rerun.mjs (optional, Node + Chrome)
+ledger/tracing.py      optional Sentry tracing; no-op unless explicitly enabled with the optional SDK
+tests/                 offline unittest suite plus seven optional Node/local-Chrome browser suites; see TESTING.md
 evaluation/            scoring scripts, results, cached model outputs, tuning and measurement notes
-fixtures/              FICTIONAL message sets A and B, rosters, hand-written references, manual-entry CSV template
+fixtures/              FICTIONAL message sets A, B and C, rosters, references and set C freeze manifest
+requirements-tracing.txt optional sentry-sdk pin; not required for the core app
+render.yaml            free-plan fictional replay Blueprint
+LICENSE                MIT licence for project code/documentation
 ```
 
-A local Git repository exists, on `main` tracking `origin/main` at the audited HEAD `4c1f700`. The working tree includes modified and untracked implementation/docs; a clone of committed HEAD does not reproduce all current features. Remote accessibility was not verified. There is no package manifest, lock file, Dockerfile, deployment configuration or licence file in the project folder. The application runs on the Python standard library; the browser code uses no external libraries or CDNs. The optional browser harness uses built-in Node APIs and local Chrome.
+The application core runs on the Python standard library; the browser code uses no external libraries or CDNs. There is no `package.json`, `pyproject.toml`, core dependency lock file, Dockerfile, database schema or migration system. Optional tracing has its own requirements file. The browser harness uses built-in Node APIs and local Chrome. The public repository and deployed release were checked under REL-02 on 2026-10-23; see [PROGRESS](../PROGRESS.md#rel-02-pushed-release-fresh-clone-ci-and-live-render-verified-2026-10-23) for the exact revision and verification limits rather than treating a branch/HEAD snapshot as an architectural property.
 
 ## 3. Runtime and startup
 
@@ -61,7 +67,7 @@ Ollama is a separate process the user starts (`ollama serve`). The server never 
 
 ## 4. Frontend / backend relationship
 
-The **server is stateless**. All working state is retained in the browser tab (`state` in `ui/app.js`) and sent to the local Python server with each request, which processes it transiently and keeps nothing. That state is: parsed messages, raw claims with review status and overrides, the last resolved claims and ledger, the roster, the week, the explicit reviewed-message marks, confirmed-export summary, current keyboard card and review statistics. Nothing is written to disk, `localStorage` or a database. **Reloading the page loses all review work.**
+The **review API is stateless**: working review state is retained in the browser tab (`state` in `ui/app.js`) and sent to Python with each request. That state includes parsed messages, raw claims with review status and overrides, the last resolved claims and ledger, the roster, week, reviewed-message marks, confirmed-export summary, current keyboard card and review statistics. The application does not persist this review state to disk, `localStorage` or a database. **Reloading the page loses all review work.** The server does read packaged static files, fictional fixtures and saved replay outputs; it caches the served fixture description in memory. When tracing is enabled it also retains open run-span handles temporarily. These are distinct from review-session persistence.
 
 The browser sends the complete state on every recompute:
 
@@ -78,7 +84,7 @@ flowchart TD
     E --> H[raw claims: said + id + review=pending]
     F --> H
     G --> H
-    H -->|after every 5th message read and after each decision or mark: POST /api/resolve with ALL messages + claims| I[resolve_all: names, dates, times, evidence gate, flags]
+    H -->|after every 5th message, at the end, and after each decision or mark: POST /api/resolve with ALL messages + claims| I[resolve_all: names, dates, times, evidence gate, flags]
     I --> J[build_ledger: per person/day 15-min slots, history, issues, sheet, counts]
     J --> K[Browser renders cards beside messages, Needs a decision, chart, sheet, Changes over time]
     K -->|Accept, Reject, Use it anyway, Reset, field edit, add record, keys A and R| H
@@ -146,24 +152,25 @@ Adds: `person`, `person_state` (`resolved | ambiguous | unknown`), `person_candi
 
 ## 7. Identity, dates, timezones and intervals
 
-- **Identity.** `names.match_person` normalises accents, case and punctuation. "SENDER", "me", "I" mean the sender. A first name shared by several roster entries is **ambiguous** and never guessed. A prefix of at least three letters resolves when exactly one roster first name matches ("Sam" with only Samira Haddad on the roster) and is ambiguous when several do ("Sam" with Sam Okafor and Samira Haddad). Names within edit distance 2 of another roster name get a `similar_name` flag ("Maria Lopez" vs "Marta Lopes"). Unknown people produce a "who" issue and are not applied. The roster is capped at 20 names; extras are silently dropped by the server.
+- **Identity.** `names.match_person` normalises accents, case and punctuation. "SENDER", "me", "I" mean the sender. A first name shared by several roster entries is **ambiguous** and never guessed. An initial plus surname resolves only when exactly one roster name matches; several matches remain ambiguous (COR-16). A prefix of at least three letters resolves when exactly one roster first name matches ("Sam" with only Samira Haddad on the roster) and is ambiguous when several do ("Sam" with Sam Okafor and Samira Haddad). Names within edit distance 2 of another roster name get a `similar_name` flag ("Maria Lopez" vs "Marta Lopes"). Unknown extracted people produce a "who" issue and are not applied. The roster is capped at 20 names; extras are silently dropped by the server. Browser person controls use this roster; direct API overrides are trusted more broadly, as described in §14 and [API](API.md#post-apiresolve).
 - **Coordinator messages.** A sender whose name contains the word "coordinator", or who is in the optional `coordinators` request list, has self-claims dropped **only when the sender does not resolve to a roster name**. A coordinator who is also on the volunteer roster resolves normally, and their claims are kept. The rules reader returns nothing for any sender not on the roster. The UI never sends `coordinators`, so in the app only the name rule applies.
-- **Dates.** `resolve.resolve_day` uses the message's send date and the selected week (must start on a Monday). Bare weekdays mean the selected week's day unless sent after that day had passed during the week. "Next Tuesday" resolves only when "the next one to occur" and "the one in next week" agree; otherwise it is ambiguous. "This Saturday" sent before the selected week is `outside_week`. Numeric dates try M/D and D/M and keep the reading inside the week. "one day this weekend", "either", "or" make the result ambiguous.
+- **Dates.** `resolve.resolve_day` uses the message's send date and the selected week (must start on a Monday). Bare weekdays mean the selected week's day unless sent after that day had passed. "Next Tuesday" resolves only when "the next one to occur" and "the one in next week" agree; otherwise it is ambiguous. "This Saturday" sent before the selected week is `outside_week`. Numeric dates try M/D and D/M and keep the reading inside the week. An agreeing weekday beside an explicit date adds no second date; a contradictory weekday creates ambiguity, and an explicit outside-week date stays outside (COR-13). "one day this weekend", "either", "or" make multiple candidate dates ambiguous.
 - **Day words the model drops.** If the model writes "Saturday" but its quote says "this Saturday" (same weekday, a single consistent modifier, quote really in the message), the modifier is restored and the flag `day_modifier_from_quote` is shown (added 2026-10-20).
 - **Quote must support days.** A claim whose quote names other days is narrowed to the quoted days, or dropped if none overlap. If the quote names no day at all, this check is skipped.
 - **Evidence gate limits.** A claim is dropped only when neither its quote nor its day/time words are in the message. A real quote with invented day or time words is flagged `phrase_not_in_message` but stays pending and is applied to the provisional sheet (COR-10).
 - **Times.** `resolve.resolve_time`: ranges ("10:30 to 1", "6-9", "between 2 and 5"), open-ended ("after 3", "from 4", "4 onwards" → to 20:00; "until 12" → from 09:00), periods (morning 09–12, afternoon 13–17, evening 17–20, all day 09–20). Bare hours 1–7 are read as pm. Point times ("at 9") are **not** guessed: unparsed. "the same / same time / same hours" copies the explicit range of the nearest earlier claim in the same message (never another message); otherwise unparsed with "'the same' needs a time earlier in this message".
 - **Timezones.** The timezone field is passed to the server and stored in `Calendar.timezone`, but **no code uses it**. Message timestamps are treated as wall-clock times; nothing is converted. Day boundaries (09:00–20:00) and periods are fixed in code and not configurable from the UI or API.
-- **Intervals.** Each person/day is an array of 15-minute slots from 06:00 to 23:00. Each slot holds `(status, claim id, message id, specificity)`. An unavailable claim without a time covers the whole 06:00–23:00 day. An available claim without a time covers 09:00–20:00 if there is no earlier answer for that day, and otherwise counts as a confirmation that changes nothing.
+- **Intervals.** Each person/day is an array of 15-minute slots from 06:00 to 23:00. Each slot holds `(status, claim id, message id, specificity)`. An unavailable claim without a time covers the whole 06:00–23:00 day. An available claim without a time covers 09:00–20:00 when no open availability/conditional time exists; otherwise it confirms earlier hours, with the conditional-only settlement rule described in §8.
 
 ## 8. Corrections, cancellations and history
 
 `build_ledger` processes non-rejected, non-dropped claims in message order. Within one message, claims covering more resolved dates go first, so "all week" is applied before "except Friday" and the narrower claim wins:
 
 - A later claim overwrites only the slots it covers, so a Monday correction never touches Wednesday (test `test_monday_correction_keeps_wednesday`).
-- `replaces_earlier` (from the model, the rules' replacement words or the hybrid "instead/actually/now…" cue) first clears that day's slots from other messages.
+- `replaces_earlier` (from the model, the rules' replacement words or the hybrid "instead/actually/now…" cue) first clears that day's slots from other messages. Separately, a model/rules claim with a stated time and available/conditional status also replaces earlier time when its whole message matches `REPLACE_CUES` (COR-15). That cue-only path raises `cue_replacement` with the removed ranges (COR-18). A cue elsewhere in a multi-part message can therefore cause an unintended replacement; the warning does not undo it. Reviewer-added/reference claims do not use this extra cue rule.
+- A later untimed **available** claim converts earlier conditional time to available only when the day has no available time already (COR-14). A mixed available/conditional day is unchanged by that untimed follow-up. This depends on the reader having extracted the correct status.
 - Each change is logged per person/day with a reason: `added`, `marked unavailable`, `refined`, `repeated`, `cancelled`, `condition declined`, `condition resolved`, `now available`, `now conditional`, `replaced earlier answer for this day`, `confirmed earlier answer`, `no change`.
-- Two claims in the **same** message that disagree about the same slots create a `conflict` issue; the more cautious reading (unavailable > conditional > available) is kept until a person decides.
+- Two claims in the **same** message with equal date specificity that disagree about the same slots create a `conflict` issue; the more cautious reading (unavailable > conditional > available) is kept until a person decides. A narrower exception can supersede a broader same-message claim without that conflict.
 - Conditional segments still open at the end create a `condition` issue listing the condition text.
 - Ambiguous dates, unknown or ambiguous people, and unreadable times are **not applied**. Each creates an issue. Ambiguous dates and ambiguous people also add `review_notes` to the cells they might affect; unreadable times and outside-week days do not.
 
@@ -175,8 +182,8 @@ Adds: `person`, `person_state` (`resolved | ambiguous | unknown`), `person_candi
 
 - New suggestions are `pending`. **Pending suggestions already count on the sheet and chart** (the hint says "From all suggestions you have not rejected"). An earlier experiment that held back flagged pending suggestions was removed (see [DECISIONS.md](DECISIONS.md) D-13).
 - Accept / Reject / Reset buttons, "Use it anyway" for dropped suggestions, "+ Add a record", field edits (any edit marks the suggestion accepted), and "Accept all suggestions without warnings" (only suggestions whose flags are all informational).
-- Keyboard: J/K move, A accept, R reject, E focus the first field, Esc leave a field. Shortcuts do not fire inside inputs, selects or textareas.
-- **Message review marks.** "Mark message reviewed" (keyboard `M`) records an explicit decision per message in `state.reviewed`; nothing marks a message automatically. "Accept all and mark reviewed" is offered only when every undecided suggestion in the message is pending, has informational flags only, and has a resolved person, day and time. Duplicates are covered by their original. A re-run clears the marks.
+- Keyboard: J/K move, A accept, R reject, E focus the first field, M toggles the current card's message-review mark, Esc leaves a field. Shortcuts do not fire inside inputs, selects, textareas or editable content.
+- **Message review marks.** "Mark message reviewed" (keyboard `M`) records an explicit decision per message in `state.reviewed`; nothing marks a message automatically. "Accept all and mark reviewed" is offered only on an unmarked, non-failed message with at least one undecided suggestion, all of them pending, informational-flags-only, person/day resolved and time not unparsed (unstated is allowed). Duplicates are covered by their original. A successful parsed re-run clears marks; validation/parse failure preserves them.
 - Statistics (`accepts`, `edits`, `rejects`, `adds`, `bulk`, `marks`, review timer) are kept in memory and shown on export only.
 
 Card review states and the separate message mark (from `ui/app.js` `review()`, `onFieldChange`, `onClick`, and `ledger/core.py` `resolve_claim`):
@@ -222,7 +229,7 @@ Deciding every card never marks a message; a successful re-run clears all marks.
 
 ## 12. Logging and observability
 
-- The server suppresses request logging (`log_message` is a no-op) and prints only its start-up line.
+- The server suppresses normal HTTP request logging (`log_message` is a no-op). It prints a startup address and, if enabled, a tracing notice. This does not control Python/runtime error output, Ollama logs or hosting-platform logs.
 - **Opt-in tracing (INT-03, D-33).** By default nothing is sent anywhere except to Ollama on `127.0.0.1`. With `SENTRY_DSN` set and the optional `sentry-sdk` installed (`requirements-tracing.txt`, into `.venv`), `ledger/tracing.py` sends structural spans to Sentry. Without either, every tracing call is a no-op and `sentry_sdk` is never imported. Demo mode never initialises it.
   - **Spans at the call sites,** not in `ledger/model.py`:
     - `server.py` opens one `gen_ai.invoke_agent` span per browser suggest run. The page sends a random run token, the request's position and the request count; `tracing.Runs` keeps the span open across those requests.
@@ -248,7 +255,7 @@ Deciding every card never marks a message; a successful re-run clears all marks.
   - **Not used:** `before_send_span`. In 2.72 it runs only with `trace_lifecycle="stream"`, and never on the streamed `gen_ai` items. The lifecycle is pinned to `"static"`.
   - **SDK settings:** error events and breadcrumbs are dropped. Default and auto-enabled integrations are off (no logging, HTTP-client, argv or module capture). `send_default_pii=False` and `data_collection` are all off; no local variables or source context; no sessions, client reports or logs.
   - **Test:** `tests/test_tracing.py` sends invented sensitive strings through these paths into a capturing transport and finds none of them.
-- **Provider-side boundary (owner evidence, 2026-10-21/22):** these allowlists describe what the application sends, not all metadata Sentry may derive/store after receipt. Earlier received traces showed `user.geo` values. After owner project IP/sensitive-field settings, a new fictional chat span and its parent showed four geo values `[Filtered]`; chat Input/Output tabs displayed no content. This is targeted received-data evidence, not a full payload or enrichment-origin audit, key removal or retroactive scrubbing. See [Sentry handoff](SENTRY_HANDOFF.md) for exact settings, source references and uninspected surfaces.
+- **Received-data boundary (owner evidence, 2026-10-21/22):** these allowlists describe what the application sends. Received traces showed `user.geo` values not sent by this code; their origin remains unverified. After owner project IP/sensitive-field settings, a new fictional chat span and its parent showed four geo values `[Filtered]`; chat Input/Output tabs displayed no content. This is targeted received-data evidence, not a full payload or enrichment-origin audit, key removal or retroactive scrubbing. See [Sentry handoff](SENTRY_HANDOFF.md) for exact settings, source references and uninspected surfaces.
 - Model timing and token counts are returned by `/api/suggest` in `stats` but the UI does not display them. The evaluation scripts record them per message in `evaluation/runs/` and summarise them in result JSON.
 - `evaluation/run.py` samples memory with macOS tools (`ps`, `sysctl`, `memory_pressure`, `vm_stat`) and Ollama `/api/ps` while it runs. These are local reads only.
 
@@ -259,7 +266,7 @@ Deciding every card never marks a message; a successful re-run clears all marks.
 | Pasted messages, roster, claims, review decisions | Retained in browser memory; sent to the local Python server on 127.0.0.1 with each request and processed transiently; no application persistence | No |
 | Model prompts and replies | Sent to Ollama on 127.0.0.1 | No |
 | Exported CSV | Downloaded by the browser to wherever the user saves it | Only if the user shares it |
-| Evaluation caches and results | `evaluation/runs/`, `evaluation/results/` (fictional fixtures only) | No |
+| Evaluation caches and results | `evaluation/runs/`, `evaluation/results/` (fictional fixtures only); committed evidence is also in the public repository and replay deployment | Public fictional evidence is shared through Git/hosting; local evaluation does not itself upload it |
 | Tracing spans (opt-in, INT-03) | Built in process from allowlisted timing, count, model and stage fields, checked by both allowlists (`scrub()` and `clean_envelope()`) | Only when the user sets `SENTRY_DSN` (to Sentry); never in demo mode |
 
 ```mermaid
@@ -277,7 +284,7 @@ flowchart LR
     S -.->|optional: SENTRY_DSN + sentry-sdk<br/>allowlisted spans only| T[(Sentry)]
 ```
 
-The dashed arrow to Sentry exists only on the local server; demo mode returns before tracing is initialised. What Sentry may add after receipt is outside these allowlists ([Sentry handoff](SENTRY_HANDOFF.md)).
+The dashed arrow to Sentry exists only on the local server; demo mode enters its serving loop before tracing is initialised. Received location attributes and their still-unverified origin are outside the application allowlist guarantee ([Sentry handoff](SENTRY_HANDOFF.md)).
 
 Runtime integrations today: the local Gemma model, the opt-in Sentry tracing above, and the hosted replay (fictional data, no model calls). Any future runtime service must follow [DECISIONS.md](DECISIONS.md) D-17 and the detailed [integration contracts](INTEGRATIONS.md): opt-in/off by default, verified free allowance, no private content in telemetry, disclosure of external transfers, and no disruption to the local workflow. Development tools and demo narration are separate data paths, not application runtime dependencies.
 
@@ -290,15 +297,18 @@ Runtime integrations today: the local Gemma model, the opt-in Sentry tracing abo
 - Timezone is not used; day start/end and period hours are fixed.
 - A failed or unreadable model reply is not retried; the message gets a warning (COR-03) and has no suggestions (model only) or only rules-added cancellations (model + rules).
 - Single-message extraction: context from earlier messages is never given to the model; "still on for Saturday" relies on the ledger's confirmation rule.
-- Roster capped at 20; names not on the roster are never applied.
+- Roster capped at 20; automatic name matching leaves unknown people unresolved. Direct reviewer overrides are trusted and can supply a name outside the roster; see the API validation limits below.
 - Point times ("at 9") are not read; recurring phrases ("every other Tuesday") are not supported.
+- Rules negation takes precedence over condition words: "Saturday 9-12 if it isn't raining" is read as unavailable, not conditional (COR-19, proposed fix). A firm follow-up misread by a reader can also incorrectly settle a condition. These are known limitations, not promises of complete language understanding.
+- No authentication, request-size limit, rate limiting or explicit Origin/CSRF check. The local server is intended for one trusted user's loopback workflow; the hosted endpoint is a fictional replay, not a general service for private messages.
+- The JSON API is not a fully schema-validated trust boundary. Reviewer overrides are trusted: direct API callers can supply a person outside the roster or malformed date/time values beyond what browser controls offer. The ledger rounds/clips intervals into its 15-minute 06:00–23:00 grid; the final CSV reader separately enforces strict roster/date/interval rules. Use the documented request shapes, not arbitrary client data.
 - Historical (2026-10-20): the availability sheet table overflowed its panel in a 1400 px headless screenshot. UI-01 later changed the sheet layout; this note is kept as history and was not re-measured in DOC-09.
-- Accessibility (screen readers, contrast) has not been checked.
+- Accessibility: the recorded UI-02 automated Chrome pass covered labels, focus, light-theme contrast and narrow layouts. VoiceOver/screen readers, Firefox and Safari remain unverified; repeated card-button names and possible repeated failed-read announcements are proposed UI-22 follow-ups. See [TASKS](../TASKS.md).
 - Unit tests run on macOS with Python 3.15 and 3.12 and in CI on Ubuntu with 3.12; the README's "Python 3.10+" is a stated requirement that has not been tested on 3.10 or 3.11.
 
 ## 15. Deployment
 
-### Current: local only (Implemented, Verified 2026-10-20)
+### Local app (Implemented)
 
 `python3 server.py` on the coordinator's own computer, with Ollama on the same machine for the model readers. "Rules only" works without Ollama.
 
@@ -308,21 +318,21 @@ Runtime integrations today: the local Gemma model, the opt-in Sentry tracing abo
 
 *Earlier text here (2026-10-20) described the replay as planned and not built; superseded by the deployment above.*
 
-The owner's existing `bipulchamoli.tech` may point to that host after DNS configuration. A domain is an address, not hosting; the project name need not match it. Prize eligibility depends separately on evidence of acquisition through the Hacktoberfest offer. No DNS change, deployment, free-quota verification or public URL is recorded. The optional hosted demo must stop/degrade before charges and contain no pilot data, keys or private transcripts. See [INTEGRATIONS.md](INTEGRATIONS.md), [TASKS.md](../TASKS.md) DEP-02 and [DECISIONS.md](DECISIONS.md) D-19.
+The landing page is at `/`, the interactive replay at `/app`, and the guide at `/docs`. REL-02 records the 2026-10-23 deployed-front-end match and live behavior; it does not claim direct inspection of Render's server source/dashboard. The owner's existing `bipulchamoli.tech` is a separate deferred DNS/eligibility proposal, not a verified project address. A domain is an address, not hosting. Keep the replay fictional and avoid paid upgrades; current account/allowance decisions belong to the owner. See [README deployment instructions](../README.md#hosted-replay-render), [INTEGRATIONS.md](INTEGRATIONS.md) and DEP-02 in [TASKS.md](../TASKS.md).
 
-## 16. Supporting technology roles (Planned or conditional, not implemented)
+## 16. Supporting technology roles and status
 
 The core runtime stays browser → local Python → local Ollama. Supporting technologies have separate purposes and data boundaries; they must not be added as unnecessary dependencies on every coordinator request.
 
 | Path | Intended role and boundary | Gate before use |
 |---|---|---|
-| Development: Copilot + Actions | Use Copilot on genuine needed coding/review tasks; use Actions for offline regression CI on fictional fixtures. These are distinct evidence routes, not a claim that Actions implies Copilot wrote code. | Record real issues/PRs/reviews and workflow results; verify available free access and avoid private pilot content/secrets. |
+| Development: GitHub Actions; Copilot use unverified | Implemented CI: unit, protected-evidence integrity and cache-only re-score jobs on push/PR to main. This is separate from Copilot coding-agent authorship, for which no evidence is recorded. | Latest dated remote verification is REL-02; see TESTING for local equivalents. |
 | Development: Entire | Capture actual future sessions, decisions and commit checkpoints. No application API or runtime dependency is implied. | Confirm supported agent compatibility and inspect/redact sessions before sharing; never fabricate past use or checkpoints. Transcripts reconstructed from genuinely captured records must retain authentic provenance. |
 | Development: Backboard R-CLI | Optional bounded task using an existing local model if compatible and useful. | Verify model compatibility, local routing, external data handling and free allowance. Do not switch application inference to a cloud provider or upload private data to obtain eligibility. |
 | Optional runtime diagnostics: Sentry | Allow-listed operational metadata about extraction failure/latency and a documented real debugging/performance finding. No private text, names, quotes, prompts, replies or sensitive raw exceptions. | Explicit dependency/network/privacy architecture decision before code; verify Python/runtime support, default capture behavior, redaction with fictional data, opt-in/off-by-default operation and free quota. **Implemented 2026-10-21 (INT-03, D-33):** `SENTRY_DSN` plus optional `sentry-sdk` 2.72.0; see §12. Real failed/successful traces and a timeout finding are now verified by owner evidence; bounded privacy verification and explicit open checks are in [SENTRY_HANDOFF](SENTRY_HANDOFF.md). |
-| Public demo: Render + domain | Fixed fictional saved-output replay with useful review/export interactions, clearly disclosed. Domain supplies DNS only. | Implement and verify the replay boundary, server binding/deployment configuration, cost fail-safe, and domain acquisition/renewal evidence. |
+| Public demo: Render; domain deferred | Implemented and deployed fixed fictional saved-output replay with review/export interactions, clearly disclosed. Domain supplies DNS only and is not verified as connected. | Preserve the served-data checks and saved-output disclosure; account/free-plan decisions remain with the owner, domain acquisition/renewal evidence remains separate. |
 | Public video: ElevenLabs | **Dropped** by the owner on 2026-10-22 ([D-37](DECISIONS.md)); not used. The demo is narrated live or captioned. | — |
 
-Detailed acceptance/evidence gates are canonical in [INTEGRATIONS.md](INTEGRATIONS.md). Competition eligibility and strategic priority are canonical in [COMPETITION.md](COMPETITION.md). These plans are not evidence of completed integrations or permission to install, claim credits, deploy or publish.
+Detailed acceptance/evidence gates are canonical in [INTEGRATIONS.md](INTEGRATIONS.md). Competition eligibility and strategic priority are canonical in [COMPETITION.md](COMPETITION.md). Planned/deferred rows are not completed integrations; no status grants permission for further installation, credit claims, deployment or publication.
 
-**Core dependency order:** freeze unseen fictional set C before changing behavior, without implementation agents reading it → COR-03/COR-10 failure and evidence safeguards → COR-02 protection in both CSV writers → score C once after planned behavior changes → independent/coordinator validation and matched timing study. Necessary development can create genuine sponsor evidence along the way. Historical A/B results remain post-hoc; no new service or sponsor proof substitutes for a trustworthy confirmed export.
+**Evidence chronology:** set C was frozen before the safeguards and first-scored once on 2026-10-21; its frozen results are the independent headline. COR-13–COR-18 changes and all current A/B/C re-scores are post-hoc. Coordinator validation and a matched timing study remain unfinished. Necessary development can create genuine sponsor evidence along the way, but no service or sponsor proof substitutes for a reviewed final artifact or independent validation.

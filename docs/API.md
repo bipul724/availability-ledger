@@ -1,6 +1,6 @@
 # Interfaces
 
-Everything here was read from `server.py`, `ui/app.js`, `ledger/*.py` and `evaluation/*.py` on 2026-10-20. Status and error examples were produced by calling the running handlers locally with fictional data. Nothing in the "Proposed" section can be called today.
+Interfaces rechecked against `server.py`, `ui/app.js`, `ledger/*.py` and the evaluation entrypoints on 2026-10-23. The dated fictional status/error examples below are historical probes, not fresh calls in this documentation pass. Current verification results are in [TESTING.md](../TESTING.md). Nothing in the "Proposed" section can be called today.
 
 Related: [ARCHITECTURE.md](ARCHITECTURE.md) for data structures and flow; [INTEGRATIONS.md](INTEGRATIONS.md) for the agreed sponsor roles and gates; [COMPETITION.md](COMPETITION.md) for eligibility and historical evidence. This interface document describes the current local application. A planned service or award target does not add a route, dependency or configuration key.
 
@@ -8,6 +8,7 @@ Related: [ARCHITECTURE.md](ARCHITECTURE.md) for data structures and flow; [INTEG
 
 - [HTTP server basics](#http-server-basics)
 - [Request sequence](#request-sequence) (diagram)
+- [Demo mode (hosted replay)](#demo-mode-hosted-replay)
 - [GET / and static files](#get--and-static-files)
 - [GET /api/status](#get-apistatus)
 - [GET /api/demo](#get-apidemo)
@@ -29,13 +30,14 @@ Related: [ARCHITECTURE.md](ARCHITECTURE.md) for data structures and flow; [INTEG
 - **Authentication: none.** Anyone who can open a connection to that port on the same machine can call every route.
 - Request bodies are JSON (the `Content-Type` header is not checked; `Content-Length` is used to read the body). An empty body is treated as `{}`.
 - Responses: JSON (`application/json`, UTF-8, non-ASCII kept), or the static files. Every response carries `Cache-Control: no-store`. (In [demo mode](#demo-mode-hosted-replay) the host is `0.0.0.0` and the port is `$PORT`.)
-- **Errors.** Any exception raised while handling a POST returns **400** with `{"error": "<ExceptionType>: <message>"}`. This includes malformed JSON, missing fields, a `week_start` that is not a Monday, and Ollama being unreachable. There is no 500 response. Unknown POST path: **404** `{"error": "unknown endpoint"}`. Unknown GET path: **404** with the HTML page `ui/404.html` (UI-10).
-- No request logging, rate limiting, CORS headers or streaming.
+- **Errors.** Exceptions caught inside the POST handler return **400** with `{"error": "<ExceptionType>: <message>"}`, except demo refusals, which return 403. Examples include malformed JSON, missing fields, a `week_start` that is not a Monday, and Ollama being unreachable. The application has no intentional 500 response path; this is not a guarantee against failures in the HTTP transport/runtime. Unknown POST path with a valid JSON body: **404** `{"error": "unknown endpoint"}`. Unknown GET path: **404** with the HTML page `ui/404.html` (UI-10).
+- Normal request logging is suppressed. There is no rate limit, application request-size cap, explicit Origin/CSRF check, CORS response header or streaming response. This is a trusted local review API and a restricted fictional replay, not a hardened multi-user service.
+- The tables below describe supported request shapes, not a complete JSON-schema validator. Most validation is performed by ordinary parsing/resolution code; malformed types can produce 400 errors, and reviewer overrides are trusted (see [resolve](#post-apiresolve)).
 - **Demo mode** (`LEDGER_DEMO=1`, DEP-02): the hosted read-only replay. See [Demo mode](#demo-mode-hosted-replay); refused requests return **403** `{"error": "<reason>"}`.
 
 ## Request sequence
 
-One run of **Suggest records** in the local app, as `ui/app.js` performs it. The browser holds all state and sends it again on every recompute; the server keeps nothing between requests.
+One run of **Suggest records** in the local app, as `ui/app.js` performs it. The browser holds review state and sends it again on every recompute; the server does not persist a review session. Packaged fixture data and optional tracing-run handles are separate server-side state ([ARCHITECTURE](ARCHITECTURE.md#4-frontend--backend-relationship)).
 
 ```mermaid
 sequenceDiagram
@@ -75,21 +77,22 @@ Off unless the environment variable `LEDGER_DEMO` is exactly `1`. Then:
 - **`GET /api/status`** returns `{"models": ["gemma4:e2b-it-qat"], "default_model": "gemma4:e2b-it-qat", "demo": true}` without contacting Ollama. This is also Render's health check.
 - **`POST /api/parse`** returns 403 unless `text` and `roster` equal the served set A text and roster exactly and `day_first` is not set.
 - **`POST /api/suggest`** returns 403 unless:
-  - `message` equals one of the served set A messages (all five fields);
+  - the five message fields (`id`, `sent`, `sender`, `text`, `duplicate_of`) equal one served set A message; extra object fields are ignored by this comparison;
   - `roster`, `week_start` and `timezone` equal the served ones;
-  - `coordinators` is absent;
-  - `model` is absent or `gemma4:e2b-it-qat`.
+  - `coordinators` is absent or empty/falsy;
+  - `model` is absent/empty (selecting the default) or `gemma4:e2b-it-qat`.
 
   For `model` and `hybrid`, Gemma's claims come from `evaluation/runs/gemma4_e2b_it_qat_prompt3/<id>.json`, and `stats` is the saved one plus `"saved": true`. No model is called. The rules reader runs as normal. Claims are identical to a local run whose model call returns the same saved output (unit test).
-- **`POST /api/resolve`** and **`POST /api/export`** return 403 unless `messages` is a list of served messages (unchanged), with the served roster, week and timezone and no `coordinators`. Claims, review states and corrections are accepted as usual.
-- No other environment variable is read, and nothing is stored or logged.
+- **`POST /api/resolve`** and **`POST /api/export`** return 403 unless every supplied message matches a served message's five fields, with the served roster, week and timezone and no non-empty `coordinators`. The check does not require the complete 50-message list or uniqueness. Claims, review states and corrections are accepted as usual.
+- No Ollama call or tracing initialization occurs in replay mode. The server reads packaged fixtures/saved outputs and caches the served fixture description in memory; it does not persist review sessions or write normal request logs. Platform logs are outside this guarantee.
+- These checks restrict source messages and settings; they do not inspect arbitrary claim/override strings for private content. Never send private data to the hosted API, including through direct requests that bypass the hidden browser controls.
 
 ```mermaid
 flowchart TD
     R[Request to the replay] --> P{Route}
     P -->|POST /api/parse| A{text and roster exactly the served set A, no day_first?}
-    P -->|POST /api/suggest| B{message served and unchanged, roster, week and timezone served, no coordinators, model absent or gemma4:e2b-it-qat?}
-    P -->|POST /api/resolve or /api/export| C{all messages served and unchanged, roster, week and timezone served, no coordinators?}
+    P -->|POST /api/suggest| B{message fields served and unchanged, roster, week and timezone served, no nonempty coordinators, model default or Gemma?}
+    P -->|POST /api/resolve or /api/export| C{each supplied message served and unchanged, roster, week and timezone served, no nonempty coordinators?}
     A -->|yes| OK1[parse as usual]
     B -->|yes| OK2[model claims from saved outputs, rules reader runs live, no Ollama call]
     C -->|yes| OK3[resolve or export as usual, review decisions accepted]
@@ -113,7 +116,7 @@ Observed error responses (fictional calls):
 - `GET /` → `ui/home.html`, the landing page (UI-09, D-34), locally and in demo mode. Its only request is `GET /api/status`, used to label its buttons ("Open the replay" in demo mode, "Open the app" locally); it loads nothing from another site.
 - `GET /docs` → `ui/docs.html`, the user guide with diagrams (UI-10).
 - `GET /app` → `ui/index.html`, the review app (served at `/` before UI-09). `GET /index.html` still serves it; `/app/` (trailing slash) returns 404.
-- `GET /<name>` → a file inside `ui/` if it exists and ends in `.html`, `.js` or `.css`. Paths that resolve outside `ui/` return 404. A query string is ignored when finding the page: `/?ref=x` serves the landing page (before UI-09 it returned 404).
+- `GET /<name>` → a file inside `ui/` if it exists and ends in `.html`, `.js` or `.css`. Paths that resolve outside `ui/` return 404. A query string is ignored when finding static pages: `/?ref=x` serves the landing page. The API dispatch happens before that stripping: `/api/status?x=1` and `/api/demo?x=1` fall through to a 404 rather than matching the JSON routes. POST paths are also matched exactly.
 - Side effects: none.
 
 ## GET /api/status
@@ -198,12 +201,12 @@ Response 200 (rules reader, fictional):
  "stats": {}}
 ```
 
-- With `model` or `hybrid`, `stats` holds `wall_s`, `prompt_tokens`, `output_tokens`, `prompt_s`, `output_s`, `load_s`, `json_ok`. The page ignores `stats`.
+- With `model` or `hybrid`, `stats` holds `wall_s`, `prompt_tokens`, `output_tokens`, `prompt_s`, `output_s`, `load_s`, `json_ok`. The page uses `json_ok` to show unreadable-reply warnings; it does not display the timing/token statistics.
 - With `hybrid`, claims may carry `hints` (`replace_cue`, `readers_disagree`, `one_reader`, `added_by_rules`); rules-only cancellations are appended as extra claims with `source: "rules"`.
 - If `message.duplicate_of` is set the server returns `{"claims": [], "stats": {}, "duplicate_of": "m01"}` **without** calling the model.
 - If the model's reply is not valid JSON, the model contributes no claims and `stats.json_ok` is `false` (still 200). With `model` the response has no claims at all. With `hybrid` the rules' cancellations (days the rules read as unavailable) are still added and flagged `added_by_rules`, but no availability is. Since COR-03 (2026-10-20) the page shows a warning on that message in both cases ("…could not be read, so it has no suggestions" / "…Only the rules' cancellations below were added"), keeps reading the next messages, and reports how many messages could not be read fully. A request error for one message (for example Ollama unreachable) is shown on that message the same way instead of stopping the run. No retry is attempted, and a failed message is never offered "Accept all and mark reviewed".
 - Errors: Ollama unreachable or a timeout (300 s) → 400 with the exception text. No retries.
-- Side effects: one Ollama `/api/chat` call for `model`/`hybrid`; nothing stored.
+- Side effects: one Ollama `/api/chat` call for local `model`/`hybrid`, optional tracing when enabled; no persisted review state. Replay reads a saved output instead of calling Ollama.
 
 ## POST /api/resolve
 
@@ -221,7 +224,9 @@ Request:
 | `coordinators` | list | no | extra coordinator names |
 | `reviewed_messages` | list of strings | no | message ids the reviewer explicitly marked reviewed; see validation below |
 
-`override` fields a reviewer can set: `person`, `dates` (list of ISO dates; days outside the week are discarded), `start`/`end` (`HH:MM`; both empty means "no time"; start must be before end, otherwise the time is unparsed), `status`, `condition`.
+Supported `override` fields are `person` (a roster name), `dates` (a list of ISO dates), `start`/`end` (`HH:MM`, preferably quarter-hour boundaries within 06:00–23:00), `status` and `condition`. Both times empty means "no time"; one missing or start not before end is unparsed.
+
+**Validation limit:** browser controls offer roster names, the selected week's dates and 15-minute time steps. The server trusts reviewer overrides more broadly: a non-empty `person` override is treated as resolved without a roster-membership check; date overrides are filtered by string comparison against the week bounds; time overrides check ordering but do not enforce the strict CSV reader's range/boundary rules. Ledger intervals are rounded/clipped into the 15-minute 06:00–23:00 grid. Malformed direct requests may error or produce an export that `parse_final_csv` refuses; the API is not a substitute for that strict validation. Human acceptance is also a client-provided review state, not an authenticated audit event.
 
 Response 200 (fictional: Ana offers Tuesday 2–5 on 3 Nov, then cancels on 5 Nov; "Ana Exampel" is a second, similar roster name):
 
@@ -359,7 +364,7 @@ Ben Example,2026-11-14,,,,,needs_review,
 | `cell_state` | `confirmed`, or `needs_review` when a pending suggestion, a blocking issue or an unreviewed message touches that person/day |
 | `sources` | claim ids behind the segment, `;`-separated |
 
-`status=complete` only when every message is marked reviewed, nothing is pending and no `who`/`date`/`time`/`conflict` issue is open. Cells starting with `=`, `+`, `-`, `@`, tab or carriage return are written with a leading apostrophe, which the reader removes (COR-02). The reader (`ledger.export.parse_final_csv`) rejects malformed or self-contradicting files, including `status=complete` with any `needs_review` row or non-zero counts, and any status-line key that appears more than once. It requires the same eight column names exactly once, but permits a different column order. The scorer compares availability/conditional slot states; it does not validate condition prose, source ids or whether a human actually reviewed a message.
+`status=complete` only when every **non-duplicate** message is marked reviewed, nothing is pending and no `who`/`date`/`time`/`conflict` issue is open in the accepted ledger. Cells starting with `=`, `+`, `-`, `@`, tab or carriage return are written with a leading apostrophe, which the reader removes (COR-02). The reader (`ledger.export.parse_final_csv`) rejects malformed or self-contradicting files, including `status=complete` with any `needs_review` row or non-zero counts, and any status-line key that appears more than once. It requires the same eight column names exactly once, but permits a different column order. The scorer compares availability/conditional slot states; it does not validate condition prose, source ids or whether a human actually reviewed a message.
 
 ## Model-adapter boundary
 
@@ -372,6 +377,7 @@ available_models() -> list[str]
 ```
 
 - Returns claim dicts in the `said` shape and a stats dict (including the raw reply under `raw`, which the server removes before responding).
+- The phrase-copying design also asks the model to propose a status (`available`, `unavailable`, `conditional`) and `replaces_earlier` boolean. These are proposals, not deterministic computations; Python resolves dates/times and applies ledger/counting rules.
 - The current application's only outbound calls are `POST /api/chat` and `GET /api/tags` on `http://127.0.0.1:11434` (hard-coded). With opt-in tracing (`SENTRY_DSN` set and `sentry-sdk` installed), allowlisted spans also go to Sentry, checked by both allowlists; see [ARCHITECTURE §12](ARCHITECTURE.md#12-logging-and-observability). No Backboard or hosted inference request exists.
 - Any other reader must return the same `said` shape: `person, day_text, time_text, status, condition, replaces_earlier, excerpt`. `ledger/rules.py` (`extract(msg, roster)`) is the second implementation.
 - Changing `SYSTEM` or `EXAMPLES` requires bumping `PROMPT_VERSION`, which changes the cache folder in `evaluation/runs/` (see [TUNING.md](../evaluation/TUNING.md)).
@@ -384,14 +390,14 @@ All commands run from the project folder. Environment variables: demo mode reads
 |---|---|---|
 | `python3 server.py [port]` | start the app | default 8765; host 127.0.0.1 |
 | `LEDGER_DEMO=1 PORT=10000 python3 server.py` | start the read-only replay (DEP-02) | host 0.0.0.0; fictional set A and saved Gemma outputs only; see [Demo mode](#demo-mode-hosted-replay) |
-| `python3 -m unittest discover -s tests` | 49 offline checks | no Ollama needed |
-| `node tests/browser/session_rerun.mjs` | optional browser check that a failed or rejected rerun keeps the reviewed session and its export | needs Node 22+ and a local Chrome; installs nothing |
-| `python3 -m evaluation.run --set A\|B --extractor rules\|model\|hybrid [--model NAME] [--only m02,m05] [--refresh] [--label X]` | score a reader against the fictional reference | model outputs cached per message in `evaluation/runs/<model>_prompt<v>[_setB]/`; a missing model cache also makes a fresh call without --refresh; --refresh forces new calls; writes `evaluation/results/set<S>_<extractor>[_<model>_prompt<v>][_<label>].json`. Since 2026-10-20 unit metrics exclude duplicate messages from both sides and report `duplicate_messages_excluded`/`duplicate_units_excluded` per split (EVAL-10), and the ledger's wrong-conditions count checks every slot of each condition interval (`…partly lost`, EVAL-09) |
-| `python3 -m evaluation.compare [frozen]` | print the results table | `frozen` reads `evaluation/results/frozen/` |
+| `python3 -m unittest discover -s tests` | offline unit suite; current count/results in [TESTING.md](../TESTING.md) | no Ollama needed; SDK-dependent tracing checks skip without the optional package |
+| `node tests/browser/session_rerun.mjs` | optional browser check that validation/parse/no-message failure keeps the reviewed session/export; usable parsing starts a new session | needs Node 22+ and a local Chrome; installs nothing |
+| `python3 -m evaluation.run --set A\|B\|C --extractor rules\|model\|hybrid [--model NAME] [--only m02,m05] [--cache-only] [--out DIR] [--label X]` | score a reader against the fictional reference | For existing saved model/hybrid outputs use **`--cache-only --out <temporary-directory>`**; a missing cache fails without a model call, and memory/Ollama sampling is skipped. Without `--cache-only`, a cache miss makes a fresh call; `--refresh` forces fresh calls and contradicts `--cache-only`. Outputs normally go to `evaluation/results/`; `--out` refuses protected paths. Cache directories are model/prompt/set-specific (no set suffix for A, `_setB`/`_setC` otherwise). Duplicate units are excluded (EVAL-10); shared `condition_error` checks every slot (EVAL-09). See [TESTING](../TESTING.md) for the safe CI-equivalent loop. |
+| `python3 -m evaluation.compare [frozen\|frozen-setC]` | print saved results tables without scoring or inference | optional argument selects a subdirectory of `evaluation/results/` |
 | `python3 -m evaluation.score_final FILE.csv --set A\|B [--allow-provisional]` | score a final-sheet CSV (either timing condition) against the reference | exit 2 with the reason for a malformed or self-contradicting file, or for a provisional file without `--allow-provisional`; unresolved cells count as 68 disagreeing slots each; withdrawal and condition metrics are final-state errors (a condition counts once if any slot of its interval is wrong or missing) |
 | `python3 -m evaluation.score_csv FILE.csv --set A\|B` | score a review-log CSV against the reference | **does not replay replacements** (`replaces_earlier` is always false); not for the timing study |
 
-Never point `--label` or any script at `evaluation/results/frozen/`; that folder is the first-scored record.
+Never write into protected fixtures, saved model caches, `evaluation/results/frozen/`, `frozen-setC/` or `tuning/` for a verification run. Frozen first scores and post-hoc results have different provenance; preserve both.
 
 ## Proposed interfaces (not implemented)
 
@@ -399,15 +405,14 @@ These **cannot be called today**. They are listed so nobody mistakes them for ex
 
 | Proposal | Purpose | Task |
 |---|---|---|
-| A `replay` reader for `/api/suggest` that returns saved outputs from `evaluation/runs/` for the fictional fixtures | free hosted demo without a model | [DEP-02](../TASKS.md#deployment-and-submission) |
 | Session save/load (download and re-open a JSON file of messages, claims and reviews) | survive reloads | [COR-04](../TASKS.md#core-correctness) |
 
-### Agreed integration boundaries (planned, no new interfaces yet)
+### Integration boundaries and current status
 
 - **Local core:** preserve existing parse → suggest → resolve → explicit review → final export contracts. All optional services may be absent and the local workflow must still work. No environment settings are required for local use. `server.py` does not load `.env` automatically; [.env.example](../.env.example) provides local-mode/tracing-off defaults for manual shell export (see [README configuration](../README.md#configuration)). Demo mode reads `LEDGER_DEMO` and `PORT`; opt-in tracing reads `SENTRY_DSN`.
-- **Copilot, GitHub Actions, Entire and optional Backboard R-CLI:** development/process tools, not runtime APIs. Capture genuine work with fictional inputs and inspect public artifacts for private data. No API route or provider-backed memory layer is implied.
+- **GitHub Actions:** implemented unit, protected-evidence and cache-only re-score jobs, not a runtime API. No verified Copilot coding-agent or Entire use is recorded; those and optional Backboard R-CLI remain development/process proposals, not provider-backed application memory or inference.
 - **Sentry:** optional, opt-in structural diagnostics using fictional demonstrations, not message-content telemetry. Implemented 2026-10-21 (INT-03, D-33): `SENTRY_DSN`, optional `sentry-sdk==2.72.0` in `.venv`, two allowlists (`scrub()` in `before_send_transaction`, `clean_envelope()` at the transport) and leak tests; see [ARCHITECTURE §12](ARCHITECTURE.md#12-logging-and-observability).
-- **Render and .tech:** proposed judge-facing interactive fictional replay plus a domain pointing at hosting. A replay must be labelled as saved output, keep public input restricted to fictional data and document its actual export/review behavior; do not imply the present loopback-only server is already deployable or that the hosted site runs live Gemma. No replay route is final or implemented. Domain prize eligibility remains conditional on acquisition evidence.
-- **ElevenLabs:** narration for the demonstration video, outside the runtime. No voice-input, transcription or in-app speech route is planned for this submission; reconsider product voice only after a validated coordinator need and a separate scope decision.
+- **Render:** implemented/deployed fictional saved-output replay using the same routes with the restrictions above, configured by [render.yaml](../render.yaml). The live interactive page is [the replay at `/app`](https://availability-ledger-replay.onrender.com/app); no hosted live Gemma exists. The .tech domain remains a separate deferred DNS/eligibility proposal, not a verified project URL.
+- **ElevenLabs:** dropped by owner decision D-37; no generated narration or in-app voice route. The demo plan uses the owner's voice or captions.
 
-The exact deployed architecture, credentials, SDKs, transport and configuration belong in a later implementation decision and API update once selected. Do not create placeholder keys or unsupported endpoints to make an integration appear finished. Additional spend remains ₹0; optional integrations require verified free plans or confirmed credits, safe allowance limits and no paid fallback. See [INTEGRATIONS.md](INTEGRATIONS.md).
+The implemented boundaries are described above and in [ARCHITECTURE](ARCHITECTURE.md); dated release/provider evidence and remaining account/privacy questions are in [PROGRESS](../PROGRESS.md) and [SENTRY_HANDOFF](SENTRY_HANDOFF.md). Do not create placeholder keys or unsupported endpoints to make a proposal appear finished. Additional spend remains ₹0; optional services require verified free access and no paid fallback. See [INTEGRATIONS.md](INTEGRATIONS.md).

@@ -1,8 +1,8 @@
 # Spec: confirmed final-sheet export (COR-01) and final-sheet scorer (EVAL-06)
 
-Status: **implemented 2026-10-20.** Code: `ledger/export.py`, `server.py` (`/api/export` and the `confirmed` summary in `/api/resolve`), `ui/app.js`, `evaluation/score_final.py`, `evaluation/final_sheet_template.csv`. Tests: `tests/test_export.py`.
+Status: **implemented 2026-10-20; contract rechecked against source 2026-10-23.** Code: `ledger/export.py`, `server.py` (`/api/export` and the `confirmed` summary in `/api/resolve`), `ui/app.js`, `evaluation/score_final.py`, `evaluation/final_sheet_template.csv`. Tests: `tests/test_export.py`; current suite results are in [TESTING.md](../../TESTING.md).
 
-This file is the canonical description of the file format and the scoring contract. Optional sponsor tools and the proposed public fictional replay must preserve this distinction between provisional display and confirmed export; see [INTEGRATIONS.md](../INTEGRATIONS.md). No hosting, tracing or narration integration is implemented by this spec. Related: [API.md](../API.md#final-sheet-csv), [MEASUREMENT.md](../../evaluation/MEASUREMENT.md), [DECISIONS.md](../DECISIONS.md) D-21.
+This file is the canonical description of the file format and the scoring contract. The implemented public fictional replay preserves the distinction between provisional display and accepted-only export; its saved-output behavior is not live model inference. Optional tracing and supporting-service statuses are described separately in [INTEGRATIONS.md](../INTEGRATIONS.md). Related: [API.md](../API.md#final-sheet-csv), [MEASUREMENT.md](../../evaluation/MEASUREMENT.md), [DECISIONS.md](../DECISIONS.md) D-21.
 
 ## Why
 
@@ -13,10 +13,10 @@ This file is the canonical description of the file format and the scoring contra
 ## Settled decisions (owner, 2026-10-20)
 
 1. **No inferred review.** A message counts as reviewed only when the reviewer explicitly marks it. None of these count: extraction finishing, every suggestion being decided, or the evidence gate dropping suggestions.
-2. **"Accept all and mark reviewed"** is an explicit action. It is offered only when every undecided suggestion in the message (pending or dropped) is eligible: pending, only informational flags, person and day resolved, and a readable time. A message with any flagged, dropped or unresolved suggestion must be decided suggestion by suggestion, then marked reviewed.
+2. **"Accept all and mark reviewed"** is an explicit action. It is offered only for an unmarked message read without failure, with at least one undecided suggestion and every undecided suggestion eligible: pending, only informational flags, person and day resolved, and a time state other than unparsed (including unstated). A message with a warning-bearing, dropped or unresolved undecided suggestion must be handled separately, then marked reviewed.
 3. **Blocking issue kinds:** `who`, `date`, `time`, `conflict`. `condition` and `outside` do not block.
 4. **Provisional exports are allowed**, always labelled in the status line and the file name.
-5. **UI-05** (showing pending suggestions differently on the in-app sheet and chart) is a separate task.
+5. **UI-05 is implemented:** pending suggestions are distinguished on the in-app sheet/chart. This is display behavior; the export still reconciles accepted claims only. Adjacent accepted/pending claims merged into one segment are shown wholly as pending (UI-06 remains deferred).
 
 "Informational flags" are the same set as for "Accept all suggestions without warnings": `time_unstated`, `conditional`, `edited`, `replace_cue`, `similar_name`, `time_from_same_message`.
 
@@ -107,7 +107,7 @@ Ana Example,2026-11-12,09:00,12:00,available,,needs_review,m01.2
 Ben Example,2026-11-14,,,,,needs_review,
 ```
 
-- **Rows:** one row per confirmed segment, sorted by roster order, date and start.
+- **Rows:** one row per segment produced from accepted claims, sorted by roster order, date and start; the row's cell can still be `needs_review`.
   - A cell with no availability has no row.
   - A `needs_review` cell with no confirmed segment gets one row with empty times and status, so every unresolved cell appears.
 - **`status`:** `available` or `conditional`; unavailable time is simply absent.
@@ -165,11 +165,13 @@ Tolerated: a BOM, blank rows, and empty trailing cells that spreadsheets add. Un
 
 `evaluation/score_csv.py` remains for record logs only and is documented as unfit for timing.
 
-**What the scorer does not establish:** it compares availability/conditional final-slot states against the fictional reference. It does not assess the correctness of condition prose, source ids, actual human review, extraction provenance, user usefulness or time saved. Passing the parser and a perfect synthetic score are not independent real-world validation. The older `evaluation/run.py` ledger metric still misses partial condition loss (EVAL-09); only `score_final.py` has the every-slot fix described above. Frozen historical results must stay unchanged.
+**What the scorer does not establish:** it compares availability/conditional final-slot states against the fictional reference. It does not assess the correctness of condition prose, source ids, actual human review, extraction provenance, user usefulness or time saved. Passing the parser and a perfect synthetic score are not independent real-world validation. Since EVAL-09, `evaluation/run.py` and `score_final.py` share the every-slot condition verdict described above. Frozen historical results must stay unchanged.
 
-A future public replay may demonstrate review and final export using labelled fictional saved outputs; its results are separate from fresh model runs, held-out evaluation, private pilot data and the timed conditions in [MEASUREMENT.md](../../evaluation/MEASUREMENT.md).
+The public replay demonstrates review and final export using labelled fictional saved outputs; its results are separate from fresh model runs, held-out evaluation, private pilot data and the timed conditions in [MEASUREMENT.md](../../evaluation/MEASUREMENT.md).
 
 ## 8. Verification (2026-10-20)
+
+This section preserves the checks and test counts recorded on that date. It is not the current suite count or a rerun in the 2026-10-23 documentation audit; see [TESTING.md](../../TESTING.md) for current verification and CFG-02 in [PROGRESS.md](../../PROGRESS.md#cfg-02--dep-03-owner-manual-live-model-smoke-check-passed-2026-10-23) for the owner's later two-message provisional/complete CSV check.
 
 - 28 tests in `tests/test_export.py` (49 in total, all passing), including 8 added on 2026-10-20 for unreviewed scope (dropped-only, rejected-only, mixed), partial condition loss (available and conditional) and duplicate status-line keys (parser, scorer, CLI). Before those fixes, 7 of the 8 failed; the eighth guards the unchanged condition outcomes. The original four deliberate code breakages in a scratch copy were each caught by the intended test:
   - accepting a contradictory `complete` file;
