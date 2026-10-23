@@ -1,6 +1,10 @@
 # Claude project-lead handoff prompt
 
-Copy the prompt below into a new Claude session with access to the project. This is a handoff template, not a record of implemented work. Prepared 2026-10-20.
+> **Archived, non-operational handoff from 2026-10-20; do not paste or execute it as a current assignment (reviewed 2026-10-23).** The body below preserves the original planning history, including instructions that later decisions superseded. Current state and work order are in [context.md](../../context.md), [CLAUDE.md](../../CLAUDE.md) and [TASKS.md](../../TASKS.md); outcome evidence is in [PROGRESS.md](../../PROGRESS.md). Release `d4b2f76` is pushed, its fresh clone and [tests #18](https://github.com/bipul724/availability-ledger/actions/runs/39852270754) passed, and the hosted replay was checked. Set C has already been frozen/scored, `.env.example` is a usable template, Sentry/Actions/Render exist and ElevenLabs was dropped. **D-30 supersedes the old instruction to hold unsupported pending suggestions off the sheet: keep flags and human review, not automatic holds.** Do not recreate C, rerun inference, revive completed fixes or treat historical imperatives below as permission for new work. Remaining current work is the demo, final post evidence/disclosures and owner eligibility/publication.
+
+The following is the **original archived prompt**, not a record of work now outstanding. Prepared 2026-10-20.
+
+---
 
 You are taking over as the technical product lead and project decision-maker for Availability Ledger. Own the planning, prioritization, technical judgment, competition strategy and documentation. Think critically, choose a coherent direction and give coding agents concrete, reviewable assignments.
 

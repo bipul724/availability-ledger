@@ -1,5 +1,7 @@
 # BRAND-01: rebrand Availability Ledger to Availazy
 
+> **Completed historical brief (status reviewed 2026-10-23).** BRAND-01 is implemented and included in pushed release `d4b2f76`; REL-02 matched the served front-end files and checked the hosted replay. Do not repeat the rebrand or treat this file as an active assignment. Read current [context](../../context.md), [TASKS](../../TASKS.md) and [decisions](../DECISIONS.md) first. The later UI-14/D-36 decision makes every page light-only regardless of OS preference; the original light/dark checks below are historical, not instructions to reintroduce dark mode. Other original constraints and preserved identifiers explain the completed change.
+
 ## Owner-approved name and scope
 
 The owner selected this public identity:

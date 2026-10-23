@@ -48,12 +48,12 @@
     <header class="doc-head">
       <p class="kicker"><span class="nw">User guide</span> <span class="sep">·</span> <span class="nw">fictional examples</span></p>
       <h1>How Availazy works, <span class="hl">in pictures.</span></h1>
-      <p class="lede">Everything a coordinator needs: what happens to a message, what the tool can read, how review works and what the two exports contain. Every example comes from the fictional demo week, and every diagram is checked against the code; open “Sources” under a diagram to see where.</p>
+      <p class="lede">What happens to a message, what the tool can read, how review works and what the two exports contain. Examples use the fictional demo week and invented teaching cases. Each diagram is traced to the code; open “Sources” under it to see where.</p>
     </header>
 
     <ul class="legend" aria-label="How to read the diagrams">
       <li><span class="n n-code legend-n"><span class="t">code</span></span>ordinary Python decides</li>
-      <li><span class="n n-model legend-n"><span class="t">model</span></span>Gemma only copies words</li>
+      <li><span class="n n-model legend-n"><span class="t">model</span></span>Gemma proposes from words</li>
       <li><span class="n n-you legend-n"><span class="t">you</span></span>your decision</li>
       <li><span class="n n-ask legend-n"><span class="t">asks you</span></span>held back or flagged</li>
       <li><span class="n n-out legend-n"><span class="t">optional</span></span>off unless you turn it on</li>
@@ -63,7 +63,7 @@
     <section id="overview" aria-labelledby="t-overview">
       <p class="label"><span class="num-inline">01</span>Overview</p>
       <h2 id="t-overview">How it fits together</h2>
-      <p class="prose">Three programs on your own computer. The browser holds your review; a small Python server does the reading and the bookkeeping and keeps nothing between requests; Ollama runs the model. By default they talk only over 127.0.0.1. The one optional exception, Sentry tracing, is drawn separately below.</p>
+      <p class="prose">Three programs on your own computer. The browser holds your review; a small Python server reads and resolves each request without saving a review session; Ollama runs the model. By default they talk only over 127.0.0.1. The optional Sentry tracing path is drawn separately below; the hosted fictional replay is explained in section 7.</p>
 
       <figure class="arch" aria-labelledby="cap-arch">
         <div class="arch-col">
@@ -76,7 +76,7 @@
         </div>
         <div class="arch-col arch-server">
           <p class="arch-k">Python server · 127.0.0.1:8765</p>
-          <div class="box box-strong"><b>server.py</b><span>standard library only; stores nothing</span></div>
+          <div class="box box-strong"><b>server.py</b><span>standard-library core; no saved reviews</span></div>
           <div class="mods">
             <div class="mod"><b>messages.py</b><span>dated lines, WhatsApp exports, repeats</span></div>
             <div class="mod"><b>names.py</b><span>roster matching, never guessed</span></div>
@@ -116,7 +116,7 @@
           <li class="pipe-you"><span class="pipe-n">6</span><b>You review</b><span>decide each card; mark each message reviewed</span></li>
           <li class="pipe-you"><span class="pipe-n">7</span><b>Export</b><span>final sheet and, separately, the review log</span></li>
         </ol>
-        <p class="flow-note"><b>Steps 4–5 run again after every five messages read and after every decision.</b> The browser sends the whole session each time; the server answers and forgets it.</p>
+        <p class="flow-note"><b>Steps 4–5 run again after every five messages read, at the end, and after every decision.</b> The browser sends the whole session each time; the server returns the result without saving that review.</p>
         <figcaption id="cap-run">A run is one press of <em>Suggest records</em>. Steps 1, 6 and 7 are yours; the model only takes part in step 3, and only with a model reader.</figcaption>
       </figure>
       <details class="src"><summary>Sources</summary><p><code>ui/app.js</code> <code>run()</code>, <code>resolveNow()</code>, <code>onClick()</code>; <code>server.py</code> <code>parse</code>, <code>suggest</code>, <code>resolve</code>, <code>export</code>.</p></details>
@@ -174,11 +174,11 @@ python3 server.py</code></pre>
             <p class="zone-k">Rules only</p>
             <ol class="dflow dflow-v">
               <li><div class="n n-code"><span class="t">code</span><b>Keywords and patterns</b><span>no model; skips senders not on the roster</span></div></li>
-              <li><div class="n n-ok"><span class="t">no model needed</span><b>Runs anywhere Python runs</b><span>weaker baseline</span></div></li>
+              <li><div class="n n-ok"><span class="t">no model needed</span><b>Uses the Python core without Ollama</b><span>weaker baseline; supported Python versions below</span></div></li>
             </ol>
           </div>
         </div>
-        <figcaption id="cap-readers">All three produce the same kind of suggestion and pass through the same code afterwards. The model readers need Ollama with an installed model; <code>gemma4:e2b-it-qat</code> is the default. Each call waits up to 300 seconds and is not retried.</figcaption>
+        <figcaption id="cap-readers">All three produce the same kind of suggestion and pass through the same code afterwards. The model copies phrases and proposes status/replacement hints; code computes dates, hours and counts. The model readers need Ollama with an installed model; <code>gemma4:e2b-it-qat</code> is the default. Each call waits up to 300 seconds and is not retried.</figcaption>
       </figure>
       <details class="src"><summary>Sources</summary><p><code>server.py</code> <code>_suggest</code>; <code>ledger/hybrid.py</code> <code>merge</code>; <code>ledger/rules.py</code> <code>extract</code>; <code>ledger/model.py</code> <code>extract</code> (timeout 300 s), <code>available_models</code> (2 s); <code>ui/app.js</code> <code>init</code>.</p></details>
       <p class="fine">For the model readers: install and start <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a>, then <code>ollama pull gemma4:e2b-it-qat</code> (a 4.3&nbsp;GB download in our measurement). Python 3.10 or newer is the stated requirement; tested on 3.12 and 3.15. Nothing to <code>pip install</code> for the app itself.</p>
@@ -188,7 +188,7 @@ python3 server.py</code></pre>
     <section id="input" aria-labelledby="t-input">
       <p class="label"><span class="num-inline">03</span>Your messages</p>
       <h2 id="t-input">Your messages</h2>
-      <p class="prose">Paste text or upload a <code>.txt</code>. Any of these three line formats works, mixed if needed.</p>
+      <p class="prose">Paste text or upload a <code>.txt</code> export. The file picker also accepts .csv, but reads it as text: it must still contain one of these dated-line formats, not an arbitrary spreadsheet table. These formats can be mixed.</p>
       <div class="formats">
         <div class="fmt"><p class="fmt-k">Plain</p><code>2026-11-02 09:41 | Maria Lopez | I can do Tuesday and Thursday mornings.</code></div>
         <div class="fmt"><p class="fmt-k">WhatsApp, Android</p><code>02/11/2026, 09:41 - Maria Lopez: I can do Tuesday and Thursday mornings.</code></div>
@@ -227,7 +227,7 @@ python3 server.py</code></pre>
             <li><div class="n n-code"><span class="t">code</span><b>Duplicates removed</b><span>ignoring upper and lower case</span></div></li>
             <li><div class="n n-ask"><span class="t">limit</span><b>First 20 names kept</b><span>names after the 20th are dropped without a warning (a known gap)</span></div></li>
           </ol>
-          <figcaption id="cap-roster">Only roster names can receive availability; matching is shown in section 4.</figcaption>
+          <figcaption id="cap-roster">The name matcher and browser volunteer menu use your roster; matching is shown in section 4.</figcaption>
         </figure>
         <ul class="ticks">
           <li>WhatsApp dates are read month-first unless you tick <em>WhatsApp dates are day-first</em>. The plain format is always year-month-day.</li>
@@ -292,7 +292,7 @@ python3 server.py</code></pre>
         </div>
         </div>
         <p class="flow-note"><b>Two more drops:</b> a quote that mentions none of the claimed days, and a coordinator's own message that names no volunteer. A quote that mentions only some of the days narrows the suggestion to those days.</p>
-        <figcaption id="cap-evidence">The check runs on suggestions still pending. Your decisions are never overwritten by it.</figcaption>
+        <figcaption id="cap-evidence">Only a pending card can become “Not applied” automatically. Accepted or rejected states are not overwritten; source resolution still runs unless you override the relevant fields.</figcaption>
       </figure>
       <details class="src"><summary>Sources</summary><p><code>ledger/names.py</code> <code>match_person</code>; <code>ledger/resolve.py</code> <code>resolve_day</code>, <code>resolve_time</code>; <code>ledger/core.py</code> <code>resolve_claim</code> (evidence gate), <code>_span</code>, <code>build_ledger</code>; tests: <code>tests/test_ledger.py</code>, <code>tests/test_review_safeguards.py</code>, <code>tests/test_d31_fixes.py</code>.</p></details>
 
@@ -361,7 +361,7 @@ python3 server.py</code></pre>
             <tr><th scope="row">Not applied</th><td data-label="Sheet and chart on screen"><span class="x">no</span></td><td data-label="Final sheet file"><span class="x">no</span></td><td data-label="Review log file"><span class="x">no</span></td></tr>
           </tbody>
         </table>
-        <figcaption id="cap-count">So the on-screen sheet is provisional: it already includes suggestions you have not decided. Cards whose person, day or time is unresolved are not on any sheet until you settle them.</figcaption>
+        <figcaption id="cap-count">The on-screen sheet includes pending suggestions and says “Provisional” until the export's completeness conditions are met. Unresolved cards add no availability range, but may mark candidate cells for review.</figcaption>
       </figure>
 
       <figure class="fig" aria-labelledby="cap-mark">
@@ -443,7 +443,7 @@ python3 server.py</code></pre>
     <section id="export" aria-labelledby="t-export">
       <p class="label"><span class="num-inline">06</span>Exports</p>
       <h2 id="t-export">Exports</h2>
-      <p class="prose">Two separate files. The final sheet is the reconciled answer and says plainly whether you can rely on it. The review log is the audit trail.</p>
+      <p class="prose">Two separate files. The final sheet reconciles accepted records and labels whether review is complete. “Complete” records your decisions; it is not an independent guarantee that they are correct. The review log lists the source records separately.</p>
 
       <figure class="gates" aria-labelledby="cap-gates">
         <div class="gate">Every message marked reviewed?<small>a repeat is covered by its original</small></div>
@@ -454,7 +454,7 @@ python3 server.py</code></pre>
         <span class="g-yes">yes</span>
         <div class="gate gate-ok">complete</div>
         <div class="gate-no"><span>any “no”</span> → <b>provisional</b>: the file still downloads, its name and first line say “provisional”, and the affected person-days are marked <code>needs_review</code>.</div>
-        <figcaption id="cap-gates" class="sr">Final sheet status. Complete only when every message is marked reviewed, nothing is pending and no blocking issue is open. Otherwise provisional, and the file still downloads.</figcaption>
+        <figcaption id="cap-gates" class="sr">Final sheet status. Complete only when every non-duplicate message is marked reviewed, nothing is pending and no blocking issue is open in the accepted records. Otherwise provisional, and the file still downloads.</figcaption>
       </figure>
 
       <figure class="fig" aria-labelledby="cap-files">
@@ -508,7 +508,7 @@ python3 server.py</code></pre>
             <p class="zone-k">Local app · your computer</p>
             <div class="n n-you"><span class="t">browser tab</span><b>Your messages, roster and decisions</b><span>in memory only</span></div>
             <p class="wire">127.0.0.1</p>
-            <div class="n n-code"><span class="t">server.py</span><b>Reads, resolves, forgets</b><span>no database, no files, no request log</span></div>
+            <div class="n n-code"><span class="t">server.py</span><b>Reads and resolves each request</b><span>no database or saved review; packaged files are read, normal request logging is off</span></div>
             <p class="wire">127.0.0.1</p>
             <div class="n n-model"><span class="t">Ollama</span><b>Model list at page load; reading only for model readers</b></div>
             <p class="wire wire-down">you choose where to save</p>
@@ -519,17 +519,17 @@ python3 server.py</code></pre>
             <div class="n n-you"><span class="t">browser tab</span><b>The fictional demo week only</b><span>paste box and upload hidden</span></div>
             <p class="wire">internet</p>
             <div class="n n-code"><span class="t">server.py, replay mode</span><b>Saved Gemma outputs</b><span>no Ollama, no new model calls, no tracing; the rules reader still runs</span></div>
-            <div class="n n-no"><span class="t">refused · 403</span><b>Any message, roster, week or model it did not serve</b></div>
+            <div class="n n-no"><span class="t">refused · 403</span><b>Unserved source messages, roster, week, timezone or model</b></div>
           </div>
           <div class="zone zone-out">
             <p class="zone-k">Optional tracing · Sentry</p>
             <div class="n n-out"><span class="t">optional</span><b>Off unless you set <code>SENTRY_DSN</code> and install <code>sentry-sdk</code></b></div>
             <p class="wire wire-down">from the local server only</p>
             <div class="n n-code"><span class="t">two allowlists</span><b>Timings, token and claim counts, model and stage names, message positions, error types</b><span>only listed fields are kept, so our code does not send message text, names, quotes, prompts or replies</span></div>
-            <div class="n n-ask"><span class="t">limit</span><b>Sentry can add its own data after receipt</b><span>location values were seen, then filtered after a settings change; the received data has not been fully audited</span></div>
+            <div class="n n-ask"><span class="t">limit</span><b>Received location attributes have an unverified origin</b><span>four visible geo values on one inspected chat span and its parent appeared filtered after a settings change; the received data has not been fully audited</span></div>
           </div>
         </div>
-        <figcaption id="cap-where">Use the local app for real messages. The hosted replay exists so anyone can try the review on fictional data; what Render itself logs is outside this code.</figcaption>
+        <figcaption id="cap-where">Use the local app for your own messages. The hosted replay is for fictional data only: its checks restrict source messages and settings, but do not inspect arbitrary claim or override strings for private content. What Render itself logs is outside this code.</figcaption>
       </figure>
 
       <figure class="fig" aria-labelledby="cap-life">
@@ -538,8 +538,8 @@ python3 server.py</code></pre>
           <p class="q">Your review lives in the open browser tab. What happens next?</p>
           <div class="brs" style="--n:3">
             <div class="br"><span class="lbl">reload or close</span><div class="n n-no"><span class="t">gone</span><b>Review lost</b><span>saving a session is not built</span></div></div>
-            <div class="br"><span class="lbl">new run that parses</span><div class="n n-ask"><span class="t">replaced</span><b>Fresh session</b><span>cards, decisions and marks start over</span></div></div>
-            <div class="br"><span class="lbl">new run that fails</span><div class="n n-ok"><span class="t">kept</span><b>Review unchanged</b><span>not a Monday, or no dated messages</span></div></div>
+            <div class="br"><span class="lbl">valid settings and dated messages parsed</span><div class="n n-ask"><span class="t">replaced</span><b>Fresh session</b><span>cards, decisions and marks start over; later read failures stay in this new session</span></div></div>
+            <div class="br"><span class="lbl">validation or parsing fails</span><div class="n n-ok"><span class="t">kept</span><b>Review unchanged</b><span>not a Monday, parse error, or no dated messages</span></div></div>
           </div>
         </div>
         <figcaption id="cap-life">Export the final sheet before you close the tab.</figcaption>
@@ -548,7 +548,7 @@ python3 server.py</code></pre>
 
       <ul class="ticks ticks-warn">
         <li>It records availability, not shift assignments.</li>
-        <li>A real quote with invented day or time words is flagged, not held back.</li>
+        <li>A real quote with invented day or time words is flagged, not held back. Rules only can also mistake negation inside a condition for unavailability, such as “if it isn't raining”.</li>
         <li>Times are read as written; the timezone is not used.</li>
         <li>All accuracy figures come from fictional messages; time saved has not been measured.</li>
       </ul>
@@ -567,7 +567,7 @@ python3 server.py</code></pre>
           <li><span class="dm-area">Parsing</span><span><span class="dm-l">Code</span><code>ledger/messages.py</code></span><span><span class="dm-l">Route</span>POST /api/parse</span><span><span class="dm-l">Tests</span><code>test_ledger.py</code> (Duplicates)</span><span><span class="dm-l">Read</span><a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/API.md">API</a></span></li>
           <li><span class="dm-area">Readers</span><span><span class="dm-l">Code</span><code>model.py</code> <code>rules.py</code> <code>hybrid.py</code></span><span><span class="dm-l">Route</span>POST /api/suggest</span><span><span class="dm-l">Tests</span><code>test_d31_fixes.py</code>, <code>extraction_failures.mjs</code></span><span><span class="dm-l">Read</span><a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/ARCHITECTURE.md">Architecture</a></span></li>
           <li><span class="dm-area">Resolve and ledger</span><span><span class="dm-l">Code</span><code>names.py</code> <code>resolve.py</code> <code>core.py</code></span><span><span class="dm-l">Route</span>POST /api/resolve</span><span><span class="dm-l">Tests</span><code>test_ledger.py</code>, <code>test_review_safeguards.py</code></span><span><span class="dm-l">Read</span><a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/ARCHITECTURE.md">Architecture</a></span></li>
-          <li><span class="dm-area">Review</span><span><span class="dm-l">Code</span><code>ui/app.js</code></span><span><span class="dm-l">Route</span>browser only</span><span><span class="dm-l">Tests</span><code>review_safeguards.mjs</code>, <code>sheet_display.mjs</code>, <code>session_rerun.mjs</code></span><span><span class="dm-l">Read</span><a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/TESTING.md">Testing</a></span></li>
+          <li><span class="dm-area">Review</span><span><span class="dm-l">Code</span><code>ui/app.js</code></span><span><span class="dm-l">Route</span>browser actions → POST /api/resolve</span><span><span class="dm-l">Tests</span><code>review_safeguards.mjs</code>, <code>sheet_display.mjs</code>, <code>session_rerun.mjs</code></span><span><span class="dm-l">Read</span><a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/TESTING.md">Testing</a></span></li>
           <li><span class="dm-area">Exports</span><span><span class="dm-l">Code</span><code>ledger/export.py</code>, <code>app.js</code> <code>buildCsv</code></span><span><span class="dm-l">Route</span>POST /api/export</span><span><span class="dm-l">Tests</span><code>test_export.py</code>, <code>csv_safety.mjs</code></span><span><span class="dm-l">Read</span><a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/specs/final-export.md">Final-sheet spec</a></span></li>
           <li><span class="dm-area">Hosted replay</span><span><span class="dm-l">Code</span><code>server.py</code> (<code>LEDGER_DEMO</code>), <code>render.yaml</code></span><span><span class="dm-l">Route</span>all routes, refusals 403</span><span><span class="dm-l">Tests</span><code>test_demo_mode.py</code>, <code>demo_mode.mjs</code></span><span><span class="dm-l">Read</span><a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/API.md">API: demo mode</a></span></li>
           <li><span class="dm-area">Tracing</span><span><span class="dm-l">Code</span><code>ledger/tracing.py</code></span><span><span class="dm-l">Route</span>outbound to Sentry, opt-in</span><span><span class="dm-l">Tests</span><code>test_tracing.py</code></span><span><span class="dm-l">Read</span><a target="_blank" rel="noopener" href="https://github.com/bipul724/availability-ledger/blob/main/docs/SENTRY_HANDOFF.md">Sentry handoff</a></span></li>

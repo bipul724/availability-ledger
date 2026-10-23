@@ -1,5 +1,7 @@
 # D-33 integration briefs for the coding agent
 
+> **Historical implementation briefs; do not execute again (status reviewed 2026-10-23).** INT-11 Actions, DEP-02 replay and INT-03 tracing code are implemented. Release `d4b2f76` passed [tests #18](https://github.com/bipul724/availability-ledger/actions/runs/39852270754), a fresh-clone check and the live replay verification (REL-02). INT-03 retains only the named evidence/account/privacy gaps in [SENTRY_HANDOFF.md](../SENTRY_HANDOFF.md). The instructions below preserve the original D-33 assignment, not new authorization for installs, inference, account actions or deployment. Use current [context](../../context.md), [TASKS](../../TASKS.md) and [integration status](../INTEGRATIONS.md) before any new assignment. D-37 dropped ElevenLabs; recording uses owner voice or captions.
+
 Give these one at a time, in order; wait for the lead's review before the next. Each brief is complete on its own. Decision: [D-33](../DECISIONS.md). Standing rules for all three:
 
 - Read `CLAUDE.md`, `AGENTS.md` and the task's row in `TASKS.md` first.
@@ -37,6 +39,7 @@ Implement DEP-02 as defined in `TASKS.md` and `docs/INTEGRATIONS.md` §6 (D-33).
    - `/api/suggest` answers only from saved Gemma outputs in `evaluation/runs/gemma4_e2b_it_qat_prompt3/`, by message ID. It never calls Ollama and never accepts message text it didn't serve.
    - The rules and hybrid readers work as normal. Review, accept and reject, history, warnings, the chart and both CSV exports all work.
    - A persistent banner says: "Replay: fictional messages and saved Gemma 4 outputs. To use your own messages, run it locally — nothing leaves your machine." It links the repo.
+     **Superseded disclosure wording (UI-11):** that quoted original brief is historical. The implemented banner distinguishes local message processing from optional Sentry metadata and does not promise that nothing leaves the machine. Preserve the current source wording rather than restoring this old sentence.
 3. Add `render.yaml`: a free web service, Python, start command `python3 server.py` with `LEDGER_DEMO=1`, no build step (standard library only), and a health check on `/api/status`. Add no secrets.
 4. **Tests:**
    - Unit tests for the demo-mode routes: arbitrary text rejected, unknown IDs rejected, no model call (patched), outputs identical to a local cached run.
