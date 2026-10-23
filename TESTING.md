@@ -1,13 +1,13 @@
 # Testing
 
-How to check this project, and what has actually been checked. Written 2026-10-21. Counts are snapshots: re-run before you rely on them.
+How to check this project, and what has actually been checked. Updated 2026-10-23 (DOC-12). Counts below are dated snapshots. Offline means no live model or external network; several tests use temporary loopback HTTP servers. Historical checks remain labelled and are not presented as fresh verification.
 
 ## How the checks fit together
 
 ```mermaid
 flowchart LR
     subgraph local["On a developer machine"]
-        U[Unit tests<br/>python3 -m unittest discover -s tests<br/>no model, no network]
+        U[Unit tests<br/>python3 -m unittest discover -s tests<br/>no live model or external network]
         BR[Browser checks<br/>node tests/browser/*.mjs<br/>Node 22+, local Chrome, own server]
         EV[Evaluation<br/>python3 -m evaluation.run<br/>fresh Ollama calls on cache misses unless --cache-only]
         TR[Tracing tests in .venv<br/>needs sentry-sdk]
@@ -23,13 +23,37 @@ flowchart LR
 
 Browser checks and model calls never run in CI. Frozen results are compared byte for byte; they are never rewritten.
 
-## Unit tests (offline: no model, no network)
+<a id="unit-tests-offline-no-model-no-network"></a>
+## Unit tests (offline: no live model or external network)
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
+env -u SENTRY_DSN -u LEDGER_DEMO PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
 ```
 
-**At committed HEAD `c5a2e05`:** **66 tests pass** on Python 3.15.0 and 3.12 (macOS), verified 2026-10-21 in a clean `git archive` copy.
+**Fresh documentation-audit check, 2026-10-23 (DOC-12):** the existing bundled Python 3.12.14 ran 116 tests in 2.521 s: OK, 8 optional tracing tests skipped because that interpreter has no `sentry-sdk`. A non-failing ResourceWarning about a test file handle appeared. Application code is unchanged from `d4b2f76`; the guide edits change prose only.
+
+Current discovered tests by source file (subtests are not additional test methods):
+
+| File | Tests |
+|---|---|
+| `tests/test_cache_only.py` | 7 |
+| `tests/test_d31_fixes.py` | 18 |
+| `tests/test_demo_mode.py` | 7 |
+| `tests/test_evaluation.py` | 5 |
+| `tests/test_export.py` | 30 |
+| `tests/test_ledger.py` | 21 |
+| `tests/test_pages.py` | 5 |
+| `tests/test_review_safeguards.py` | 10 |
+| `tests/test_tracing.py` | 13 |
+
+The existing project `.venv` has Python 3.15.0 and `sentry-sdk` 2.72.0. Its tracing module was also run fresh: **13 tests, all pass**, using the capturing test transport and invented data, not the real Sentry service. SDK deprecation warnings about `send_default_pii` were observed; no dependency or tracing configuration was changed. These tests check application safeguards, not the provider's received payloads or account settings.
+
+**Independent follow-up (DOC-13, 2026-10-23):** the prior artifact directory had no raw unit/tracing logs, so those counts were checked with new runs and verbose logs. Unit suite: 116 run, OK, 8 skipped, 2.498 s; existing-SDK tracing module: 13 run, OK, 0.807 s. Restricted loopback attempts failed first; permitted retries passed. Logs and exit records are in `/private/tmp/availazy-docs-independent.RxgFw6/`. This follow-up inspected the original browser/evaluation/render/layout artifacts without rerunning those paths; it did not establish provider/cross-browser behavior.
+
+<details>
+<summary>Historical unit-test snapshots (preserved evidence, not the current test baseline)</summary>
+
+**Historical commit `c5a2e05`:** **66 tests pass** on Python 3.15.0 and 3.12 (macOS), verified 2026-10-21 in a clean `git archive` copy.
 
 | File | Tests at HEAD | Covers |
 |---|---|---|
@@ -44,9 +68,11 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
 
 **INT-11 (committed `8c5f975`):** **91 tests pass** on Python 3.15.0 and 3.12.6. Since `c5a2e05`: `tests/test_d31_fixes.py` (COR-13 to COR-18, 18 tests) and `tests/test_cache_only.py` (INT-11, 7 tests: `--cache-only` never reaches the patched model call, `--out` refuses protected folders, the CI summary fails on any score difference or fresh call).
 
-**Working tree (uncommitted, 2026-10-21):** a new `tests/test_d31_fixes.py` for COR-13 to COR-17 brings the total to **81**. At 11:13 IST all 81 passed. That work is in progress and unreviewed (see [context.md §G](context.md#g-current-state-at-handover-2026-10-21-about-1115-ist)).
+**Working tree (uncommitted, 2026-10-21):** a new `tests/test_d31_fixes.py` for COR-13 to COR-17 brings the total to **81**. At 11:13 IST all 81 passed. That work is in progress and unreviewed (see [archived handoff §G](docs/archive/context-2026-10-23-before-doc-audit.md#g-current-state-at-handover-2026-10-21-about-1115-ist)).
 
 **CI:** see [CI (GitHub Actions)](#ci-github-actions).
+
+</details>
 
 ## CI (GitHub Actions)
 
@@ -56,7 +82,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
 |---|---|---|
 | `unit` (INT-10) | The unit-test command above | Any test fails |
 | `integrity` (INT-11) | `sha256sum --check --strict evaluation/protected.sha256` (every file in `evaluation/results/frozen/`, `frozen-setC/`, `tuning/` and `fixtures/setC.manifest`); then compares the folders' file list with the checksum list | A protected file changed, went missing or was added |
-| `rescore` (INT-11) | For sets A, B and C: rules, then Gemma and Gemma + rules with `--model gemma4:e2b-it-qat --cache-only --out "$RUNNER_TEMP/rescore"`. Then `python3 -m evaluation.ci_summary` writes a table (units right on held-out messages, missed cancellations and slot agreement on the final sheet, fresh calls, "matches committed") to `$GITHUB_STEP_SUMMARY`. Last step: the checkout has no changes, so nothing is committed back | A saved model output is missing; any scoring field differs from the committed `evaluation/results/*.json` of the same name (run time, speed and memory are not compared); any fresh model call |
+| `rescore` (INT-11) | For sets A, B and C: rules, then Gemma and Gemma + rules with `--model gemma4:e2b-it-qat --cache-only --out "$RUNNER_TEMP/rescore"`. Then `python3 -m evaluation.ci_summary` writes a table (units right on held-out messages, missed cancellations and slot agreement in the all-pending provisional ledger without human review, fresh calls, "matches committed") to `$GITHUB_STEP_SUMMARY`. These ledger metrics are not human-reviewed final-CSV accuracy. Last step: the checkout has no changes, so nothing is committed back | A saved model output is missing; any scoring field differs from the committed `evaluation/results/*.json` of the same name (run time, speed and memory are not compared); any fresh model call |
 
 - **Consequence:** a commit that changes scores must also commit the re-scored `evaluation/results/*.json`, or `rescore` fails.
 - **Changing a protected file:** `evaluation/protected.sha256` may only be regenerated after a recorded decision, never to make the check pass.
@@ -64,29 +90,45 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
 
 ```bash
 shasum -a 256 -c evaluation/protected.sha256      # sha256sum -c on Linux
-out=$(mktemp -d); for s in A B C; do python3 -m evaluation.run --set $s --extractor rules --out $out >/dev/null; for ex in model hybrid; do python3 -m evaluation.run --set $s --extractor $ex --model gemma4:e2b-it-qat --cache-only --out $out >/dev/null; done; done; python3 -m evaluation.ci_summary $out
+(
+  set -e
+  unset SENTRY_DSN LEDGER_DEMO
+  export PYTHONDONTWRITEBYTECODE=1
+  doc_eval_out=$(mktemp -d)
+  for fixture_set in A B C; do
+    python3 -m evaluation.run --set "$fixture_set" --extractor rules --out "$doc_eval_out" >/dev/null
+    for reader_kind in model hybrid; do
+      python3 -m evaluation.run --set "$fixture_set" --extractor "$reader_kind" --model gemma4:e2b-it-qat --cache-only --out "$doc_eval_out" >/dev/null
+    done
+  done
+  python3 -m evaluation.ci_summary "$doc_eval_out"
+)
 ```
 
-**Runs observed:** "tests #1" on `56e38bd` (unit job only) passed (owner screenshot). The `integrity` and `rescore` jobs have **not yet run on GitHub**; locally (2026-10-21, macOS, Python 3.12.6 and 3.15.0, a copy of the working tree with ignored files left out) both pass, `rescore` takes under 2 s, and the checksum checks fail as intended on a modified frozen file and on an added file.
+**Public run verified 2026-10-23:** [tests #18](https://github.com/bipul724/availability-ledger/actions/runs/39852270754) on exact release `d4b2f76` passed all three jobs. A fresh public clone of that revision passed 116 tests (8 SDK skips), all 17 protected checksums and the file-inventory comparison; its checkout stayed clean. Earlier tests #1 on `56e38bd` covered only the unit job. The 2026-10-21 local integrity mutation checks are historical evidence, not new mutation tests in this documentation pass.
 
 ## Browser checks (optional, not in CI)
 
-Need Node 22+ and a local Google Chrome (`CHROME=/path` to override). They start `server.py` and headless Chrome, install nothing, and use invented messages:
+Need Node 22+ and a local Google Chrome (`CHROME=/path` to override). They start their own `server.py` and headless Chrome, install nothing, and use invented messages, saved replay outputs or stubs. Run sequentially with `SENTRY_DSN` and inherited `LEDGER_DEMO` unset. Check their fixed server/debug ports first; never kill an existing user process to free a test port. A local status probe may list installed Ollama models; no inference is needed:
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 node tests/browser/session_rerun.mjs
+env -u SENTRY_DSN -u LEDGER_DEMO PYTHONDONTWRITEBYTECODE=1 node tests/browser/session_rerun.mjs
 ```
 
-| Script | Checks | Last reported result (coding agent, 2026-10-20/21; not re-run by the lead) |
+| Script | Checks | Fresh DOC-12 result (2026-10-23) |
 |---|---|---|
 | `session_rerun.mjs` | A failed rerun keeps the reviewed session and export; a successful one starts fresh (COR-11) | 10/10 |
 | `extraction_failures.mjs` | Per-message failure warnings and continued reading (COR-03) | 14/14 |
 | `csv_safety.mjs` | Formula neutralising in both exports (COR-02) | 4/4 |
 | `sheet_display.mjs` | Pending vs accepted display at 1400 px and 390 px (UI-05/UI-01/UI-07) | 28/28 |
-| `review_safeguards.mjs` | "Check the wording" flag, the missed-change warning and the cue-replacement warning in the UI | 12/12 (re-run 2026-10-21, DEP-02) |
-| `demo_mode.mjs` | Hosted replay with `LEDGER_DEMO=1`: banner, hidden inputs, pasted text refused, Model only and Model + rules from saved outputs, accept/reject, both exports, no page overflow at 1400 and 390 px. Optional `[screenshot-dir]` | 23/23 (2026-10-21) |
-| `landing.mjs` | Landing page (UI-09) served with `LEDGER_DEMO=1`: nothing loaded from another site, every in-page link resolves, the hero demo plays to the final sheet and each step shows the right sheet, no page overflow at 1400 and 390 px, the button opens the replay at `/app`; locally (simulated status) the buttons say "Open the app". Since UI-10 also: the guide at `/docs` fits at 1400/390 px and unknown paths show the 404 page. Optional `[screenshot-dir]` | 18/18 (2026-10-22) |
+| `review_safeguards.mjs` | "Check the wording" flag, the missed-change warning and the cue-replacement warning in the UI | 12/12 |
+| `demo_mode.mjs` | Hosted replay with `LEDGER_DEMO=1`: banner, hidden inputs, pasted text refused, Model only and Model + rules from saved outputs, accept/reject, both exports, no page overflow at 1400 and 390 px. Optional `[screenshot-dir]` | 23/23 |
+| `landing.mjs` | Landing page (UI-09) served with `LEDGER_DEMO=1`: nothing loaded from another site, every in-page link resolves, the hero demo plays to the final sheet and each step shows the right sheet, no page overflow at 1400 and 390 px, the button opens the replay at `/app`; locally (simulated status) the buttons say "Open the app". Since UI-10 also: the guide at `/docs` fits at 1400/390 px and unknown paths show the 404 page. Optional `[screenshot-dir]` | 20/20 (includes landing/guide bounds at 320 px) |
 | `harness.mjs` | Shared helper, not a test. Opens `/app` (the review app) unless a page is given | — |
+
+**Fresh documentation-audit check (DOC-12, 2026-10-23):** all seven suites above passed, 111 assertions total, every script exit 0, no reported console errors. Used existing Node 24.19.0, Python 3.15.0 and Chrome 155.0.8059.85. Initial sandbox attempts could not start Chrome and ran zero assertions; authorized local-browser retries passed. Separate guide checks at 320/390/1440 px found no overflow, visible elements outside the viewport, page exceptions or console errors. Visual review of reader flows, exports, privacy boxes and review lifetime found no clipping/overlap. All 10 current Mermaid blocks also parsed/rendered locally with existing Mermaid 11.16.1; this is not a fresh GitHub rendering check. See the [complete audit](docs/DOCUMENTATION_AUDIT.md) for scope and artifacts.
+
+DOC-12 also freshly repeated the CI-equivalent cache-only A/B/C re-score: all 9 outputs match committed results, 0 fresh model calls; protected SHA checks 17/17 and protected-folder inventory 16/16 match. The four documented evaluation CLI help commands and bash/zsh syntax checks on the safe example exit 0. All local documentation targets/anchors resolve, all Markdown fences close, and guide tag/attribute structure matches HEAD. Application/configuration/evaluation evidence is unchanged; the audit report records complete file coverage and remaining manual limits.
 
 **Release check (2026-10-22, working tree on top of `a4bebb7`, Sentry unset, Chrome 155):** all seven scripts pass: `sheet_display` 28/28, `demo_mode` 23/23 (exact banner copy updated for UI-11), `review_safeguards` 12/12, `session_rerun` 10/10, `extraction_failures` 14/14, `csv_safety` 4/4, `landing` **20/20** (now also 320 px for the landing page and the guide, with an element-bounds check that does not trust page width alone; it fails on the pre-UI-18 CSS). Unit tests: 116 run, OK (8 skipped without `sentry-sdk`, Python 3.15). A fresh clone of `origin/main` at `a4bebb7` gave the same 116/8 and passed every protected checksum. Scratch checks outside the repo (not reproducible from it): an invented-message import→review→export run, a bounded accessibility audit (UI-02) and a public Render/GitHub check; see PROGRESS.
 
@@ -101,7 +143,7 @@ The agent also ran two checks kept in its own scratchpad, not in the repo: final
 ```bash
 python3 -m evaluation.compare            # saved current tables (read-only)
 python3 -m evaluation.compare frozen     # A/B first scores
-python3 -m evaluation.run --set A --extractor rules
+python3 -m evaluation.run --set A --extractor rules --out /tmp/availazy-rules-check
 ```
 
 - **Fresh model calls on cache misses:** `evaluation.run` with `--extractor model` or `hybrid` calls Ollama whenever a cached output is missing, even without `--refresh`. Add `--cache-only` to make a miss an error instead (no model call, no memory sampling), and `--out DIR` to write results somewhere other than `evaluation/results/`. Confirm `evaluation/runs/<model>_prompt3[_setB|_setC]/` covers every non-duplicate message first.
@@ -122,7 +164,7 @@ This scores a confirmed final-sheet CSV, from the app's **Export final sheet** o
 
 ```bash
 .venv/bin/python -m unittest tests.test_tracing -v      # all 13; needs requirements-tracing.txt in .venv
-python3 -m unittest tests.test_tracing -v               # 5 run, 8 skipped (no sentry-sdk), as in CI
+python3 -m unittest tests.test_tracing -v               # 13 discovered: 5 pass, 8 skip without sentry-sdk, as in CI
 ```
 
 | Test | What it proves |
@@ -164,6 +206,6 @@ A controlled cold/warm or memory comparison remains a separate experiment, **not
 - Python 3.10 and 3.11.
 - Linux locally (CI covers Ubuntu with 3.12).
 - Real messages.
-- Live model inference on a full week or with Model + rules. The only live check is the owner's two-message Model-only Chrome run with `gemma4:e2b-it-qat` on 2026-10-23 (CFG-02): correct suggestions and quotes, provisional then complete CSVs as expected. The 2026-10-22 and 2026-10-23 automated release checks made no model calls.
+- General live-model accuracy or run-to-run consistency. Historical full-week evaluations and Sentry delivery/performance runs exist; they do not establish every UI/export result is correct. The owner's 2026-10-23 CFG-02 run explicitly checked two Model-only suggestions, their quotes, and provisional→complete CSV transitions. The automated release/documentation checks use rules, saved outputs or stubs and make no fresh model calls.
 - Run-to-run model variation.
-- The hosted replay beyond a read-only check: on 2026-10-22 its public pages returned 200 (404 for an unknown path) and served UI files byte-identical to `origin/main` at `a4bebb7`; its server code and Render's own logging were not inspected.
+- Render's dashboard, server source and provider logs. The 2026-10-23 REL-02 check did verify nine served front-end assets against `d4b2f76` and exercised the live fictional replay, review and both exports; this is distinct from provider-side inspection.
