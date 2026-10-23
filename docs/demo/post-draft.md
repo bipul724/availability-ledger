@@ -1,14 +1,14 @@
 <!--
-REL-05 submission-post DRAFT, prepared 2026-10-22 from the repository and checks run that day. NOT PUBLISHED.
+REL-05 submission-post DRAFT, prepared 2026-10-22; source/evidence audit refreshed 2026-10-23. NOT PUBLISHED.
 Owner, before publishing (each item is yours; nothing here has been posted or sent):
   1. Replace [VIDEO LINK — not recorded yet] with the real video URL, or delete that line if you rely on the replay link alone.
   2. Confirm your personal eligibility and the deadline (sources conflict: see docs/COMPETITION.md and TASKS REL-04).
   3. Confirm the Prize Categories list against what is actually shown in the post and video.
-  4. Fill in the AI-assistance disclosure with the tools you actually used.
+  4. Fill in the AI-assistance credit with the tools you actually used, and set DEV's ai_disclosure_level in its editor or front matter according to actual authorship. Official dev.to/llms.txt (checked 2026-10-23) distinguishes some_ai from fully_autonomous; merely reviewing an AI-written draft does not make it human-authored. No value has been invented here. Do not publish with this field undisclosed.
   5. Decide whether to keep "My Agent Session" (optional) and "The Lazy Payoff" (optional); remove either if unused.
-  6. After pushing the release, confirm the new GitHub Actions run passed before keeping "The latest run on `main` passed all three jobs" (last observed: "tests #17" on a4bebb7).
+  6. Release verification is complete for d4b2f76: tests #18 passed all three jobs; a fresh clone and the live Render replay were checked (REL-02, 2026-10-23). Recheck only if the release changes; do not present this dated check as an uptime guarantee or new model-accuracy measurement.
   7. Copy everything below the line into DEV's editor (front matter included), then delete this comment.
-Numbers come from evaluation/RESULTS.md (frozen tables), PROGRESS.md and the 2026-10-22 release checks.
+Numbers come from evaluation/RESULTS.md (frozen tables and dated historical timings) and PROGRESS.md (including CFG-02 and REL-02). Owner video, selected redacted screenshots, actual credits/disclosure and personal eligibility remain open. The written-rules/API deadline discrepancy remains unresolved in docs/COMPETITION.md; do not infer a resolved deadline or eligibility from the push.
 -->
 ---
 title: "Availazy: local AI that turns a week of volunteer chat into an availability sheet you can check"
@@ -34,20 +34,20 @@ It records availability, not shift assignments. The person who gets to be lazier
 ## Demo
 
 - **Video:** [VIDEO LINK — not recorded yet]
-- **Try it in your browser:** <https://availability-ledger-replay.onrender.com/app>. This is a read-only **replay**: a fictional pantry's week (50 messages, 18 volunteers) with Gemma's answers saved in advance, so it runs on free hosting without a model. Review, history, the chart and both exports work; pasting your own messages is switched off. The free instance sleeps when idle, so the first visit can take about a minute.
-- **Read your own messages:** run it locally (below). Live Gemma inference happens only in the local app.
+- **Try it in your browser:** <https://availability-ledger-replay.onrender.com/app>. This is a fixed-data **replay**: a fictional pantry's week (50 messages, 18 volunteers) with Gemma's answers saved in advance, so it runs on free hosting without a model. Review decisions, history, the chart and both exports work; pasting your own messages is switched off. The free instance sleeps when idle, so the first visit can take about a minute; [Render describes this as an approximate wake time](https://render.com/docs/free), not a maximum.
+- **Read your own messages:** follow the [README's local setup](https://github.com/bipul724/availability-ledger#readme). Live Gemma inference happens only in the local app.
 
 ## Code
 
 {% github bipul724/availability-ledger %}
 
-Python standard library only, plain HTML/CSS/JS, MIT licence. A guide with diagrams is at <https://availability-ledger-replay.onrender.com/docs>.
+The core uses Python's standard library and plain HTML/CSS/JS, under an MIT licence. Opt-in tracing has one separate optional dependency, `sentry-sdk`; the app works without it. A guide with diagrams is at <https://availability-ledger-replay.onrender.com/docs>.
 
 ## How I Built It
 
 The design rule is a strict split: **the model proposes, code decides, a person accepts.**
 
-1. **Gemma 4 E2B copies phrases.** Running in Ollama on the laptop (`gemma4:e2b-it-qat`, Apache 2.0), the model fills a JSON schema per message: who, the day words, the time words, available or not, any condition, and a verbatim quote. It never works out a date. On an 8 GB Apple M2 a 50-message week took 131 s end to end in the app, with the model using about 1.6 GB once loaded.
+1. **Gemma 4 E2B proposes phrases and hints.** Running in Ollama on the laptop ([`gemma4:e2b-it-qat`, Apache 2.0](https://ollama.com/library/gemma4:e2b-it-qat)), the model fills a JSON schema per message: who, copied day/time/condition words, a verbatim quote, a proposed status and a replacement hint. Code computes the dates, time ranges, history and counts. A historical 20 October observation on an 8 GB Apple M2 took 131 s end to end for a fictional 50-message week with Gemma + rules. Ollama reported about 1.59 GB allocated to the loaded model, not total system memory use. These are dated observations, not a controlled benchmark or a promise of typical speed ([provenance](https://github.com/bipul724/availability-ledger/blob/main/evaluation/RESULTS.md#speed-and-memory-measured-with-the-claude-desktop-app-and-a-browser-open)).
 2. **Python decides.** Ordinary code turns "next Tuesday" and "after 3" into dates and times using the message's own timestamp, checks that the quoted words really appear in the message, cross-checks the model against a rule-based reader, keeps the per-day history and does every count. Ambiguities are flagged, never guessed.
 3. **You decide.** Accept, edit or reject each suggestion; marking a message reviewed is a separate, explicit step. Only accepted records reach the final sheet.
 
@@ -56,30 +56,34 @@ Three readers are available: *Rules only* (no model), *Model only*, and *Model +
 **Infrastructure I actually used:**
 
 - **Render** hosts the fictional replay. The server runs in a demo mode that refuses any message, roster or week it did not serve, and it never calls a model.
-- **GitHub Actions** runs on every push: 116 unit tests (8 tracing tests skip without the optional SDK), a SHA-256 check that the frozen evaluation results are untouched, and a re-score of all three test sets from the saved model outputs. The latest run on `main` passed all three jobs.
-- **Sentry Agent Tracing** is opt-in and off by default. When you turn it on, two allowlists in my code reduce every span to structural metadata such as timings, token counts, the model name and stage names; message text, names, quotes, prompts and replies are never sent, and the tests check that a planted fake name never leaves. The traces were useful: in one run four model calls hit Ollama's 300-second timeout, and a later 49-call run took 1.42 minutes with no errors. One honest caveat: the traces Sentry received displayed location (geo) attributes, which my code does not send. After I changed Sentry's settings, the four visible geo values on the chat span and its parent that I inspected appeared filtered. Where that location data comes from, and a complete audit of everything Sentry receives, remain unverified.
+- **GitHub Actions** runs on pushes and pull requests to `main`: 116 unit tests (8 tracing tests skip without the optional SDK), a SHA-256 check that the frozen evaluation results are untouched, and a re-score of all three test sets from saved model outputs. [tests #18](https://github.com/bipul724/availability-ledger/actions/runs/39852270754) passed all three jobs for release `d4b2f76` on 23 October IST. A clean public clone also passed unit/integrity checks; the hosted replay passed a bounded review/export check with nine served UI files matching that release.
+- **Sentry Agent Tracing** is opt-in and off by default. When enabled, two allowlists in my adapter restrict outgoing spans to structural metadata such as timings, token counts, model and stage names, excluding message text, names, quotes, prompts and replies; offline tests check planted fake content is absent. The traces were useful: four calls in one run reached the Python client's 300-second deadline while waiting for Ollama, and a later 49-call run took 1.42 minutes with no errors. That does not establish why the earlier calls timed out. One caveat: received traces displayed location (geo) attributes, which my code does not send. After a settings change, four visible geo values on the inspected chat span and its parent appeared filtered. Their origin and a complete audit of everything Sentry receives remain unverified ([dated evidence and limits](https://github.com/bipul724/availability-ledger/blob/main/docs/SENTRY_HANDOFF.md)).
 
 ## Why Does Open Innovation Matter?
 
-Group-chat availability is personal: names, schedules, family plans, health. An open-weight model that runs on the coordinator's own laptop means those messages are read right there. There is no account, no API key, no per-message bill and no cloud database, and it keeps working offline. Because the model and the code are open, anyone can check exactly what happens to a message. That is the point of the model/code split: the part that can be wrong in creative ways (the model) only copies words, and the part that decides (plain Python) is small enough to read and test.
+Group-chat availability is personal: names, schedules, family plans, health. An open-weight model that runs on the coordinator's own laptop means those messages are read right there. The local core needs no account, model API key, per-message bill or cloud database; once Ollama and the model are installed, it can run offline. Optional tracing sends structural metadata externally only when enabled. Open code makes the processing inspectable. The model proposes phrases that can still be wrong; plain Python checks and reconciles them, and a person makes the review decisions.
 
 ## How well does it work?
 
-I tested on fictional messages only, written for this project; I wrote sets A and B myself, and an isolated session wrote set C. I froze each set's first score before changing anything.
+All evaluation messages are fictional. The assistant authored sets A and B, their references and the rules baseline, so they share authorship. An isolated ChatGPT session wrote set C, and I rewrote five of its messages; its manifest was frozen before implementing agents saw it. No independent person reviewed the references. The retained first-scored tables remain unchanged, and later changes made after seeing held-out errors are labelled post-hoc.
 
-**Set C** (24 unseen messages, scored once, frozen):
+**Set C** (24 fictional messages, unseen at its first scoring on 21 October 2026, with that first score frozen):
 
-| Reader | Units right | Silent errors | Missed cancellations | Final-sheet slot agreement |
+| Reader | Units right | Silent errors | Missed cancellations | Provisional-ledger slot agreement |
 |---|---|---|---|---|
 | Rules only | 15/20 | 5 | 4/8 | 0.433 |
 | Gemma 4 E2B only | 17/20 | 2 | 4/8 | 0.403 |
 | Gemma 4 E2B + rules | 17/20 | 2 | 2/8 | **0.527** |
 
-The units were mostly right, but the sheet was not: two corrections were read with the right times without replacing the earlier answer. I then fixed the causes (explicit dates, replacement cue words, firm follow-ups, an initial-plus-surname match, more negation forms) using new invented messages. Re-scored from the same saved outputs, set C reaches 1.0 slot agreement, but that number is **post-hoc**: the fixes were designed after seeing set C's errors, so it is not independent evidence. On the earlier set B (20 messages), Gemma + rules got 30/35 units with 3 silent errors and 0.776 slot agreement as first scored.
+These metrics score resolved suggestions with **all claims pending and no human review**. The ledger columns concern the provisional ledger, not the accepted-only CSV after a coordinator's decisions. A unit is one person/day statement in a message; slot agreement compares the resulting availability intervals. The units were mostly right, but the ledger was not: two corrections had the right times without replacing earlier answers.
+
+I then used AI coding assistance to fix the causes (explicit dates, replacement cue words, firm follow-ups, an initial-plus-surname match, more negation forms) with new invented regression messages. Re-scored from the same saved outputs, Gemma + rules reaches 1.0 set C slot agreement, but that number is **post-hoc**: the fixes came after seeing C's errors and are not independent evidence. Earlier set B (20 messages) had Gemma + rules at 30/35 units, 3 silent errors and 0.776 provisional-ledger slot agreement as first scored. [The evaluation record](https://github.com/bipul724/availability-ledger/blob/main/evaluation/RESULTS.md) preserves provenance and metric scopes.
+
+Separately, a manual two-message local check on 23 October verified Ana/Ben's source quotes, names, dates and times, acceptance, and provisional-to-complete CSV status after explicit message review. Both populated cells changed from `needs_review` to `confirmed`. That is a small workflow check, not full-week model-accuracy evidence.
 
 ## The Lazy Payoff
 
-I have not measured anyone's time, so I will not claim minutes saved. What I can show: reading is reduced to checking a quote and clicking, corrections and cancellations are reconciled for you, and the things a person must decide are collected in one list. A protocol for a real timing study is in the repo, but no real coordinator has used it yet.
+I have not measured anyone's time, so I will not claim minutes saved. What I can show is the workflow: check each suggestion beside its source, accept/edit/reject it, inspect revision history, and work through flagged decisions in one list. It aims to replace retyping with review; whether that saves a coordinator time is unmeasured. A protocol for a real timing study is in the repo, but no real-coordinator study has been run.
 
 ## Known limitations
 
@@ -95,8 +99,8 @@ I have not measured anyone's time, so I will not claim minutes saved. What I can
 
 - **Best Use of Gemma**: Gemma 4 E2B is the reader in the local app and produced the replay's saved answers.
 - **Best Use of Render**: hosts the interactive fictional replay.
-- **Best Use of GitHub Copilot** (GitHub Actions route): tests, protected-evidence check and cache-only re-scoring on every push.
-- **Best Use of Sentry** (Agent Tracing): opt-in traces that carry no message content from my code; the timeout finding above came from them.
+- **Best Use of GitHub Copilot** (GitHub Actions route): tests, protected-evidence check and cache-only re-scoring on pushes and pull requests to `main`.
+- **Best Use of Sentry Agent Tracing**: opt-in traces that carry no message content from my code; the timeout finding above came from them.
 
 ## My Agent Session
 
