@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Availazy (formerly Availability Ledger; the repository keeps `availability-ledger`) turns dated volunteer chat messages into reviewed **availability** records (not shift assignments) for a volunteer coordinator. A local open model only copies phrases; ordinary Python decides dates, times, evidence, history and counts. After the handoff and this guide, read [README.md](README.md) for setup and user flow.
+Availazy (formerly Availability Ledger; the repository keeps `availability-ledger`) turns dated volunteer chat messages into reviewed **availability** records (not shift assignments) for a volunteer coordinator. A local open model copies phrases and proposes status/replacement hints; ordinary Python resolves dates, times, evidence, history and counts. After the handoff and this guide, read [README.md](README.md) for setup and user flow.
 
 ## Source of truth
 
@@ -23,27 +23,29 @@ Availazy (formerly Availability Ledger; the repository keeps `availability-ledge
 
 For implemented behavior, source and reproducible checks take precedence over stale prose. Official rules establish competition requirements; the owner's current assignment establishes scope. Planned requirements describe future behavior, so do not rewrite them to claim current implementation. If documents disagree, investigate and correct the affected status/contract rather than changing code merely to match a stale claim.
 
-## Owner-approved direction (planning, 2026-10-20)
+## Owner-approved direction and current implementation
 
-Keep the coordinator's local availability-review workflow at the center. Gemma is the current runtime model integration. Copilot and Entire support genuine future development; GitHub Actions supplies CI separately. A proposed Sentry adapter would send structural metadata only. A proposed Render demo would use fictional saved model outputs and identify replay clearly. The existing .tech domain would point to that host only if acquisition eligibility and renewal settings are verified. ElevenLabs is for fictional demo narration; in-app voice is deferred. Backboard R-CLI is an optional bounded development tool if a real task, compatible local model and free route are verified. See D-22 and [INTEGRATIONS](docs/INTEGRATIONS.md). **For the Week 3 submission, D-33 (owner override of D-23, 2026-10-21) adds GitHub Actions automation (Copilot category), a Render read-only replay, opt-in Sentry tracing and ElevenLabs demo narration, each with a dated gate; a category that misses its gate is dropped. Briefs: [docs/prompts/d33-integrations.md](docs/prompts/d33-integrations.md).**
+Keep the coordinator's local availability-review workflow at the center. As verified through release `d4b2f76` on 2026-10-23: Gemma provides local extraction; GitHub Actions runs offline unit, protected-evidence and cache-only scoring checks; Render serves the fictional saved-output replay; optional Sentry tracing is implemented with bounded owner-verified delivery/privacy evidence. See [INTEGRATIONS](docs/INTEGRATIONS.md) and [SENTRY_HANDOFF](docs/SENTRY_HANDOFF.md) for limits. No Copilot coding-agent, Entire, .tech routing or Backboard use is established.
+
+D-33 superseded the original D-23 scope; D-37 subsequently dropped ElevenLabs narration and its category. The owner records the demo with their voice or captions. The [D-33 briefs](docs/prompts/d33-integrations.md) are historical implementation assignments, not instructions to repeat completed setup. Archived handoffs and earlier status snapshots must not override current source, TASKS or later decisions.
 
 This direction authorizes documentation and planning, not installation, account changes, credit claims, external data transfer, runtime changes, deployment or publication. Select only useful, evidenced categories; one entry may seek multiple qualifying awards but can win only one. Recheck official rules before submission; no category is known to offer easier odds.
 
-## Commands (re-verified 2026-10-21)
+## Commands
 
 ```bash
-python3 -m unittest discover -s tests           # 116 checks (2026-10-22; 8 skip without sentry-sdk), offline, < 3 s
+env -u SENTRY_DSN -u LEDGER_DEMO PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
+# 116 discovered on d4b2f76; 8 optional SDK tests skip without sentry-sdk. See TESTING.md for dated results.
 node tests/browser/session_rerun.mjs            # optional browser check (Node 22+, local Chrome)
 python3 -m evaluation.score_final FILE.csv --set A   # final-sheet scorer (timing study)
 python3 server.py [port]                         # http://127.0.0.1:8765/app (landing page at /, UI-09)
 python3 -m evaluation.compare [frozen]           # results tables
-# CI-style re-score, never calls the model (fails on a missing saved output), results to a temp folder:
-python3 -m evaluation.run --set A --extractor hybrid --model gemma4:e2b-it-qat --cache-only --out /tmp/rescore
-# re-score using existing complete caches; verify coverage first (see warning below):
-for s in A B; do python3 -m evaluation.run --set $s --extractor rules; for m in gemma4:e2b-it-qat qwen3.5:4b-q4_K_M; do for ex in model hybrid; do python3 -m evaluation.run --set $s --extractor $ex --model $m; done; done; done
+# Read-only evaluation check: a cache miss fails, and results go outside the checkout.
+doc_eval_out=$(mktemp -d)
+env -u SENTRY_DSN -u LEDGER_DEMO PYTHONDONTWRITEBYTECODE=1 python3 -m evaluation.run --set A --extractor hybrid --model gemma4:e2b-it-qat --cache-only --out "$doc_eval_out"
 ```
 
-Model/hybrid evaluation makes fresh calls when a cache file is missing, even without --refresh; --refresh forces fresh calls. It also writes current results and may write new cache entries. Before a cache-only check verify complete coverage for the selected messages/model/prompt/set; do not run if a fresh call or protected-cache write would be required without authorization. Use evaluation.compare for a read-only saved-results check. Existing session authorization remains valid; do not ask again when it covers the exact action.
+Without `--cache-only`, model/hybrid evaluation makes fresh calls on cache misses, even without `--refresh`; `--refresh` forces fresh calls. Without `--out`, it overwrites current results. For documentation/verification, use both `--cache-only` and a temporary `--out`; never fall back to inference on a miss. Use `evaluation.compare` for a read-only saved-results view. Offline tests may use loopback HTTP servers; they require no live model or external network. Existing session authorization remains valid; do not ask again when it covers the exact action.
 
 ## Code map
 
@@ -51,7 +53,7 @@ Model/hybrid evaluation makes fresh calls when a cache file is missing, even wit
 
 ## Rules
 
-- **Python standard library only.** No pip packages, no CDN or JS libraries, no network calls except to local Ollama. Changing this needs a decision in DECISIONS.md first. **The one exception (D-33):** the optional `sentry-sdk` for opt-in tracing (INT-03), listed in `requirements-tracing.txt`, imported only when `SENTRY_DSN` is set; the core must still run with nothing installed.
+- **Python standard-library core and vanilla browser code.** No runtime CDN or external JS library. Extraction uses only local Ollama. Changing these boundaries needs a decision in DECISIONS.md first. **The exception (D-33):** optional `sentry-sdk` for opt-in tracing (INT-03), listed in `requirements-tracing.txt`, imported during tracing initialization only when `SENTRY_DSN` is set; the core must still run without it. User-authorized read-only source/release checks are distinct from introducing an application runtime integration.
 - **Do not edit** `fixtures/*.txt`, `fixtures/*reference.json`, `fixtures/setC.manifest`, `evaluation/results/frozen/`, `evaluation/results/frozen-setC/`, `evaluation/results/tuning/`, `evaluation/runs/`.
 - **Do not change** `SYSTEM`, `EXAMPLES` or `PROMPT_VERSION` in `ledger/model.py` unless the task is a prompt change; any prompt change bumps `PROMPT_VERSION` and gets a row in TUNING.md.
 - **Never tune on held-out messages** (set A held-out ids in `fixtures/reference.json` `split.heldout`; all of sets B and C). Write new test cases with your own invented messages. Label any change made after seeing held-out errors as post-hoc.
@@ -64,11 +66,11 @@ Model/hybrid evaluation makes fresh calls when a cache file is missing, even wit
 - **Secrets and data:** never read, print or commit `.env` files or keys. The local app reads only `SENTRY_DSN` (opt-in tracing, INT-03); the hosted replay reads `LEDGER_DEMO` and `PORT` (DEP-02, [.env.example](.env.example)). Never ask for, read or print the DSN. Fixtures are fictional; keep it that way.
 - **Real messages:** do not read real messages, with one exception: data for an approved pilot (TASKS EVAL-03). Allowed only when the owner has confirmed in writing that the people involved consented, the data was anonymised before it reached you, it is kept outside version control (never committed, never added to `fixtures/`), and it is processed locally only. Never copy pilot text into docs, tests, logs, issues, telemetry or any external service; report only aggregate results.
 - **Telemetry:** only the opt-in Sentry tracing in `ledger/tracing.py` (INT-03, 2026-10-21), off unless `SENTRY_DSN` is set and `sentry-sdk` is installed; any change to it keeps `tests/test_tracing.py` passing. It must stay opt-in, off by default and free-budget bounded, with no message text, names, quotes, model replies, audio, person/message identifiers or exception content that can contain those values. Review default instrumentation and redact before transmission. D-33 is the D-11 exception for INT-03 only, with the attribute allowlist it defines; any other SDK or outbound call still needs its own decision. Do not send pilot data to any external service.
-- **Honesty:** never describe a planned or partial integration as completed. As of 2026-10-22 the integrations that exist are Gemma (runtime), GitHub Actions (unit tests, integrity check, cache-only re-score), the Render replay (deployed) and opt-in Sentry tracing (real failed/successful traces received; targeted geo redaction verified on an inspected fictional trace, with wider privacy and account checks open; see [Sentry handoff](docs/SENTRY_HANDOFF.md)); ElevenLabs was dropped (D-37), and there is no evidence of Copilot coding-agent or Entire use. Use the status words in [PROGRESS.md](PROGRESS.md#status-vocabulary). Do not turn click counts or fictional results into claims of real-world time saved.
+- **Honesty:** never describe a planned or partial integration as completed. As of 2026-10-23 the integrations that exist are Gemma (runtime), GitHub Actions (all three jobs green in tests #18 on d4b2f76), the deployed Render replay and opt-in Sentry tracing (historical failed/successful traces received; targeted geo filtering observed, wider privacy/account checks open; see [Sentry handoff](docs/SENTRY_HANDOFF.md)). ElevenLabs was dropped (D-37); no Copilot coding-agent or Entire use is established. Use the status words in [PROGRESS.md](PROGRESS.md#status-vocabulary). Do not turn click counts or fictional results into claims of real-world time saved.
 
 ## Work order
 
-Follow [TASKS.md § Order of work](TASKS.md#order-of-work), which is canonical. As of 2026-10-21 13:00 IST: everything through EVAL-07, the D-31 fixes (COR-13 to COR-17) and COR-18 are done. D-33 sequence: INT-11 (Actions) and DEP-02 replay completed; INT-03 real delivery/finding and targeted privacy check verified by owner evidence on 2026-10-21/22, with explicit remaining checks in [SENTRY_HANDOFF](docs/SENTRY_HANDOFF.md). Do not repeat the full demo or paid checkout for setup confirmation. The demo recording (DEP-03; owner voice or captions, ElevenLabs dropped by D-37; its short local live-model check passed 2026-10-23) and post (REL-05) remain separate work. Per D-27, each task updates its TASKS row and one dated PROGRESS entry.
+Follow the current order in [TASKS.md](TASKS.md#order-of-work). EVAL-07, D-31/COR-18, Actions/replay implementation and the post-push release check (REL-02) are done. INT-03 retains only the explicit unknowns in [SENTRY_HANDOFF](docs/SENTRY_HANDOFF.md); setup/delivery does not need another full run or billing click. The owner still records the demo (DEP-03), finishes the drafted post (REL-05), confirms eligibility/entries (REL-04) and publishes. CFG-02 verified the two-message Model-only review/export path; older full-week inference/trace runs are separate evidence, not proof of general accuracy. Per D-27, update the TASKS row and dated PROGRESS evidence for each task.
 
 ## Mandatory documentation for every task
 

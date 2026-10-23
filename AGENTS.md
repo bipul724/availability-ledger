@@ -10,9 +10,11 @@ Read [context.md](context.md), then [CLAUDE.md](CLAUDE.md), before planning or c
 - Architecture/API: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/API.md](docs/API.md).
 - Decisions: [docs/DECISIONS.md](docs/DECISIONS.md).
 
-The multi-category direction is a plan. Gemma is the only implemented sponsor technology; development tools, public demo artifacts and optional runtime diagnostics have distinct roles. A docs/planning request does not authorize installing tools, changing application code, sending data, claiming credits, deploying or publishing. Follow the owner's actual implementation scope and existing session authorization.
+Current implementation includes Gemma for local phrase extraction, GitHub Actions for CI, a hosted fictional Render replay and optional Sentry tracing. These roles are distinct; they do not establish use of Copilot coding agents, Entire or dropped ElevenLabs narration. Category targets remain subject to owner eligibility and actual evidence. A docs/planning request does not authorize installing tools, changing application behavior or configuration, sending private data, claiming credits, deploying or publishing. Follow the owner's actual scope and existing session authorization.
 
 Preserve private data boundaries, accepted-only export, human review, frozen evidence and the additional ₹0 budget. Recheck current status rather than assuming every planned integration is present.
+
+Documentation inventory and the latest file-by-file review are in [docs/DOCUMENTATION_AUDIT.md](docs/DOCUMENTATION_AUDIT.md). Archived handoffs and dated implementation prompts preserve history; they are not current work orders. Use the current context, task status and superseding decisions before acting.
 
 ## Mandatory task documentation
 
