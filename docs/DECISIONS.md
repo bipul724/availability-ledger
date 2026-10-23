@@ -11,6 +11,8 @@ Each entry records why the system is the way it is. Statuses:
 
 Dates are supported by source/evaluation history or the owner conversation. D-22 records the 2026-10-20 planning direction, not an implementation date.
 
+Entries retain their original rationale and dated evidence. Later decisions can narrow or supersede earlier scope: D-33 adds the optional Sentry exception and hosted replay, D-36 removes D-35's dark appearance, and D-37 drops D-33's ElevenLabs plan. Implementation and release status are maintained in [TASKS.md](../TASKS.md) and [context.md](../context.md); a past proposal is not a new task authorization.
+
 ## Index
 
 | ID | Title | Status |
@@ -31,13 +33,13 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 | D-14 | Collapse duplicate messages | accepted |
 | D-15 | Restore day modifiers from the quote | accepted |
 | D-16 | "The same" copies times only within one message | accepted |
-| D-17 | External services are optional, opt-in and content-free by default | proposed |
+| D-17 | External services are optional, opt-in and content-free by default | safety constraints accepted; optional tracing implemented under D-33 |
 | D-18 | ₹0 operating budget | accepted |
-| D-19 | Hosted demo replays saved outputs | proposed |
+| D-19 | Hosted demo replays saved outputs | accepted and implemented under D-33/DEP-02 |
 | D-20 | Tune prompts on dev messages only | accepted |
 | D-21 | Confirmed final sheet requires explicit message review | accepted |
-| D-22 | Coherent multi-category direction with separate product/development/demo roles | accepted (planning direction); Week 3 scope narrowed by D-23 |
-| D-23 | Week 3 submission scope: Gemma core, optional Actions CI, other integrations deferred | accepted (project lead, 2026-10-20) |
+| D-22 | Coherent multi-category direction with separate product/development/demo roles | accepted planning direction; later scoped by D-23/D-33/D-37 |
+| D-23 | Week 3 submission scope: Gemma core, optional Actions CI, other integrations deferred | historical scope; partly superseded by D-33/D-37 |
 | D-24 | Set C is frozen outside the public repository | accepted (project lead, 2026-10-20) |
 | D-25 | Missed cancellations: warn first, no new extraction vocabulary before C is scored | accepted (project lead, 2026-10-20) |
 | D-26 | Duplicate-aware extraction scoring before set C is scored | accepted (project lead, 2026-10-20) |
@@ -59,9 +61,9 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 
 - **Status:** accepted
 - **Context:** Messages contain volunteers' names, plans and sometimes personal reasons. Coordinators of small groups have no budget for APIs.
-- **Decision:** Inference runs in Ollama on the coordinator's computer (`ledger/model.py`, `http://127.0.0.1:11434`). The server binds to `127.0.0.1`.
+- **Decision:** Local inference runs in Ollama on the coordinator's computer (`ledger/model.py`, `http://127.0.0.1:11434`). The local server binds to `127.0.0.1`; the separately introduced hosted replay binds publicly and uses saved fictional outputs, without live inference (D-19/D-33).
 - **Alternatives:** hosted LLM APIs; a hosted open model.
-- **Rationale:** privacy ("Nothing leaves the machine", README) and zero cost.
+- **Rationale:** private local message processing and no model API fee. The original "Nothing leaves the machine" wording predates D-33: optional Sentry tracing sends allowlisted structural metadata when enabled, so it is not a current blanket network claim. Its observed received-data limits are in [SENTRY_HANDOFF.md](SENTRY_HANDOFF.md).
 - **Tradeoffs:** needs Ollama and a 4 GB model download; slower than hosted models; limited by laptop memory.
 - **Revisit if:** coordinators cannot install Ollama, or a separately approved design changes the local privacy boundary. A hosted inference service does not keep inference local merely because access is free.
 - **References:** [ARCHITECTURE.md §5](ARCHITECTURE.md#5-model-integration), [RESULTS.md](../evaluation/RESULTS.md) speed and memory.
@@ -81,7 +83,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 
 - **Status:** accepted
 - **Context:** Needed to know whether a larger small model reads messages much better.
-- **Decision:** Qwen3.5 4B was scored on both sets with the same prompt (never tuned) and kept as a selectable model, not the default.
+- **Decision:** Qwen3.5 4B was scored on A and B with the same prompt (never tuned), not chosen as the default. The UI lists models installed in Ollama; this decision does not mean Qwen is currently installed or always selectable. Its saved comparison outputs remain evaluation evidence.
 - **Rationale:** it reads better (set A held-out 29/30 units with rules at first scoring) but costs memory and speed on 8 GB.
 - **Tradeoffs:** one Qwen hallucination ("all week" for "Whole weekend works") drove the post-hoc quote rule (D-06).
 - **Revisit if:** the hardware target rises to 16 GB.
@@ -100,7 +102,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 
 ### D-05 Model + rules cross-check as the default reader
 
-- **Status:** accepted (designed after reading set A held-out errors; set B, written afterwards, is its one independent test)
+- **Status:** accepted (designed after reading set A held-out errors; set B, written afterwards, was its first independent test; C later tested the pre-C code independently once)
 - **Context:** Held-out set A showed Gemma dropping negatives and never marking replacements.
 - **Decision:** `ledger/hybrid.py` runs both readers. Replacement words mark the model's positive claims as replacing earlier answers; a day the rules read as unavailable but the model never mentioned is added and flagged; disagreements are flagged.
 - **Alternatives:** model only; rules only; prompt changes only.
@@ -121,7 +123,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 ### D-07 Source-linked review
 
 - **Status:** accepted
-- **Decision:** Every card sits beside its message with the supporting words highlighted; issues and changes link back to the message; the export keeps message id, time, sender and quote.
+- **Decision:** Every card sits beside its message with the supporting words highlighted; issues and changes link back to the message. The review-log export keeps message id, time, sender and quote. The separate accepted-only final-sheet export introduced by D-21 carries claim IDs in `sources`, not those review-log metadata columns.
 - **Rationale:** the reviewer can check each suggestion without searching the chat; trust comes from evidence, not from the model.
 - **Tradeoffs:** a long message list is long to scroll; keyboard review (J/K) and bulk accept mitigate this.
 
@@ -144,7 +146,8 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 - **Status:** accepted
 - **Context:** No real messages could be used.
 - **Decision:** Fictional set A (50 messages: 30 dev, 20 held-out) and set B (20 held-out, written and frozen before scoring), with hand-written references. First-scored results are kept in `evaluation/results/frozen/` and never overwritten.
-- **Tradeoffs:** the same author wrote fixtures, references and rules, and no independent person checked them; the results show technical behaviour only, not demand or time saved. Every change made after reading held-out errors is labelled post-hoc.
+- **Later evidence:** D-24/D-29/EVAL-07 added C, written by an isolated ChatGPT session and edited by the owner. Its independent first scores are separately preserved in `evaluation/results/frozen-setC/`; later D-31 re-scores are post-hoc. No independent reference review or human timing study is implied.
+- **Tradeoffs:** the original A/B fixtures, references and rules share an author, and no independent reference review has been completed; the results show technical behaviour only, not demand or time saved. Every change made after reading held-out errors is labelled post-hoc.
 - **Revisit if:** real consented messages or an independent reviewer become available (EVAL-03, EVAL-04).
 - **Label correction (2026-10-20):** extraction metrics are held-out only; ledger metrics are computed over every message in a set (all 50 for set A, including dev). RESULTS.md now states both scopes and which snapshot each table comes from.
 - **References:** [RESULTS.md](../evaluation/RESULTS.md), [TUNING.md](../evaluation/TUNING.md), [MEASUREMENT.md](../evaluation/MEASUREMENT.md).
@@ -152,9 +155,9 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 ### D-11 Python standard library and no external front-end libraries
 
 - **Status:** accepted
-- **Decision:** No pip packages, no CDN or JS libraries; network calls only to local Ollama.
-- **Rationale:** nothing to install beyond Python and Ollama; nothing to leak data.
-- **Tradeoffs:** hand-written HTTP server and chart; SDK-based integrations (for example Sentry's SDK) would break this rule and need their own decision.
+- **Decision:** The core uses Python's standard library and no CDN or external front-end libraries. Its model calls go to local Ollama. D-33 later accepted one optional dependency/network exception: `sentry-sdk` for explicitly enabled structural tracing; it is not required for local review or the hosted fictional replay.
+- **Rationale:** the core needs only Python and Ollama, with local message processing and no remote model API. Optional tracing has the separate boundary and evidence limits documented under D-33.
+- **Tradeoffs:** hand-written HTTP server and chart. Any additional dependency/service exception still needs its own scoped decision; D-33 is the existing exception for optional Sentry tracing only.
 
 ### D-12 Browser session with transient local server processing
 
@@ -173,7 +176,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 
 - **Status:** accepted (implemented 2026-10-20 on request)
 - **Decision:** Same sender + same text (ignoring case, whitespace, quote and dash style) within 24 h of the earliest copy → `duplicate_of`; no extraction call, no suggestions, history entry "repeated".
-- **Tradeoffs:** the reference fixtures count a duplicate's units separately, so "units right" fell by 1–2 on held-out sets; final sheets were unaffected. A re-sent message after an intervening cancellation is still treated as a repeat (it does not re-apply).
+- **Tradeoffs:** in the original scoring, the reference fixtures counted duplicate units separately, so "units right" fell by 1–2 on held-out sets; final sheets were unaffected. D-26/EVAL-10 subsequently excluded duplicates from both unit counts; the frozen historical tables retain their original definitions. A re-sent message after an intervening cancellation is still treated as a repeat (it does not re-apply).
 - **References:** `ledger/messages.py`, [PROGRESS.md](../PROGRESS.md#evaluation-status).
 
 ### D-15 Restore day modifiers from the quote
@@ -190,9 +193,9 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 
 ### D-17 External services are optional, opt-in and content-free by default
 
-- **Status:** proposed implementation; safety constraints accepted in D-18/D-22 (nothing external is implemented)
+- **Status:** safety constraints accepted in D-18/D-22; optional Sentry implementation accepted under D-33 and implemented as INT-03. Current delivery/privacy limits are recorded in [SENTRY_HANDOFF.md](SENTRY_HANDOFF.md).
 - **Proposal:** Optional runtime diagnostics must be opt-in/off by default, use verified free access and stop/degrade without blocking local review when allowance ends. Telemetry excludes message text, names, quotes, replies, private identifiers and raw sensitive errors. Start with fictional data and a metadata allowlist. Development evidence and demo assets have separate boundaries. Public replay/narration use fictional data; in-app voice/transcription is deferred. See [INTEGRATIONS.md](INTEGRATIONS.md).
-- **Revisit:** when the first integration is designed.
+- **Revisit:** for any new external integration or change to the accepted tracing/replay boundaries; provider-received data is not claimed fully audited.
 
 ### D-18 ₹0 operating budget
 
@@ -202,21 +205,22 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 
 ### D-19 Hosted demo replays saved outputs
 
-- **Status:** planning direction selected in D-22; replay implementation/deployment remains proposed.
+- **Status:** accepted and implemented under D-33/DEP-02. The public Render service is a fixed-fictional-input replay; see [TASKS.md](../TASKS.md#deployment-and-submission) for dated deployment verification.
 - **Proposal:** Host a useful interactive replay using fixed fictional saved outputs, clearly labelled, on a verified free host such as Render. The domain points at the host; it does not host the app. No hosted Gemma resources are provisioned, and a remote host cannot use the laptop localhost Ollama. A future replay spec must define permitted inputs/APIs and exclude private-data uploads. A truthful local video remains a valid alternative.
+- **Implemented scope:** the hosted replay permits only its served fictional week, messages, roster and saved Gemma model; it refuses pasted or altered input and never calls Ollama. A custom domain remains separate from that completed deployment. The paragraph above preserves the original proposal; its replay contract is now documented in [ARCHITECTURE.md](ARCHITECTURE.md#15-deployment) and [API.md](API.md).
 - **References:** [ARCHITECTURE.md §15](ARCHITECTURE.md#15-deployment), [INTEGRATIONS.md](INTEGRATIONS.md), TASKS DEP-02.
 
 ### D-20 Tune prompts on dev messages only
 
 - **Status:** accepted
-- **Decision:** Prompt changes (v1 → v3) were motivated only by the 30 set A dev messages; first-scored held-out results are frozen, while later reruns after inspecting A/B errors are explicitly post-hoc. New C must stay unseen and be scored once after planned behavior changes. `SYSTEM`, `EXAMPLES` and `PROMPT_VERSION = 3` are frozen; any change bumps the version.
+- **Decision:** Prompt changes (v1 → v3) were motivated only by the 30 set A dev messages; first-scored held-out results are frozen, while later reruns after inspecting A/B errors are explicitly post-hoc. C stayed unseen until its one-time independent first score; that gate is complete. D-31's later deterministic fixes informed by C are post-hoc, without prompt changes. `SYSTEM`, `EXAMPLES` and `PROMPT_VERSION = 3` are frozen; any prompt change bumps the version and uses a separate cache identity.
 - **References:** [TUNING.md](../evaluation/TUNING.md).
 
 ### D-21 Confirmed final sheet requires explicit message review
 
 - **Status:** accepted (owner decisions recorded 2026-10-20; implemented the same day)
 - **Context:** The record log could not be replayed into the sheet, the in-app sheet includes pending suggestions, and a cancellation the readers missed can sit in a message that produced no suggestions.
-- **Decision:** The final-sheet export uses accepted records only and is `complete` only when every message is explicitly marked reviewed, nothing is pending and no `who`/`date`/`time`/`conflict` issue is open. Review is never inferred from extraction or from deciding suggestions. "Accept all and mark reviewed" is offered only for eligible pending suggestions with resolved identity/day, readable time and no blocking warning; approved informational flags are specified in the export contract/UI. Provisional exports are allowed and labelled. The timing study scores final-sheet files from both conditions with one strict scorer, counting unresolved cells as disagreement.
+- **Decision:** The final-sheet export uses accepted records only and is `complete` only when every non-duplicate message is explicitly marked reviewed, nothing is pending and no `who`/`date`/`time`/`conflict` issue is open. Review is never inferred from extraction or from deciding suggestions. "Accept all and mark reviewed" is offered only for eligible pending suggestions with resolved identity/day, readable time and no blocking warning; approved informational flags are specified in the export contract/UI. Provisional exports are allowed and labelled. Review marks also help identify `needs_review` cells; they never prevent downloading. The timing study scores final-sheet files from both conditions with one strict scorer, counting unresolved cells as disagreement.
 - **Alternatives:** export `ledger.sheet` directly (would export pending suggestions as confirmed); add `replaces_earlier` to the record log and keep replaying it (two contracts, and still blind to unreviewed messages); infer review when all suggestions are decided (cannot see missed cancellations).
 - **Tradeoffs:** one more click per message; a message with no suggestions must be marked with its button (J/K move between cards).
 - **Revisit if:** the timing study shows marking costs significant time, or coordinators want per-day rather than per-message review.
@@ -225,7 +229,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 ### D-22 Coherent multi-category direction with separate product/development/demo roles
 
 - **Date:** 2026-10-20 (owner direction and all-doc alignment).
-- **Status:** accepted (planning direction); optional uses remain unimplemented and conditional.
+- **Status:** accepted planning direction, with later scope in D-23/D-33/D-37. The original selection below did not itself implement or activate services; current implemented/deferred status is in [INTEGRATIONS.md](INTEGRATIONS.md).
 - **Context:** The owner wants genuine winning opportunities beyond Gemma while retaining the useful local workflow, ₹0 additional spending and privacy. Historical research separates meaningful sponsor evidence from cheap eligibility; reliable category odds are unknown.
 - **Decision:** Gemma/Ollama stays local phrase extraction; Python and human review determine the final sheet. Pursue genuine Copilot development/review and Actions CI as distinct evidence routes; Entire captures real upcoming sessions. Consider narrowly scoped Sentry diagnostics only after privacy/dependency/free-budget gates. Plan a useful fictional saved-output Render replay, conditional domain routing and ElevenLabs demo narration. Backboard R-CLI is an optional bounded development trial if genuinely useful and locally compatible.
 - **Boundaries:** No in-app voice, cloud database, authentication, public-web retrieval, orchestration engine or fine-tuning is selected merely to add a category. Development/demo tools are not application dependencies. Only completed qualifying uses may be listed in the submission.
@@ -236,7 +240,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 
 ### D-23 Week 3 submission scope: Gemma core, optional Actions CI, other integrations deferred
 
-- **Date:** 2026-10-20, 20:45 IST (project-lead takeover). **Status:** accepted. It narrows D-22 for the Week 3 submission; D-22 stays as the longer-term direction. The owner can override.
+- **Date:** 2026-10-20, 20:45 IST (project-lead takeover). **Status:** historical scope, partly superseded by the owner's D-33 override and D-37. Its rationale and dated plan below are retained; use the later decisions and current TASKS statuses for execution.
 - **Context:** About 4.6 days remain before the earlier deadline reading (25 Oct, 12:29 IST). The listed effort estimates for optional work in [COMPETITION.md](COMPETITION.md#recommended-portfolio--revised-using-historical-evidence-still-proposed) add up to roughly 15–35 hours: Sentry 6–12 h, Render 4–8 h, narration 2–4 h, Entire 1–3 h, R-CLI 1–3 h, Actions 1–3 h. The core is unfinished: COR-03, COR-10, COR-02, unseen C, and a known silent missed-cancellation weakness. An entry can win at most one prize; writing quality is weighted most heavily; the inspected Week 1 winners showed deep, concrete use of their sponsor.
 - **Decision:** the Week 3 entry targets **overall + Gemma**. **GitHub Actions CI** (running the existing offline tests on push) is the only addition, and only if the core is finished by Thursday 22 Oct, 14:00 IST. **Deferred until after submission:** Sentry (it needs a network/SDK exception that weakens the local-privacy story), the Render replay and `.tech` routing (a new deployment surface; a local video is enough), ElevenLabs narration, Entire, Copilot agent work and the R-CLI trial.
 - **Evidence and uncertainty:** no per-category entrant data exists, so this is not a win-probability calculation. The judgement is that finished correctness, an independent evaluation and a candid write-up beat several thinly evidenced categories. Effort figures are hypotheses.
@@ -248,6 +252,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 - **Context:** The GitHub repository [bipul724/availability-ledger](https://github.com/bipul724/availability-ledger) is public (GitHub API, 2026-10-20). Implementation agents also work in the same folder. Committing C, as the earlier EVAL-01 wording required, would show it to those agents and to the public before it is scored.
 - **Decision:** C is written and stored in `~/Documents/availability-setC/`, outside every repository. Only a SHA-256 manifest (`fixtures/setC.manifest`) is committed at freeze time, which shows C has not changed since. The files enter `fixtures/` only at EVAL-07, after their hashes are verified. The project owner writes C; an optional fresh steward session converts the notes into the reference schema. The planning lead and implementation agents never see it. Brief: [specs/eval-01-setC-brief.md](specs/eval-01-setC-brief.md).
 - **Tradeoff:** the manifest proves C is unchanged but not that nobody read it, so the isolation rests on the stated rules.
+- **Completion/supersession:** the "never see it" restriction above applied before first scoring. EVAL-01 froze the manifest in `688c50d`; EVAL-07 then registered and published the fixtures (`deaefed`) and first scores (`9327e30`). The original writer role was amended by D-29. C is no longer unseen; D-31 explicitly records later fixes from its failures as post-hoc. The original procedure remains in the historical brief.
 
 ### D-25 Missed cancellations: warn first, no new extraction vocabulary before C is scored
 
@@ -322,6 +327,7 @@ Dates are supported by source/evaluation history or the owner conversation. D-22
 ### D-33 Owner override of D-23: add Copilot (Actions), Render, Sentry and ElevenLabs
 
 - **Date:** 2026-10-21, about 13:00 IST. **Status:** accepted (owner request; plan by the project lead).
+- **Later scope:** Actions automation, the Render replay and optional Sentry tracing were implemented; their evidence and remaining limits are recorded in TASKS/PROGRESS. D-37 subsequently dropped the ElevenLabs portion; the demo uses the owner's voice or captions. The dated gates and proposal below are preserved as history, not new activation instructions.
 - **Owner request:** enter as many categories as possible by adding Render, Sentry, ElevenLabs and GitHub Copilot to the existing system.
 - **Official routes** (HF26 hub, read 2026-10-21):
   - **Copilot:** "automate your project with GitHub Actions" is a listed route.
