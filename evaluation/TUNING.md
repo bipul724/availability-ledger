@@ -2,7 +2,7 @@
 
 Forward rule: tune only on development messages. Keep new held-out messages unseen by implementation agents and score them once after the planned changes. The historical tables below explicitly record departures: some code changes followed inspection of A/B errors and are **post-hoc**, so A/B no longer independently validates those changes.
 
-**Current gate:** before further behavior changes, freeze and commit at least 20 new fictional set C messages plus a handwritten reference, unscored (EVAL-01); implementation agents must not open them. Use new invented development examples, then score C once at an identified code version (EVAL-07). C does not exist today. See [TASKS.md](../TASKS.md#evaluation-and-validation).
+**Current evidence boundary:** EVAL-01 froze set C by manifest (`688c50d`), and EVAL-07 scored it once as an independent first test on 21 October 2026 (`56e38bd` plus set registration, later committed in `deaefed`; first results in `9327e30`). The original pre-scoring isolation gate is complete. C subsequently informed D-31's deterministic fixes, so later C results are post-hoc and do not independently validate those fixes. Fresh independent validation would need new data (optional EVAL-11); use invented development messages for changes and preserve all frozen first scores. See [RESULTS.md](RESULTS.md#set-c-independent-scored-once-2026-10-21-code-56e38bd--set-registration) and [TASKS.md](../TASKS.md#evaluation-and-validation).
 
 **Sponsor boundary:** the agreed [integration plan](../docs/INTEGRATIONS.md) preserves the local phrase-copying Gemma/Python boundary. No new provider, prompt change, hosted inference, fine-tuning or in-product voice capability is authorized merely by a category target. Any real prompt change needs the `PROMPT_VERSION` bump, separate cache identity and a log entry. Saved-output replay, CI results, development sessions and optional traces are not new accuracy results and must not be labelled as independent tests. Keep consented real pilot data local, outside git and all external development/demo/telemetry artifacts.
 
@@ -18,6 +18,8 @@ Forward rule: tune only on development messages. Keep new held-out messages unse
 | Marta's offer to take Maria's slot attributed to "Maria" | m48 | Offers to take another person's slot are about SENDER; mentioned names get no claim |
 
 No few-shot examples changed. The rules baseline was not tuned after its first run.
+
+That last sentence describes the v1 → v2 stage. Later rules changes under D-31/COR-17 followed inspection of C and are post-hoc, not part of prompt tuning.
 
 ## v2 → v3 (dev still showed 9 errors, 3 silent)
 
@@ -38,3 +40,5 @@ No few-shot examples changed. The rules baseline was not tuned after its first r
 | Restore modifiers the model drops ("this Saturday" → "Saturday", "Next Friday" → "Friday") | Set A m26, set B m18 | **Built 2026-10-20** (`core._modifier_from_quote`, flag `day_modifier_from_quote`), tested with invented messages only. Its held-out gains are post-hoc; a fresh held-out set is still needed (TASKS EVAL-01 freeze, EVAL-07 score once) |
 | Read "the same" as the hours of an earlier claim in the same message; read "4 onwards" | Set B "Wednesday the same" | **Built 2026-10-20**, tested with invented messages. Post-hoc. Side effect: newly applied offers exposed cancellations both readers miss |
 | Collapse duplicate messages (same sender and text within 24 h) | Set A m11/m12 (from the task description) | **Built 2026-10-20**. Lowers "units right" because the references count a duplicate's units; final sheets unchanged |
+
+The table records the position after the A/B changes on 20 October. EVAL-09/10 subsequently corrected partial-condition accounting and excluded duplicate reference units (commit `36b9345`); the frozen A/B tables retain their original definitions. C then independently tested the pre-C code once. D-31/COR-13–17 changed deterministic date/name/reconciliation/negation rules after C's failures were seen; D-32/COR-18 made cue-only replacements visible without changing scores. Their re-scores used saved model outputs and are labelled post-hoc in [RESULTS.md](RESULTS.md#set-c-post-hoc-after-d-31-fixes-2026-10-21-not-independent-evidence). `SYSTEM`, `EXAMPLES` and `PROMPT_VERSION = 3` were unchanged.

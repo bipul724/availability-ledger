@@ -1,6 +1,6 @@
 # EVAL-01 brief: write and freeze unseen set C
 
-**Status:** brief ready (2026-10-20, project lead). Set C does not exist yet. This brief describes the work; it does not record it as done.
+**Status:** completed historical brief, originally written on 2026-10-20. EVAL-01 froze C's manifest in `688c50d`; EVAL-07 first scored it on 2026-10-21 at `56e38bd` plus set registration (committed as `deaefed`), with first results preserved in `9327e30`. The procedure below describes the original pre-scoring isolation and freeze; it is not an instruction to recreate or rescore C. Subsequent D-31 fixes are post-hoc. Current evidence: [RESULTS.md](../../evaluation/RESULTS.md#set-c-independent-scored-once-2026-10-21-code-56e38bd--set-registration), [TASKS.md](../../TASKS.md#evaluation-and-validation).
 **Decision basis:** [D-24](../DECISIONS.md#d-24-set-c-is-frozen-outside-the-public-repository) (C stays outside the repository until scoring), [D-10](../DECISIONS.md#d-10-synthetic-evaluation-with-frozen-held-out-sets).
 
 ## Why this exists
