@@ -1547,3 +1547,43 @@ Nothing was uploaded or published.
 - **Not checked:** the video's content (not watched) and its visibility setting.
 - `docs/demo/post-draft.md` now embeds the video; owner note 1 was updated. DEP-03 is marked done in TASKS.
 - **Remaining:** REL-05 (credits/disclosure, then publish) and REL-04 (eligibility).
+
+### REL-05: post rewrite, v2 (2026-10-23)
+`docs/demo/post-draft.md` was rewritten for writing quality, the most heavily weighted criterion. It is still unpublished.
+
+**Research (DevRelay; dated 2026-10-23):**
+- Read the Week 3 rules, including the judging criteria and the deadline: 25 Oct, 11:59 PM PDT.
+- Read the Weekend and Week 1 winners announcements and two category winners: Kitchen Table (Gemma) and MicroAdventures (Sentry/Render).
+- Scanned 100 recent `hf26challenge` posts. Many Week 3 entries are file tidiers. The closest concept is "Tramo" (Gemma reads syllabi; code and a professor decide).
+- Patterns that winners share:
+  - a concrete opening scene;
+  - real screenshots;
+  - a "model reads, code owns" split;
+  - an honest failure story;
+  - measured tables with limits;
+  - a numbered open-innovation section;
+  - a closing question to readers.
+
+**New assets (all fictional data):**
+- **Seven screenshots** in `docs/demo/post/`. Six were captured from a local `LEDGER_DEMO=1` replay with headless Chrome over CDP, using the existing `tests/browser/harness.mjs`. The landing page is the seventh. They follow the run-sheet steps:
+  - m03 Priya;
+  - m28 Maria with the rules-added Thursday;
+  - Needs a decision (10 items);
+  - m48 filed under Maria;
+  - Changes over time.
+- **`cover.png`** (1000×420 at 2×), rendered from `docs/demo/cover.html`.
+
+**Facts re-verified:**
+- 67 suggestions, 10 issues, and 39 accepted by "Accept all suggestions without warnings".
+- The real final-CSV header and Maria's `confirmed` rows; m28's Gemma `said` JSON.
+- `DEFAULT_PERIODS`; `PROMPT_VERSION` 3 (every D-31 fix is in Python).
+- Set C frozen table; 18-name roster.
+- Gemma model page: Apache 2.0, 4.3 GB (ollama.com, 2026-10-23).
+- **Corrected:**
+  - the "hospital" and "babysit" example quotes were replaced with lines from the fixture;
+  - "I invented" became "are invented", because the fixtures were AI-authored.
+
+**Not checked:**
+- How DEV renders the post. The images use `raw.githubusercontent.com` URLs that work only after the owner pushes.
+
+**Owner steps:** push, preview on DEV, confirm the AI-disclosure line and setting, optionally add a redacted Sentry screenshot, publish before the deadline, and confirm eligibility (REL-04).

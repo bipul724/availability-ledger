@@ -1,114 +1,229 @@
 <!--
-REL-05 submission-post DRAFT, prepared 2026-10-22; source/evidence audit refreshed 2026-10-23. NOT PUBLISHED.
-Owner, before publishing (each item is yours; nothing here has been posted or sent):
-  1. Video added 2026-10-23: https://www.youtube.com/watch?v=Qlq_kEsDr4g (5:48). Check that the embed shows in DEV's preview.
-  2. Confirm your personal eligibility and the deadline (sources conflict: see docs/COMPETITION.md and TASKS REL-04).
-  3. Confirm the Prize Categories list against what is actually shown in the post and video.
-  4. Fill in the AI-assistance credit with the tools you actually used, and set DEV's ai_disclosure_level in its editor or front matter according to actual authorship. Official dev.to/llms.txt (checked 2026-10-23) distinguishes some_ai from fully_autonomous; merely reviewing an AI-written draft does not make it human-authored. No value has been invented here. Do not publish with this field undisclosed.
-  5. Decide whether to keep "My Agent Session" (optional) and "The Lazy Payoff" (optional); remove either if unused.
-  6. Release verification is complete for d4b2f76: tests #18 passed all three jobs; a fresh clone and the live Render replay were checked (REL-02, 2026-10-23). Recheck only if the release changes; do not present this dated check as an uptime guarantee or new model-accuracy measurement.
-  7. Copy everything below the line into DEV's editor (front matter included), then delete this comment.
-Numbers come from evaluation/RESULTS.md (frozen tables and dated historical timings) and PROGRESS.md (including CFG-02 and REL-02). Owner video, selected redacted screenshots, actual credits/disclosure and personal eligibility remain open. The written-rules/API deadline discrepancy remains unresolved in docs/COMPETITION.md; do not infer a resolved deadline or eligibility from the push.
+REL-05 submission post, v2 rewrite 2026-10-23 (after reading the Week 1 / Weekend winners and the current Week 3 field). NOT PUBLISHED.
+Owner checklist before publishing (nothing here has been posted or sent):
+  1. PUSH FIRST. The cover and screenshots load from raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/.
+     Push this commit, then check every image in DEV's Preview tab. If one doesn't load, drag the file from docs/demo/post/ into DEV's editor instead.
+  2. AI disclosure (required by DEV guidelines): the last line says what was AI-assisted. Make sure it's true for you, name your coding tools if you want,
+     and set the AI-disclosure option in DEV's editor to match. This post was drafted by an AI assistant from the project's records.
+  3. Optional, but it strengthens the Sentry category: add ONE redacted Sentry trace screenshot where the comment in "Sentry Agent Tracing" says so.
+     No DSN, no location values, no message text. If you don't have a clean one, leave the comment; the text stands on its own.
+  4. Optional: save your agent session with DevRelay and add a "My Agent Session" section. Judges like it; it isn't required.
+  5. Deadline: 25 Oct 11:59 PM PDT = 26 Oct 12:29 PM IST. Confirm your eligibility (REL-04).
+  6. Title alternatives if you prefer a shorter one:
+       - "Let AI read, you decide: Gemma 4 turns a week of volunteer chat into a sheet I just say yes to"
+       - "Gemma 4 missed Maria's cancellation. A keyword list caught it. That's the whole design."
+  7. Copy everything below this comment (front matter included) into DEV's editor, then delete this comment there.
+Facts: every number and quote is checked against evaluation/RESULTS.md, fixtures/, ui/ and a local replay of the saved outputs on 2026-10-23 (see PROGRESS "REL-05: post rewrite").
 -->
 ---
-title: "Availazy: local AI that turns a week of volunteer chat into an availability sheet you can check"
+title: "Availazy: Gemma 4 reads the volunteer group chat on my laptop, Python does the dates, and I just say yes or no"
 published: false
-tags: devchallenge, hf26challenge, ai, opensource
+tags: devchallenge, hf26challenge, gemma, opensource
+cover_image: https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/cover.png
 ---
 
 *This is a submission for the [Hacktoberfest Open-Source AI Challenge Week 3: Slow and Steady](https://dev.to/challenges/hacktoberfest-week3-2026-10-19)*
 
+> 🦥 **TL;DR.** Paste a week of volunteer chat messages. **Gemma 4**, running locally in Ollama, copies the words that matter ("Tuesday", "after 3", "if my work shift gets moved"). Plain **Python** turns them into dates, times and a day-by-day history. You **accept or reject** each suggestion beside the message it came from, and only what you accept reaches the final sheet.
+>
+> ▶️ [5:48 demo](https://www.youtube.com/watch?v=Qlq_kEsDr4g) · 🧪 [Try the replay in your browser](https://availability-ledger-replay.onrender.com/app) · 💻 [Code, MIT licence](https://github.com/bipul724/availability-ledger)
+
+## Thursday, 9:10 a.m.
+
+On Monday, Maria posts in the volunteer group chat:
+
+> I can do Tuesday and Thursday mornings.
+
+On Thursday she posts again:
+
+> Change of plans — Thursday doesn't work anymore, sorry! Tuesday morning still good. I can add Friday 2-5.
+
+There are 48 more messages that week. Priya can do "Monday after 3". Kofi "might be able to do Thursday afternoon if my work shift gets moved". Rui writes "Next Tuesday" on a Monday, which could mean tomorrow or the Tuesday after. Somebody has to read all of it, remember who changed their mind, and type it into a sheet. Then somebody changes their mind again.
+
+Riverside Community Pantry doesn't exist. The pantry, its 18 volunteers and all 50 messages are invented, so this could be built and tested without touching anyone's real chat. But if you've ever coordinated volunteers, you've lived this week.
+
 ## What I Built
 
-Every week a volunteer coordinator posts the same question in a group chat: *when can you help?* The answers come back as free text. "Tuesday 10–12 works." "Thursday afternoon if my shift gets moved." "Change of plans, Thursday doesn't work anymore." Someone then has to read all of it, remember who changed their mind, and type a sheet by hand.
+**Availazy** is a local review tool for the person who asks "when can you help?" and then has to make sense of the answers.
 
-**Availazy** does the reading and the bookkeeping, and leaves the decisions to the coordinator. You paste a week of dated messages (or a WhatsApp export) and the volunteer list, pick the week, and it:
+![Availazy landing page: Local AI for Coordinators Who Have Better Things to Do](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/landing.png)
 
-- suggests availability records, each shown **beside the message it came from** with the quoted words highlighted;
-- keeps each person's history day by day, so a later correction or cancellation replaces the earlier answer, and a conditional offer stays conditional until someone settles it;
-- lists what it will not guess under **Needs a decision**: "next Tuesday" sent on a Monday, a day outside the week, a name that matches two people;
-- exports a **final sheet built only from the records you accepted**. The file is marked *complete* only when three things are true: every non-duplicate message is marked reviewed, no suggestion is still pending, and no blocking issue (an unresolved person, date, time or conflict) is open. Otherwise it says *provisional*, and it still downloads.
+You paste dated chat messages (or a WhatsApp text export) and your volunteer list, pick the week, and Availazy:
 
-It records availability, not shift assignments. The person who gets to be lazier is the coordinator: they check and decide instead of retyping.
+- 📝 **suggests availability records**, each shown beside its message with the quoted words highlighted;
+- 🔁 **keeps everyone's history day by day**, so a correction replaces the earlier answer, a cancellation removes it, and a "maybe" stays a maybe until the person confirms;
+- ✋ **refuses to guess.** Anything the words don't settle goes on a **Needs a decision** list;
+- ✅ **exports a final sheet built only from what you accepted.** It says *complete* only when every message is marked reviewed, nothing is pending and nothing is unresolved. Otherwise it says *provisional*, and it still downloads.
+
+It records **availability**, not shift assignments. The person who gets to be lazy is the coordinator: they stop retyping and start deciding.
 
 ## Demo
 
-- **Video (5:48):** the local app reads two invented messages live with Gemma 4, then the hosted replay walks through a fictional week.
-
 {% embed https://www.youtube.com/watch?v=Qlq_kEsDr4g %}
 
-- **Try it in your browser:** <https://availability-ledger-replay.onrender.com/app>. This is a fixed-data **replay**: a fictional pantry's week (50 messages, 18 volunteers) with Gemma's answers saved in advance, so it runs on free hosting without a model. Review decisions, history, the chart and both exports work; pasting your own messages is switched off. The free instance sleeps when idle, so the first visit can take about a minute; [Render describes this as an approximate wake time](https://render.com/docs/free), not a maximum.
-- **Read your own messages:** follow the [README's local setup](https://github.com/bipul724/availability-ledger#readme). Live Gemma inference happens only in the local app.
+The video opens with the local app: Gemma 4 reads two invented messages live, through Ollama, on my laptop. Then it switches to the hosted replay for the full week.
 
-## Code
+**Try it yourself:** <https://availability-ledger-replay.onrender.com/app>. This is a **replay**, not live inference. It serves the fictional week with Gemma's answers saved in advance, so it runs on free hosting without a model. Reviewing, history, the chart and both exports all work; pasting your own messages is switched off. Free hosting sleeps when idle, so the first visit can take about a minute.
 
-{% github bipul724/availability-ledger %}
+There's also an illustrated guide with diagrams at [/docs](https://availability-ledger-replay.onrender.com/docs).
 
-The core uses Python's standard library and plain HTML/CSS/JS, under an MIT licence. Opt-in tracing has one separate optional dependency, `sentry-sdk`; the app works without it. A guide with diagrams is at <https://availability-ledger-replay.onrender.com/docs>.
+## Gemma missed Maria's cancellation. That's the point.
 
-## How I Built It
+When Gemma read Maria's Thursday message in the saved run, it got her Tuesday right and her new Friday right, and it **missed the cancellation completely**.
 
-The design rule is a strict split: **the model proposes, code decides, a person accepts.**
+So Availazy doesn't trust one reader. In the default mode, a plain keyword reader reads every message alongside the model. When the rules see a cancellation the model didn't, the app adds it, **flagged**, so I can check it:
 
-1. **Gemma 4 E2B proposes phrases and hints.** Running in Ollama on the laptop ([`gemma4:e2b-it-qat`, Apache 2.0](https://ollama.com/library/gemma4:e2b-it-qat)), the model fills a JSON schema per message: who, copied day/time/condition words, a verbatim quote, a proposed status and a replacement hint. Code computes the dates, time ranges, history and counts. A historical 20 October observation on an 8 GB Apple M2 took 131 s end to end for a fictional 50-message week with Gemma + rules. Ollama reported about 1.59 GB allocated to the loaded model, not total system memory use. These are dated observations, not a controlled benchmark or a promise of typical speed ([provenance](https://github.com/bipul724/availability-ledger/blob/main/evaluation/RESULTS.md#speed-and-memory-measured-with-the-claude-desktop-app-and-a-browser-open)).
-2. **Python decides.** Ordinary code turns "next Tuesday" and "after 3" into dates and times using the message's own timestamp, checks that the quoted words really appear in the message, cross-checks the model against a rule-based reader, keeps the per-day history and does every count. Ambiguities are flagged, never guessed.
-3. **You decide.** Accept, edit or reject each suggestion; marking a message reviewed is a separate, explicit step. Only accepted records reach the final sheet.
+![Maria's "change of plans" message. Two cards come from the model; the third, Thursday unavailable, is marked "Added by the rules: possible cancellation the model missed"](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/maria-change-of-plans.png)
 
-Three readers are available: *Rules only* (no model), *Model only*, and *Model + rules*, the default.
+Until I accept it, the sheet shows Thursday as a *pending change*. One click on **Accept** and Thursday is gone from the final sheet. In **Model only** mode, the same replay leaves Maria on Thursday morning. That one message is the whole argument for running two readers.
 
-**Infrastructure I actually used:**
+## How I Built It: the model reads, code decides
 
-- **Render** hosts the fictional replay. The server runs in a demo mode that refuses any message, roster or week it did not serve, and it never calls a model.
-- **GitHub Actions** runs on pushes and pull requests to `main`: 116 unit tests (8 tracing tests skip without the optional SDK), a SHA-256 check that the frozen evaluation results are untouched, and a re-score of all three test sets from saved model outputs. [tests #18](https://github.com/bipul724/availability-ledger/actions/runs/39852270754) passed all three jobs for release `d4b2f76` on 23 October IST. A clean public clone also passed unit/integrity checks; the hosted replay passed a bounded review/export check with nine served UI files matching that release.
-- **Sentry Agent Tracing** is opt-in and off by default. When enabled, two allowlists in my adapter restrict outgoing spans to structural metadata such as timings, token counts, model and stage names, excluding message text, names, quotes, prompts and replies; offline tests check planted fake content is absent. The traces were useful: four calls in one run reached the Python client's 300-second deadline while waiting for Ollama, and a later 49-call run took 1.42 minutes with no errors. That does not establish why the earlier calls timed out. One caveat: received traces displayed location (geo) attributes, which my code does not send. After a settings change, four visible geo values on the inspected chat span and its parent appeared filtered. Their origin and a complete audit of everything Sentry receives remain unverified ([dated evidence and limits](https://github.com/bipul724/availability-ledger/blob/main/docs/SENTRY_HANDOFF.md)).
+The design is one strict split:
 
-## Why Does Open Innovation Matter?
+```text
+message ──▶ Gemma 4 E2B (Ollama, local) ──▶ copied words + a proposed status
+        └─▶ keyword rules ─────────────────▶ a second opinion
+                         │
+                         ▼
+     Python: who, which date, which hours, does the quote exist,
+             what does this replace, what is still unsure
+                         │
+                         ▼
+     You: accept / reject / edit, mark each message reviewed
+                         │
+                         ▼
+     Final sheet (accepted records only) + review log
+```
 
-Group-chat availability is personal: names, schedules, family plans, health. An open-weight model that runs on the coordinator's own laptop means those messages are read right there. The local core needs no account, model API key, per-message bill or cloud database; once Ollama and the model are installed, it can run offline. Optional tracing sends structural metadata externally only when enabled. Open code makes the processing inspectable. The model proposes phrases that can still be wrong; plain Python checks and reconciles them, and a person makes the review decisions.
+**1. Gemma copies words; it doesn't do dates.** For each message, Gemma fills a JSON schema that Ollama enforces. This is its real saved answer for Maria's "Tuesday morning still good":
+
+```json
+{"person": "SENDER", "day_text": "Tuesday", "time_text": "morning",
+ "status": "available", "condition": "", "replaces_earlier": true,
+ "excerpt": "Tuesday morning still good"}
+```
+
+No date and no hours, just the words. **Python** works out that "Tuesday", sent on Thursday 5 November for the week of 9 November, means **10 November**, and that "morning" means a fixed window:
+
+```python
+DEFAULT_PERIODS = {
+    "morning": ("09:00", "12:00"),
+    "afternoon": ("13:00", "17:00"),
+    "evening": ("17:00", "20:00"),
+}
+```
+
+Open ranges are code too. "After 3" runs to 20:00, the end of the planning day, and the card says so:
+
+![Priya's message "Monday after 3 works, and Wednesday afternoon." becomes Mon 9 15:00–20:00 and Wed 11 13:00–17:00, with the note "'after 3' runs to 20:00"](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/priya-after-3.png)
+
+**2. Every quote is checked against the message.** If the model's quote *and* its day/time words are both missing from the message, the suggestion is **not applied** unless you choose "Use it anyway". If only some words are missing, it's flagged.
+
+**3. History is kept in order.** Later messages change only the days and times they mention. Kofi's "if my work shift gets moved" stays *conditional* until his later "my shift got moved, so Thursday afternoon is a yes". Olu's "I have to drop out for the rest of this week", sent on a Wednesday, cancels Wednesday through Sunday, taking out his Thursday evening and Saturday morning:
+
+![Changes over time: every replacement and cancellation, in order, each linked to its message](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/changes-over-time.png)
+
+**4. When the words don't settle it, it asks.** "Next Tuesday" sent on a Monday could be two dates. "This Saturday" sent the week before is outside the week. A name that matches nobody on the roster isn't guessed:
+
+![Needs a decision: ten items, including "Which day? 'next tuesday' sent on Mon 09 Nov could be 10 Nov or 17 Nov" and "2026-11-07 is outside the selected week"](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/needs-a-decision.png)
+
+**5. The calm wrong answer.** Marta asks: *"Is Maria still doing Tuesday morning? If not I can take it."* Gemma filed Marta's offer **under Maria**, as a conditional Tuesday. It's wrong, and it looks perfectly reasonable. That's why every suggestion sits beside its message, and why this one carries "Only one of the two readers found this":
+
+![m48 from Marta Lopes, with the model's suggestion filed under Maria Lopez as conditional Tuesday 09:00–12:00 and the flag "Only one of the two readers found this"](https://raw.githubusercontent.com/bipul724/availability-ledger/main/docs/demo/post/m48-wrong-person.png)
+
+One click on **Reject** and Maria's Tuesday is firm again.
+
+**6. Only accepted records reach the sheet.** Here are the first rows of the real export from the replay, after I accepted Maria's cancellation, rejected the m48 mix-up, accepted the 39 warning-free suggestions and marked two messages reviewed:
+
+```text
+# availability-final v1; week=2026-11-09; status=provisional; unreviewed=m01 m03 … m50; pending=21; blocking_issues=0
+volunteer,date,start,end,status,condition,cell_state,sources
+Maria Lopez,2026-11-10,09:00,12:00,available,,confirmed,m28.1
+Maria Lopez,2026-11-13,14:00,17:00,available,,confirmed,m28.2
+Marta Lopes,2026-11-09,09:00,12:00,available,,needs_review,m17.1
+```
+
+*(The `unreviewed` list is shortened here.)* Maria has Tuesday and Friday, and no Thursday. Her messages are marked reviewed, so her cells are `confirmed`. Everyone else is `needs_review`, and the whole file honestly says `provisional`.
+
+**The stack is boring on purpose:** a Python standard-library server, plain HTML/CSS/JS with no framework or CDN, and Ollama on `127.0.0.1`. The only optional dependency is `sentry-sdk`, for opt-in tracing.
+
+## The Lazy Payoff 🦥
+
+Here's the fictional week, by the numbers, from the replay:
+
+| | |
+|---|---|
+| Messages | **50** (one exact repeat is collapsed automatically) |
+| Suggestions, each beside its quote | **67** |
+| Accepted with **one click** (no warnings) | **39** |
+| Left for a real decision (a warning, or not applied) | **28** |
+| Items on the *Needs a decision* list | **10** |
+| Gemma + rules reading the week on my 8 GB Apple M2 | **131 s** end to end (one dated run, not a benchmark) |
+
+So the work shifts from reading 50 messages and typing a sheet to **checking 28 flagged suggestions**, each with its quote right next to it. The model reads the whole week in about two minutes: long enough to make a cup of tea.
+
+I haven't timed a real coordinator, so I won't claim minutes saved. The repo has a written protocol for that study; it hasn't been run.
 
 ## How well does it work?
 
-All evaluation messages are fictional. The assistant authored sets A and B, their references and the rules baseline, so they share authorship. An isolated ChatGPT session wrote set C, and I rewrote five of its messages; its manifest was frozen before implementing agents saw it. No independent person reviewed the references. The retained first-scored tables remain unchanged, and later changes made after seeing held-out errors are labelled post-hoc.
+I didn't want to grade my own homework, so a **separate ChatGPT session wrote a test week I'd never seen** (set C: 24 fictional messages; I rewrote five of them). Its files were frozen by hash before any implementing agent saw them, and then it was **scored once**. That first score is kept exactly as it came out:
 
-**Set C** (24 fictional messages, unseen at its first scoring on 21 October 2026, with that first score frozen):
-
-| Reader | Units right | Silent errors | Missed cancellations | Provisional-ledger slot agreement |
+| Reader | Person-days right | Silent errors | Cancellations missed on the sheet | Sheet agreement with the answer key |
 |---|---|---|---|---|
-| Rules only | 15/20 | 5 | 4/8 | 0.433 |
+| Keyword rules only | 15/20 | 5 | 4/8 | 0.433 |
 | Gemma 4 E2B only | 17/20 | 2 | 4/8 | 0.403 |
-| Gemma 4 E2B + rules | 17/20 | 2 | 2/8 | **0.527** |
+| **Gemma 4 E2B + rules** | **17/20** | **2** | **2/8** | **0.527** |
 
-These metrics score resolved suggestions with **all claims pending and no human review**. The ledger columns concern the provisional ledger, not the accepted-only CSV after a coordinator's decisions. A unit is one person/day statement in a message; slot agreement compares the resulting availability intervals. The units were mostly right, but the ledger was not: two corrections had the right times without replacing earlier answers.
+All suggestions were left pending and nobody reviewed them: this scores the draft sheet *before* a human touches it.
 
-I then used AI coding assistance to fix the causes (explicit dates, replacement cue words, firm follow-ups, an initial-plus-surname match, more negation forms) with new invented regression messages. Re-scored from the same saved outputs, Gemma + rules reaches 1.0 set C slot agreement, but that number is **post-hoc**: the fixes came after seeing C's errors and are not independent evidence. Earlier set B (20 messages) had Gemma + rules at 30/35 units, 3 silent errors and 0.776 provisional-ledger slot agreement as first scored. [The evaluation record](https://github.com/bipul724/availability-ledger/blob/main/evaluation/RESULTS.md) preserves provenance and metric scopes.
+**Four things I didn't expect:**
 
-Separately, a manual two-message local check on 23 October verified Ana/Ben's source quotes, names, dates and times, acceptance, and provisional-to-complete CSV status after explicit message review. Both populated cells changed from `needs_review` to `confirmed`. That is a small workflow check, not full-week model-accuracy evidence.
+1. **The keyword list earned its seat.** On the sheet, rules alone (0.433) actually beat Gemma alone (0.403). Gemma read more person-days right, but each reader caught things the other missed. Together they halved the missed cancellations.
+2. **"Mostly right" can still make a wrong sheet.** Gemma + rules read 17 of 20 person-days right, yet the sheet matched only about half the time slots. The biggest culprit was *"Please change my availability on monday to 1-4 pm"*. The hours were right, but nothing treated it as a *replacement*, because "change" wasn't one of my replacement words. So the old all-day Monday stayed underneath.
+3. **Every fix went into Python, not the prompt.** The prompt is the same version that was scored. Five deterministic fixes followed: explicit dates beat weekday words, "change" became a replacement cue, a firm follow-up settles a maybe, "T. Vekar" is an ambiguity rather than a stranger, and the rules learned more negations. Re-scored from the *same saved Gemma outputs*, set C now reaches 1.0, but I label that **post-hoc**: I fixed what I'd seen, so it proves little about new messages.
+4. **Honest numbers are less impressive and more useful.** An earlier set B (20 messages) scored 30/35 person-days and 0.776 sheet agreement on its first scoring. Every frozen table, every caveat and every after-the-fact change is in [RESULTS.md](https://github.com/bipul724/availability-ledger/blob/main/evaluation/RESULTS.md).
 
-## The Lazy Payoff
+## Built with
 
-I have not measured anyone's time, so I will not claim minutes saved. What I can show is the workflow: check each suggestion beside its source, accept/edit/reject it, inspect revision history, and work through flagged decisions in one list. It aims to replace retyping with review; whether that saves a coordinator time is unmeasured. A protocol for a real timing study is in the repo, but no real-coordinator study has been run.
+- 🧠 **Gemma 4 E2B** ([`gemma4:e2b-it-qat`](https://ollama.com/library/gemma4:e2b-it-qat), Apache 2.0) in **Ollama**. About a 4.3 GB download and about 1.6 GB of memory once loaded on my 8 GB Mac, so it runs alongside a browser. It's the reader in the local app, and it produced every saved answer in the replay.
+- ☁️ **Render** hosts the [fictional replay](https://availability-ledger-replay.onrender.com/app), so judges can click through a full week without installing anything. The server runs in a demo mode that refuses any message, roster or week it didn't serve, and it never calls a model.
+- ✅ **GitHub Actions** runs on every push and pull request to `main`, with three jobs: 116 unit tests (8 tracing tests skip without the optional SDK); a SHA-256 check that the frozen evaluation results haven't been touched; and a re-score of all three test sets from the saved model outputs, with no model calls. [Run #18](https://github.com/bipul724/availability-ledger/actions/runs/39852270754) passed all three jobs for the release.
+- 🔭 **Sentry Agent Tracing** is opt-in and off by default. When on, two allowlists in my adapter limit what's sent to structure: timings, token counts, model and stage names. Message text, names, quotes, prompts and replies are excluded, and offline tests check that planted fake content never appears. The traces earned their keep. In one run, **four model calls hit the 300-second client deadline** waiting for Ollama. A later run made **49 calls in 1.42 minutes with no errors**. (The traces don't say *why* the earlier calls stalled, and I won't pretend they do.) One caveat I found: received traces showed location (geo) attributes that my code doesn't send. After a settings change, the four I inspected appeared filtered, but I haven't audited everything Sentry receives ([dated evidence](https://github.com/bipul724/availability-ledger/blob/main/docs/SENTRY_HANDOFF.md)).
 
-## Known limitations
+<!-- Owner: optional redacted Sentry trace screenshot goes here. No DSN, no location values, no message text. -->
 
-- Fictional data only, no real users, and the fixtures and references share an author.
-- Times are read as written; the timezone field is stored but nothing is converted.
-- Up to 20 volunteers; one person, one browser tab; no saved sessions.
-- The rules reader misses some phrasings. In a final check, Rules only read "Saturday 9–12 if it isn't raining" as *unavailable* instead of conditional, which is exactly why every suggestion sits beside its message.
-- Safari, Firefox and screen readers have not been tested.
+{% github bipul724/availability-ledger %}
+
+## Why Does Open Innovation Matter?
+
+Volunteer availability is quietly personal. "I'm at a wedding." "If my work shift gets moved." Read together, a week of these messages maps people's families, jobs and lives. Here's what an open model on the coordinator's own laptop makes possible:
+
+1. **The messages stay on the computer.** In the local app they go only to Ollama on `127.0.0.1`. There's no cloud AI service in the loop, and optional tracing is off unless you turn it on.
+2. **No account, no API key, no per-message bill.** Once Ollama and the model are installed, it works offline. A small food pantry can afford "free forever".
+3. **It fits the hardware people actually have.** An 8 GB laptop is enough, so the volunteer coordinator doesn't need a GPU or a budget.
+4. **It can be checked.** The prompt, the schema, the rules, the test sets and the frozen scores are all in the repo. Anyone can re-score them from the saved outputs without running a model, which is exactly what CI does.
+5. **It can be swapped.** The model is a menu choice of whatever Ollama has installed. I also evaluated Qwen3.5 4B against the same answer keys.
+
+A hosted API might be smarter. But the right answer to "where do my volunteers' messages go?" should be "nowhere".
+
+## What it can't do (yet)
+
+- It has only seen **fictional** messages. No real coordinator has used it, and the test sets share an author with the code, except set C.
+- Times are read as written; the timezone field is stored but not converted. "At 9" isn't read.
+- Up to 20 volunteers, one browser tab, and nothing is saved between sessions.
+- The keyword reader still misreads some phrasings. It read "Saturday 9–12 if it isn't raining" as *unavailable* instead of *conditional*, which is exactly why every suggestion sits beside its message.
+- Not tested in Safari, Firefox or with a screen reader.
 
 ## Prize Categories
 
-<!-- Owner: keep only categories whose use is shown in this post and the video. -->
-
-- **Best Use of Gemma**: Gemma 4 E2B is the reader in the local app and produced the replay's saved answers.
-- **Best Use of Render**: hosts the interactive fictional replay.
-- **Best Use of GitHub Copilot** (GitHub Actions route): tests, protected-evidence check and cache-only re-scoring on pushes and pull requests to `main`.
-- **Best Use of Sentry Agent Tracing**: opt-in traces that carry no message content from my code; the timeout finding above came from them.
-
-## My Agent Session
-
-<!-- Optional. Remove this section unless you save and embed or link a session. -->
+- **Best Use of Gemma**: Gemma 4 E2B is the local reader, held to a strict "copy the words, code does the maths" contract, measured against a rules baseline and a frozen test set written by a separate AI session.
+- **Best Use of Render**: the interactive replay that lets anyone review a full fictional week without installing a model.
+- **Best Use of GitHub Copilot** (via GitHub Actions): unit tests, a frozen-evidence integrity check and a cache-only re-score of every test set on every push and pull request.
+- **Best Use of Sentry Agent Tracing**: opt-in, content-free model-call traces that surfaced the 300-second timeouts.
 
 ---
 
-*AI assistance: <!-- Owner: name the AI tools you used, e.g. "This project was built with AI coding assistants (…), with every change reviewed and tested by me." -->*
+Slow and steady: the model reads, the code reconciles, and a person decides. If you coordinate volunteers, how do you collect availability today, and what's the message that always breaks your spreadsheet? 🦥
+
+*AI assistance: I built Availazy with AI coding assistants, and this post was drafted with an AI assistant from the project's own records. I reviewed and edited it, and every number links back to the repo.*

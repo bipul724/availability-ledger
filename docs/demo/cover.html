@@ -1,0 +1,90 @@
+<!doctype html>
+<!-- DEV cover source (1000x420, rendered at 2x). Derived from thumbnail.html. Render: see docs/demo/youtube.md. Message text is from the fictional demo week (m02, m28); Maria's rows are the replay's result after the run-sheet review. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Availazy cover</title>
+<style>
+  :root {
+    --paper: #f4f2e8; --card: #fcfcf6; --ink: #1b2b23; --ink-2: #3e5146; --muted: #5e6f63;
+    --rule: #d7decd; --margin-line: #8aa47f; --brand: #174b3a;
+    --green: #1f704b; --green-wash: #e1efe4; --red: #af3542; --red-wash: #f8e2e4;
+    --amber-ink: #80500c; --amber-wash: #f8ebcf; --hl: #dbe7c9;
+    --serif: "Iowan Old Style", "Charter", Palatino, Georgia, serif;
+    --sans: system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1000px; height: 420px; overflow: hidden; }
+  body {
+    background: var(--paper);
+    background-image: repeating-linear-gradient(to bottom, transparent 0 35px, var(--rule) 35px 36px);
+    font-family: var(--sans); color: var(--ink); position: relative;
+  }
+  .margin { position: absolute; left: 36px; top: 0; bottom: 0; border-left: 3px solid var(--margin-line); }
+  .left { position: absolute; left: 64px; top: 56px; width: 520px; }
+  .kicker { font: 700 19px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--brand); display: flex; align-items: center; gap: 14px; }
+  .glyph { width: 26px; height: 26px; background: var(--brand); border-radius: 7px; position: relative; }
+  .glyph::before { content: ""; position: absolute; left: 8px; top: 5px; bottom: 5px; border-left: 3px solid var(--margin-line); }
+  .glyph::after { content: ""; position: absolute; left: 13px; right: 5px; top: 11px; border-top: 3px solid var(--paper); }
+  h1 { font: 700 54px/1.04 var(--serif); letter-spacing: -.02em; margin-top: 26px; color: var(--ink); }
+  h1 .hl { background: linear-gradient(transparent 58%, var(--hl) 58%); color: var(--brand); }
+  .motto { font: italic 600 30px/1.15 var(--serif); color: var(--green); margin-top: 22px; }
+  .pills { display: flex; gap: 10px; margin-top: 26px; flex-wrap: wrap; }
+  .pill { font: 700 17px/1 var(--sans); padding: 10px 14px; border-radius: 999px; background: var(--brand); color: #fff; }
+  .pill.ghost { background: var(--card); color: var(--brand); border: 2px solid var(--brand); }
+
+  .right { position: absolute; right: 40px; top: 24px; width: 370px; }
+  .msg { background: #fff; border: 2px solid var(--rule); border-radius: 14px 14px 14px 4px; padding: 8px 14px 10px; box-shadow: 0 14px 30px -18px rgb(25 50 35 / .45); }
+  .msg + .msg { margin-top: 10px; }
+  .who { font: 700 15px/1 var(--sans); color: var(--ink-2); display: flex; justify-content: space-between; }
+  .who span { font-weight: 500; color: var(--muted); font-family: var(--mono); font-size: 13px; }
+  .said { font: 500 16px/1.25 var(--sans); margin-top: 5px; }
+  mark { background: var(--hl); color: inherit; padding: 0 3px; border-radius: 3px; }
+  .arrow { text-align: center; font: 700 20px/1 var(--sans); color: var(--brand); margin: 7px 0 6px; }
+  .arrow small { font: 700 13px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; vertical-align: middle; margin-left: 8px; color: var(--ink-2); }
+  .sheet { background: var(--card); border: 3px solid var(--brand); border-radius: 14px; overflow: hidden; }
+  .sheet-h { background: var(--brand); color: #fff; font: 700 15px/1 var(--sans); padding: 8px 14px; display: flex; justify-content: space-between; }
+  .sheet-h span { font-weight: 500; opacity: .85; }
+  .row { display: grid; grid-template-columns: 66px 1fr auto; align-items: center; padding: 6px 14px; font: 600 17px/1 var(--sans); border-top: 1px solid var(--rule); }
+  .row:first-of-type { border-top: 0; }
+  .day { color: var(--ink-2); font-weight: 700; }
+  .t { font-family: var(--mono); font-weight: 600; font-size: 17px; }
+  .tag { font: 700 12px/1 var(--sans); padding: 5px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .05em; }
+  .ok .tag { background: var(--green-wash); color: var(--green); }
+  .gone .t { text-decoration: line-through 3px var(--red); color: var(--muted); }
+  .gone .tag { background: var(--red-wash); color: var(--red); }
+</style>
+</head>
+<body>
+  <div class="margin"></div>
+
+  <div class="left">
+    <p class="kicker"><span class="glyph" aria-hidden="true"></span>Availazy</p>
+    <h1>Volunteer chat in.<br><span class="hl">Checked sheet</span> out.</h1>
+    <p class="motto">Let AI read. You decide.</p>
+    <div class="pills">
+      <span class="pill">Gemma 4 · local</span>
+      <span class="pill ghost">Open source</span>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="msg">
+      <p class="who">Maria Lopez <span>Mon 2 Nov</span></p>
+      <p class="said"><mark>I can do Tuesday and Thursday mornings</mark>.</p>
+    </div>
+    <div class="msg">
+      <p class="who">Maria Lopez <span>Thu 5 Nov</span></p>
+      <p class="said">Change of plans — <mark>Thursday doesn't work anymore</mark>, sorry! … <mark>I can add Friday 2-5</mark>.</p>
+    </div>
+    <p class="arrow">↓<small>after your review</small></p>
+    <div class="sheet">
+      <p class="sheet-h">Maria Lopez <span>week of 9 Nov</span></p>
+      <div class="row ok"><span class="day">Tue 10</span><span class="t">09:00–12:00</span><span class="tag">✓ yes</span></div>
+      <div class="row gone"><span class="day">Thu 12</span><span class="t">09:00–12:00</span><span class="tag">cancelled</span></div>
+      <div class="row ok"><span class="day">Fri 13</span><span class="t">14:00–17:00</span><span class="tag">✓ yes</span></div>
+    </div>
+  </div>
+</body>
+</html>
