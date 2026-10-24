@@ -54,6 +54,7 @@ Entries retain their original rationale and dated evidence. Later decisions can 
 | D-35 | Forest & Parchment colour palette (UI-13) | accepted (owner approved, 2026-10-22) |
 | D-36 | Light appearance only (UI-14) | accepted (owner request, 2026-10-22) |
 | D-37 | Drop ElevenLabs (INT-04); demo narrated live or captioned | accepted (owner decision, 2026-10-22) |
+| D-38 | Hash-protect the saved set C Gemma outputs and check the set C fixtures in CI (INT-12) | accepted (owner request, 2026-10-24) |
 
 ---
 
@@ -385,3 +386,13 @@ Entries retain their original rationale and dated evidence. Later decisions can 
   - Generated narration needs per-shot syncing that the owner judged not worth the time.
 - **Demo instead:** record each shot with the Mac microphone on, reading the script while clicking, so voice and video can't drift. Or record silently and add text captions in iMovie.
 - **Remaining target categories:** Overall, Gemma, Render, GitHub Copilot (through Actions) and Sentry Agent Tracing. At most one prize per entry.
+
+### D-38 Hash-protect the saved set C Gemma outputs and check the set C fixtures in CI (INT-12)
+
+- **Date:** 2026-10-24. **Status:** accepted (owner request, after a reader asked on the DEV post whether the frozen and post-fix set C runs are both inspectable).
+- **Decision:** add the 23 saved Gemma replies in `evaluation/runs/gemma4_e2b_it_qat_prompt3_setC/` to `evaluation/protected.sha256` (17 → 40 entries), include that folder in the "no file added or removed" check, and add a CI step that verifies the set C fixtures against `fixtures/setC.manifest`.
+- **Why:**
+  - Before this, CI hashed the frozen set C *scores* and the manifest file itself, but not the raw model replies every set C re-score reads, nor the fixtures against the manifest. A changed reply or fixture would only have shown up as a changed re-score, or not at all if the committed results were re-scored too.
+  - The replies and fixtures are unchanged since they were frozen (`git diff 9327e30 HEAD` on the replies folder is empty; the manifest still verifies), so this records existing state; it does not regenerate anything.
+- **Scope:** set C only. The set A/B saved outputs are still protected by git history and the CLAUDE.md "do not edit `evaluation/runs/`" rule, not by CI hashes.
+- **Rule unchanged:** `evaluation/protected.sha256` may only be regenerated after a recorded decision, never to make the check pass.

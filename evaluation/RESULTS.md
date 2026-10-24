@@ -127,7 +127,7 @@ The duplicate (m05 repeats m03) was handled correctly by all readers.
 
 ### Set C, post-hoc after D-31 fixes (2026-10-21; not independent evidence)
 
-The frozen table above is set C's independent result and is unchanged. The fixes below (COR-13 to COR-17, D-31) were designed after seeing set C's errors and tested with invented messages, so every number here is **post-hoc**. Re-scored from the same cached Gemma outputs (0 fresh calls); `frozen-setC/` untouched.
+The frozen table above is set C's independent result and is unchanged. The fixes below (COR-13 to COR-17, D-31) were designed after seeing set C's errors and tested with invented messages, so every number here is **post-hoc**. Re-scored from the same cached Gemma outputs (0 fresh calls); `frozen-setC/` untouched. Since 2026-10-24 (INT-12, D-38), CI also hash-checks those 23 cached replies and the set C fixtures, so a re-score cannot silently run on changed inputs.
 
 | Reader | Units right | Silent | Missed cancellations | Wrong conditions | Ambiguities flagged | Slot agreement | Chart slots wrong |
 |---|---|---|---|---|---|---|---|

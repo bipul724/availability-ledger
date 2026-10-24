@@ -14,7 +14,7 @@ flowchart LR
     end
     subgraph ci["GitHub Actions on push and pull request to main"]
         CU[Unit tests, Python 3.12<br/>8 tracing tests skipped: no sentry-sdk]
-        CI2[Integrity: sha256sum of frozen results,<br/>tuning results, set C manifest]
+        CI2[Integrity: sha256sum of frozen results,<br/>tuning results, saved set C replies,<br/>set C manifest and fixtures]
         CR[Cache-only re-score of A, B, C<br/>fails on a cache miss or any score change]
     end
     U -.->|same command| CU
@@ -81,7 +81,7 @@ The existing project `.venv` has Python 3.15.0 and `sentry-sdk` 2.72.0. Its trac
 | Job | What it does | Fails when |
 |---|---|---|
 | `unit` (INT-10) | The unit-test command above | Any test fails |
-| `integrity` (INT-11) | `sha256sum --check --strict evaluation/protected.sha256` (every file in `evaluation/results/frozen/`, `frozen-setC/`, `tuning/` and `fixtures/setC.manifest`); then compares the folders' file list with the checksum list | A protected file changed, went missing or was added |
+| `integrity` (INT-11, INT-12) | `sha256sum --check --strict evaluation/protected.sha256` (every file in `evaluation/results/frozen/`, `frozen-setC/`, `tuning/`, the 23 saved set C Gemma replies in `evaluation/runs/gemma4_e2b_it_qat_prompt3_setC/` and `fixtures/setC.manifest`: 40 entries); then `sha256sum --check --strict setC.manifest` inside `fixtures/` (the three set C fixture files); then compares those folders' file list with the checksum list | A protected file or set C fixture changed, went missing or was added |
 | `rescore` (INT-11) | For sets A, B and C: rules, then Gemma and Gemma + rules with `--model gemma4:e2b-it-qat --cache-only --out "$RUNNER_TEMP/rescore"`. Then `python3 -m evaluation.ci_summary` writes a table (units right on held-out messages, missed cancellations and slot agreement in the all-pending provisional ledger without human review, fresh calls, "matches committed") to `$GITHUB_STEP_SUMMARY`. These ledger metrics are not human-reviewed final-CSV accuracy. Last step: the checkout has no changes, so nothing is committed back | A saved model output is missing; any scoring field differs from the committed `evaluation/results/*.json` of the same name (run time, speed and memory are not compared); any fresh model call |
 
 - **Consequence:** a commit that changes scores must also commit the re-scored `evaluation/results/*.json`, or `rescore` fails.
@@ -90,6 +90,7 @@ The existing project `.venv` has Python 3.15.0 and `sentry-sdk` 2.72.0. Its trac
 
 ```bash
 shasum -a 256 -c evaluation/protected.sha256      # sha256sum -c on Linux
+(cd fixtures && shasum -a 256 -c setC.manifest)   # the set C fixtures (INT-12)
 (
   set -e
   unset SENTRY_DSN LEDGER_DEMO

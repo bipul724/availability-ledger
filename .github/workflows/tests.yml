@@ -46,11 +46,15 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
-      - name: Frozen results, tuning results and the set C manifest match evaluation/protected.sha256
+      - name: Frozen results, tuning results, saved set C Gemma outputs and the set C manifest match evaluation/protected.sha256
         run: sha256sum --check --strict evaluation/protected.sha256
+      - name: Set C fixtures match fixtures/setC.manifest (frozen before set C was first scored)
+        working-directory: fixtures
+        run: sha256sum --check --strict setC.manifest
       - name: No file added to or removed from the protected folders
         run: |
-          diff <(find evaluation/results/frozen evaluation/results/frozen-setC evaluation/results/tuning -type f | LC_ALL=C sort) \
+          diff <(find evaluation/results/frozen evaluation/results/frozen-setC evaluation/results/tuning \
+                      evaluation/runs/gemma4_e2b_it_qat_prompt3_setC -type f | LC_ALL=C sort) \
                <(awk '{print $2}' evaluation/protected.sha256 | grep -v '^fixtures/' | LC_ALL=C sort)
 
   rescore:

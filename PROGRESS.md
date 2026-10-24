@@ -1672,3 +1672,47 @@ Re-checked the live post in the built-in browser:
 - The cover, the YouTube embed and the GitHub embed render, and no raw Markdown or liquid tags show.
 
 The fixes in `docs/demo/post-live-fixes.md` are complete.
+
+### INT-12: CI protects the saved set C Gemma replies and fixtures (2026-10-24)
+**Why:** a reader on the DEV post asked whether the frozen and post-fix set C runs are both inspectable. They are, as separate files (`evaluation/results/frozen-setC/` from `9327e30`, and the post-hoc `evaluation/results/setC_*.json` from `c23ea71`). But CI hashed only the frozen scores and the manifest file. It did not hash the raw Gemma replies that every re-score reads, and it did not check the fixtures against the manifest. The owner asked to close that gap.
+
+**Changed (D-38):**
+- `evaluation/protected.sha256` grew from 17 to 40 entries: it now includes the 23 replies in `evaluation/runs/gemma4_e2b_it_qat_prompt3_setC/`. No existing line changed.
+- `.github/workflows/tests.yml` integrity job:
+  - a new step runs `sha256sum --check --strict setC.manifest` inside `fixtures/`;
+  - the replies folder is now part of the added/removed-file check.
+- **Docs:**
+  - TESTING.md: the integrity row, the local commands and the mermaid label;
+  - RESULTS.md: one provenance sentence;
+  - DECISIONS (D-38), TASKS (INT-12) and context.
+
+**Before adding the hashes:** `git diff 9327e30 HEAD` on the replies folder was empty and the working tree was clean, so the hashes record the files as frozen.
+
+**Checks run locally (macOS `sha256sum`):**
+- The protected list verifies 40/40.
+- The manifest verifies 3/3.
+- The folder-list diff is empty.
+- **Tamper test on a temporary copy:** a one-byte change to `m21.json`, an added `m99.json` and a one-byte change to `setC_roster.txt` each fail their check.
+- The workflow YAML parses (Ruby `YAML`) with the new step.
+- The unit tests ran 116, with 8 skipped and OK.
+- **Earlier the same day:** a cache-only set C hybrid re-score to a temp folder still gave 19/20 and 1.0, matching the committed post-hoc result.
+
+**Not checked:** the GitHub Actions run itself, which happens after the owner pushes. The set A/B saved outputs remain protected by git history and the "do not edit `evaluation/runs/`" rule only.
+
+### INT-12 follow-up: the frozen set C score reproduces from freeze-time code (2026-10-24)
+Checked while reviewing a second agent's draft reply to the DEV commenter.
+
+**Commit times (IST, 21 Oct):**
+- 03:00: the set C manifest (`688c50d`).
+- About 03:34–03:36: the one scoring run (RESULTS.md).
+- 11:07: the frozen results and Gemma cache (`9327e30`).
+- 11:26: the D-31 fixes (`2773323`) and the post-hoc re-score (`c23ea71`).
+
+So the frozen files were committed about 7.5 hours after scoring but **before** any fix commit. Each of `frozen-setC/` and the replies folder has exactly one commit.
+
+**Reproduction:**
+- `git archive 9327e30` was extracted to a scratch folder (Ollama not running; all 23 replies cached). There, the freeze-time `evaluation.run` re-scored set C for rules, model and hybrid.
+- `heldout`, `all` and `ledger` are identical to `frozen-setC/` for all three readers: 15/20 · 0.433, 17/20 · 0.403, 17/20 · 0.527. That replay made 0 fresh calls; the frozen model file records the original 23.
+- The repository was not touched.
+
+**Corrections to the draft reply:** "committed right after the scoring run" was overstated and is now "committed later that morning, before any of the fixes". The INT-12 change must be pushed and green before the reply claims it.
