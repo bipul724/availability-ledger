@@ -1716,3 +1716,9 @@ So the frozen files were committed about 7.5 hours after scoring but **before** 
 - The repository was not touched.
 
 **Corrections to the draft reply:** "committed right after the scoring run" was overstated and is now "committed later that morning, before any of the fixes". The INT-12 change must be pushed and green before the reply claims it.
+
+### INT-12: pushed and green (2026-10-24)
+- The owner pushed `8a39eaa`. `origin/main` equals local `main`, and the commit contains exactly the 8 INT-12 files.
+- [tests #25](https://github.com/bipul724/availability-ledger/actions/runs/40113136702) on `8a39eaa` passed all three jobs, read from the public GitHub API.
+- The public API did not list the integrity job's individual steps. The job ran the committed workflow, which contains the new manifest step.
+- **Correction to the lead's chat summary:** the reproduction at `9327e30` matched `heldout`, `all` and `ledger`, not every field. The Gemma-only file's timing and memory fields differ, as expected: the frozen run made 23 real calls and the replay made none. The entry above already scoped the claim to those three sections.
