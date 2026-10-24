@@ -1778,3 +1778,14 @@ Set D still does not exist.
 - The run-sheet export header becomes `pending=24` (was 21). Maria's `confirmed` rows are unchanged.
 
 **Consequence for the published post and video:** they say 39 and 28. `render.yaml` does not set `autoDeploy: false`, so a push to `main` is expected to redeploy the replay with 36 and 31. The owner updates the post after pushing, and posts the COR-20 comment reply only after that.
+
+### Live post and replay consistency after COR-20 (2026-10-25)
+**Checked in the built-in browser:**
+- **The live post** shows "accepted the 36 warning-free suggestions", `pending=24`, the table 36 / 31, "checking 31 flagged suggestions", and the "Update, 24 Oct" line under point 5. Its one remaining "39" is the intended "instead of the 39 shown in the video". No raw Markdown shows; the seven images and the GitHub card are present.
+- **The live Render replay**, Model + rules: "Accepted 36 suggestions that had no warnings". The m48 card shows both "Only one of the two readers…" and "…someone other than the sender".
+- **The Odinaka reply** is posted.
+
+**Follow-up from that reader:** will set D also freeze the extractor version?
+- **Fact:** result JSONs record `model` and `prompt_version` but no code commit. Set C's code version is recorded in RESULTS.md prose (`56e38bd` plus set registration) and reproduces from `9327e30`.
+- **Changed:** EVAL-11 now requires the first-score files to name the producing commit, and that commit must reproduce the frozen score.
+- The CI re-score compares against the current `evaluation/results/*.json`, never the hash-locked frozen files. So a later extractor can add a post-hoc number but cannot replace the frozen one.
