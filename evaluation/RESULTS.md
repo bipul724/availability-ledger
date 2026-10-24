@@ -139,3 +139,12 @@ Which fix moved what (each fix scored in turn): **COR-13** (explicit dates) m13 
 
 Still wrong after the fixes: m19 for every reader (no time extracted, a unit-level error, though the sheet is now right); m13 for rules ("Sat" alone still reads as Sat 28 Nov, so the evidence gate now drops it as unsupported by the quote; the outside-week ambiguity is missed, silently); m23 for rules (coordinator messages are ignored). A perfect slot agreement on 24 fictional messages after fixing their own failures says little about new messages; an independent check would need a fresh set (EVAL-11, D-31).
 
+### COR-20 warnings, post-hoc (2026-10-24; not independent evidence)
+
+Two new warnings, `not_sender` and `names_other_person` (D-39), were re-scored from the same cached outputs with 0 fresh calls; the frozen tables are untouched. **No sheet, slot-agreement, unit or missed-cancellation figure changed** for any set, because warnings never change the sheet. Only the warning counts moved:
+- Silent errors: set A Model only (all 50 messages) 10 → 9; set B rules 18 → 17.
+- Correct units that now also carry a warning (false alarms): set A held-out +1 for each reader; set A all messages Gemma + rules 27 → 30, Gemma only 9 → 13, rules 2 → 5; set B Gemma only 9 → 12.
+- Set C and set B Gemma + rules: unchanged.
+
+It was designed after seeing the demo week's m48 (set A dev) and m22 (set A held-out), so these figures are post-hoc.
+

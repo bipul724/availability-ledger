@@ -73,3 +73,9 @@ def match_person(text: str, sender: str, roster: list[str]) -> PersonMatch:
     if cands:
         return PersonMatch("ambiguous", None, candidates=cands)
     return PersonMatch("unknown")
+
+
+def named_in(text: str, roster: list[str]) -> list[str]:
+    """COR-20: roster entries whose first name appears in the text as a whole word (accents and case ignored)."""
+    words = set(norm_name(text).split())
+    return [r for r in roster if norm_name(r).split() and norm_name(r).split()[0] in words]

@@ -14,25 +14,6 @@
   "json_parse_failures": 0,
   "first_load_s": null
  },
- "memory": {
-  "samples": 1,
-  "ollama_rss_peak_mb": 3,
-  "swap_used_start_mb": 5752.44,
-  "swap_used_peak_mb": 5752.44,
-  "free_pct_min": 35,
-  "pressure_level_share": {
-   "warn": 1.0
-  },
-  "swapout_pages_during_run": 0,
-  "ollama_ps": [
-   {
-    "name": "gemma4:e2b-it-qat",
-    "size_mb": 1561,
-    "size_vram_mb": 1561,
-    "context_length": 4096
-   }
-  ]
- },
  "dev": {
   "messages": 30,
   "duplicate_messages_excluded": 0,
@@ -45,15 +26,15 @@
    "missed_condition": 1,
    "extra_conditional": 1
   },
-  "silent_errors": 3,
-  "flagged_units": 7,
-  "flagged_but_correct": 7,
+  "silent_errors": 2,
+  "flagged_units": 11,
+  "flagged_but_correct": 10,
   "effort_proxy": {
    "manual_actions": 189,
    "assisted_actions_full_review": 54,
    "ratio_full_review": 0.29,
-   "assisted_actions_bulk_accept": 1,
-   "ratio_bulk_accept": 0.01
+   "assisted_actions_bulk_accept": 4,
+   "ratio_bulk_accept": 0.02
   },
   "errors": [
    {
@@ -110,7 +91,7 @@
      "2026-11-10"
     ],
     "kind": "extra_conditional",
-    "silent": true,
+    "silent": false,
     "expected": null,
     "got": {
      "open": [
@@ -175,8 +156,8 @@
    "condition_treated_as_firm": 1
   },
   "silent_errors": 7,
-  "flagged_units": 4,
-  "flagged_but_correct": 2,
+  "flagged_units": 5,
+  "flagged_but_correct": 3,
   "effort_proxy": {
    "manual_actions": 97,
    "assisted_actions_full_review": 49,
@@ -407,15 +388,15 @@
    "extra_conditional": 1,
    "condition_treated_as_firm": 1
   },
-  "silent_errors": 10,
-  "flagged_units": 11,
-  "flagged_but_correct": 9,
+  "silent_errors": 9,
+  "flagged_units": 16,
+  "flagged_but_correct": 13,
   "effort_proxy": {
    "manual_actions": 286,
    "assisted_actions_full_review": 103,
    "ratio_full_review": 0.36,
-   "assisted_actions_bulk_accept": 7,
-   "ratio_bulk_accept": 0.02
+   "assisted_actions_bulk_accept": 10,
+   "ratio_bulk_accept": 0.03
   },
   "errors": [
    {
@@ -605,7 +586,7 @@
      "2026-11-10"
     ],
     "kind": "extra_conditional",
-    "silent": true,
+    "silent": false,
     "expected": null,
     "got": {
      "open": [

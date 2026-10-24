@@ -21,15 +21,15 @@
    "missed_negation": 2,
    "missed_cancellation": 1
   },
-  "silent_errors": 18,
-  "flagged_units": 1,
+  "silent_errors": 17,
+  "flagged_units": 2,
   "flagged_but_correct": 1,
   "effort_proxy": {
    "manual_actions": 105,
    "assisted_actions_full_review": 50,
    "ratio_full_review": 0.48,
-   "assisted_actions_bulk_accept": 1,
-   "ratio_bulk_accept": 0.01
+   "assisted_actions_bulk_accept": 4,
+   "ratio_bulk_accept": 0.04
   },
   "errors": [
    {
@@ -157,7 +157,7 @@
      "2026-11-16"
     ],
     "kind": "time_error",
-    "silent": true,
+    "silent": false,
     "expected": {
      "open": [
       [
@@ -474,15 +474,15 @@
    "missed_negation": 2,
    "missed_cancellation": 1
   },
-  "silent_errors": 18,
-  "flagged_units": 1,
+  "silent_errors": 17,
+  "flagged_units": 2,
   "flagged_but_correct": 1,
   "effort_proxy": {
    "manual_actions": 105,
    "assisted_actions_full_review": 50,
    "ratio_full_review": 0.48,
-   "assisted_actions_bulk_accept": 1,
-   "ratio_bulk_accept": 0.01
+   "assisted_actions_bulk_accept": 4,
+   "ratio_bulk_accept": 0.04
   },
   "errors": [
    {
@@ -610,7 +610,7 @@
      "2026-11-16"
     ],
     "kind": "time_error",
-    "silent": true,
+    "silent": false,
     "expected": {
      "open": [
       [

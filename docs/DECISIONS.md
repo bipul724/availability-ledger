@@ -55,6 +55,7 @@ Entries retain their original rationale and dated evidence. Later decisions can 
 | D-36 | Light appearance only (UI-14) | accepted (owner request, 2026-10-22) |
 | D-37 | Drop ElevenLabs (INT-04); demo narrated live or captioned | accepted (owner decision, 2026-10-22) |
 | D-38 | Hash-protect the saved set C Gemma outputs and check the set C fixtures in CI (INT-12) | accepted (owner request, 2026-10-24) |
+| D-39 | Warn when a suggestion may be about someone other than the sender (COR-20) | accepted (owner request, 2026-10-24) |
 
 ---
 
@@ -396,3 +397,14 @@ Entries retain their original rationale and dated evidence. Later decisions can 
   - The replies and fixtures are unchanged since they were frozen (`git diff 9327e30 HEAD` on the replies folder is empty; the manifest still verifies), so this records existing state; it does not regenerate anything.
 - **Scope:** set C only. The set A/B saved outputs are still protected by git history and the CLAUDE.md "do not edit `evaluation/runs/`" rule, not by CI hashes.
 - **Rule unchanged:** `evaluation/protected.sha256` may only be regenerated after a recorded decision, never to make the check pass.
+
+### D-39 Warn when a suggestion may be about someone other than the sender (COR-20)
+
+- **Date:** 2026-10-24. **Status:** accepted (owner request, after a DEV reader asked what happens when a wrong attribution carries no warning).
+- **Decision:** two deterministic review warnings, `not_sender` and `names_other_person`, set in `core.resolve_claim` and listed as warnings (not informational) in `ui/app.js` and `evaluation.run.WARNING_FLAGS`. They block both bulk-accept buttons and never change the provisional sheet or the export.
+- **Why:**
+  - In Model only, the replay's m48 (Marta's offer filed under Maria) carried only informational flags and was taken by "Accept all suggestions without warnings". In Model + rules it was held back only by `one_reader`.
+  - The rules reader always assigns the sender, so two readers can agree on a wrong person only by crediting the sender for someone else's words; `names_other_person` covers that case (for example "X and I can both do Saturday").
+- **Rejected:** a warning for any message containing "?". In the fictional demo week, 6 messages contain "?" and 5 are genuine offers.
+- **Post-hoc:** designed after seeing the demo week's m48 (a set A dev message) and m22 (a set A held-out message). Re-scored from cache: no sheet or slot-agreement change; some silent errors become visible and some correct units gain warnings (RESULTS.md, PROGRESS).
+- **Limits:** surnames, nicknames and pronouns are not detected; a first name that is also an ordinary word can fire falsely.

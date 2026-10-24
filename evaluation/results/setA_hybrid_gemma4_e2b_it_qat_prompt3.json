@@ -14,25 +14,6 @@
   "json_parse_failures": 0,
   "first_load_s": null
  },
- "memory": {
-  "samples": 1,
-  "ollama_rss_peak_mb": 10,
-  "swap_used_start_mb": 5752.44,
-  "swap_used_peak_mb": 5752.44,
-  "free_pct_min": 35,
-  "pressure_level_share": {
-   "warn": 1.0
-  },
-  "swapout_pages_during_run": 0,
-  "ollama_ps": [
-   {
-    "name": "gemma4:e2b-it-qat",
-    "size_mb": 1561,
-    "size_vram_mb": 1561,
-    "context_length": 4096
-   }
-  ]
- },
  "dev": {
   "messages": 30,
   "duplicate_messages_excluded": 0,
@@ -46,8 +27,8 @@
    "extra_conditional": 1
   },
   "silent_errors": 1,
-  "flagged_units": 18,
-  "flagged_but_correct": 16,
+  "flagged_units": 20,
+  "flagged_but_correct": 18,
   "effort_proxy": {
    "manual_actions": 189,
    "assisted_actions_full_review": 54,
@@ -174,8 +155,8 @@
    "condition_treated_as_firm": 1
   },
   "silent_errors": 3,
-  "flagged_units": 15,
-  "flagged_but_correct": 11,
+  "flagged_units": 16,
+  "flagged_but_correct": 12,
   "effort_proxy": {
    "manual_actions": 97,
    "assisted_actions_full_review": 43,
@@ -374,8 +355,8 @@
    "condition_treated_as_firm": 1
   },
   "silent_errors": 4,
-  "flagged_units": 33,
-  "flagged_but_correct": 27,
+  "flagged_units": 36,
+  "flagged_but_correct": 30,
   "effort_proxy": {
    "manual_actions": 286,
    "assisted_actions_full_review": 97,

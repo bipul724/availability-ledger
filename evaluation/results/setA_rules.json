@@ -19,8 +19,8 @@
    "missed_condition": 1
   },
   "silent_errors": 5,
-  "flagged_units": 0,
-  "flagged_but_correct": 0,
+  "flagged_units": 2,
+  "flagged_but_correct": 2,
   "effort_proxy": {
    "manual_actions": 189,
    "assisted_actions_full_review": 62,
@@ -206,8 +206,8 @@
    "ambiguity_guessed": 1
   },
   "silent_errors": 9,
-  "flagged_units": 2,
-  "flagged_but_correct": 2,
+  "flagged_units": 3,
+  "flagged_but_correct": 3,
   "effort_proxy": {
    "manual_actions": 97,
    "assisted_actions_full_review": 45,
@@ -516,8 +516,8 @@
    "missed_condition": 1
   },
   "silent_errors": 14,
-  "flagged_units": 2,
-  "flagged_but_correct": 2,
+  "flagged_units": 5,
+  "flagged_but_correct": 5,
   "effort_proxy": {
    "manual_actions": 286,
    "assisted_actions_full_review": 107,

@@ -1722,3 +1722,59 @@ So the frozen files were committed about 7.5 hours after scoring but **before** 
 - [tests #25](https://github.com/bipul724/availability-ledger/actions/runs/40113136702) on `8a39eaa` passed all three jobs, read from the public GitHub API.
 - The public API did not list the integrity job's individual steps. The job ran the committed workflow, which contains the new manifest step.
 - **Correction to the lead's chat summary:** the reproduction at `9327e30` matched `heldout`, `all` and `ledger`, not every field. The Gemma-only file's timing and memory fields differ, as expected: the frozen run made 23 real calls and the replay made none. The entry above already scoped the claim to those three sections.
+
+### EVAL-11 order clarified; manifest pinning confirmed (2026-10-24)
+A DEV reader asked whether a regenerated manifest could pass CI, and whether set D would freeze its raw replies before any extractor change.
+
+**Confirmed:**
+- `fixtures/setC.manifest` has had its own line in `evaluation/protected.sha256` since INT-11 (`8c5f975`). Regenerating it fails the `sha256sum --check`.
+- The manifest has a single commit, `688c50d`, from before set C was scored.
+- `protected.sha256` has two commits, `8c5f975` and `8a39eaa`, with 0 removed or changed lines between them: append-only so far.
+- **Remaining limit:** a single commit editing both the manifest and the hash list would pass CI. It would show as a changed line in the public history.
+
+**Changed:** the EVAL-11 acceptance criteria now fix the order:
+1. manifest and its hash;
+2. one Gemma run;
+3. raw replies and first score, hash-protected in one commit;
+4. only then extractor changes.
+
+Set D still does not exist.
+
+### COR-20: warnings for suggestions about someone other than the sender (2026-10-24, D-39)
+**Source:** a DEV reader asked what happens if both readers agree on a wrong attribution, and suggested a deterministic "person isn't the sender" or "message is a question" check.
+
+**Finding, before the change** (local `LEDGER_DEMO=1` replay of the saved outputs, headless Chrome):
+- **Model + rules:** 67 suggestions, 39 bulk-eligible. m48.1 (Marta → Maria Lopez) was held back only by `one_reader`.
+- **Model only:** 62 suggestions, 49 bulk-eligible. **m48.1 was bulk-eligible** (`similar_name` and `conditional`, both informational), so "Accept all suggestions without warnings" would accept it.
+- **The rules reader always assigns `SENDER`.** So two readers can agree on a wrong person only by crediting the sender. Example: m22, Grace "Sam and I could both do Saturday afternoon". Both readers give Grace her Saturday and "Sam" is dropped silently (set A held-out; the reference expects unresolved "Sam").
+- A "contains ?" warning would hit 6 messages, 5 of them genuine offers. Rejected.
+
+**Changed:**
+- `ledger/names.py`: `named_in`.
+- `ledger/core.py`, in `resolve_claim`:
+  - `not_sender` fires when the resolved person is not the sender's resolved roster name, unless a reviewer set the person.
+  - `names_other_person` fires when the message names, by whole-word first name, a roster member other than the sender and the suggestion's person.
+- `ui/app.js`: labels added; both flags are warnings, so they block both bulk-accept buttons.
+- `evaluation/run.py`: `WARNING_FLAGS`.
+- `tests/test_cor20_attribution.py`: 12 tests with invented names and messages.
+- Docs: API flag table, ARCHITECTURE identity, README, the `/docs` badge list, D-39, RESULTS post-hoc note.
+
+**History of this change:** first built earlier on 2026-10-24. That uncommitted working copy was then discarded by accident: the code, tests, results and docs were missing from the working tree, stash and history. It was rebuilt the same day from the same content at the owner's request, and every check was re-run.
+
+**Checks run on the rebuild:**
+- The new tests failed 7 of 12 before the code change and pass after.
+- Unit suite: 128 ran, 8 skipped, OK.
+- Browser scripts: all seven pass (demo_mode 23, review_safeguards 12, sheet_display 28, csv_safety 4, session_rerun 10, extraction_failures 14, landing 20).
+- **Cache-only re-score of A/B/C × rules, model and hybrid:** 0 fresh calls, with deltas identical to the first build.
+  - No sheet, slot, unit or missed-cancellation change.
+  - Silent errors: A model (all) 10 → 9, B rules 18 → 17.
+  - Correct units newly flagged: A held-out +1 per reader; A all hybrid 27 → 30, model 9 → 13, rules 2 → 5; B model 9 → 12.
+  - Only those five result files were updated. Files whose differences were timing-only stay at HEAD.
+  - `evaluation.ci_summary` exits 0. The protected list verifies 40/40, the set C manifest 3/3, and the frozen files are untouched.
+
+**Replay after the change:**
+- One-click accept: Model + rules **36** (was 39), Model only 44 (was 49).
+- `not_sender` fires on m20.1 (coordinator forward → Kofi) and m48.1. `names_other_person` fires on m19.1, m21.1 ("not Lena" / "not Beth") and m22.1. Each is the only warning on that suggestion in Model only.
+- The run-sheet export header becomes `pending=24` (was 21). Maria's `confirmed` rows are unchanged.
+
+**Consequence for the published post and video:** they say 39 and 28. `render.yaml` does not set `autoDeploy: false`, so a push to `main` is expected to redeploy the replay with 36 and 31. The owner updates the post after pushing, and posts the COR-20 comment reply only after that.

@@ -283,6 +283,8 @@ Shown as badges on cards. "Info" flags do not block "Accept all suggestions with
 | `who_ambiguous` | name matches several roster entries | |
 | `who_unknown` | person not on the roster | |
 | `similar_name` | a similar name is on the roster | info |
+| `not_sender` | the suggestion's resolved person is not the sender's resolved roster name (also any resolved person in a message from a sender not on the roster, such as a coordinator); not set when the reviewer chose the person (COR-20, D-39) | |
+| `names_other_person` | the message names, by first name as a whole word, a roster member other than the sender and the suggestion's person (COR-20, D-39) | |
 | `date_ambiguous` | the message does not settle the day | |
 | `outside_week` | day is outside the selected week | |
 | `date_unreadable` | no day could be read | |

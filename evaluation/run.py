@@ -33,7 +33,8 @@ PROTECTED = [RESULTS / "frozen", RESULTS / "frozen-setC", RESULTS / "tuning", RU
 # it marks identity, not the day/time/status, so an error under it still counts as silent.
 WARNING_FLAGS = {"who_ambiguous", "who_unknown", "date_ambiguous", "outside_week", "date_unreadable",
                  "time_unreadable", "excerpt_missing", "excerpt_approx", "phrase_not_in_message",
-                 "readers_disagree", "one_reader", "added_by_rules", "days_not_in_quote", "days_narrowed_to_quote"}
+                 "readers_disagree", "one_reader", "added_by_rules", "days_not_in_quote", "days_narrowed_to_quote",
+                 "not_sender", "names_other_person"}  # COR-20
 
 
 # ---------------------------------------------------------------- memory

@@ -11,6 +11,8 @@ const FLAG_TEXT = {
   who_ambiguous: "Which volunteer? The name matches more than one",
   who_unknown: "Person is not on the roster",
   similar_name: "A similar name is on the roster",
+  not_sender: "This suggestion is for someone other than the sender",
+  names_other_person: "The message also names someone else on the roster",
   date_ambiguous: "Which day? The message does not settle it",
   outside_week: "Outside the selected week",
   date_unreadable: "Could not read a day",

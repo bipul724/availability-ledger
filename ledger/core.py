@@ -14,7 +14,7 @@ from collections import Counter
 from datetime import date
 
 from .messages import Message
-from .names import SELF_WORDS, match_person, norm_name
+from .names import SELF_WORDS, match_person, named_in, norm_name
 from .resolve import _WD, SAME_TIME, Calendar, TimeResolution, _hhmm, _mins, _norm, _wd, resolve_day, resolve_time
 
 SLOT = 15
@@ -142,6 +142,14 @@ def resolve_claim(claim: dict, msg: Message, roster: list[str], cal: Calendar, c
             flags.append("who_unknown")
         if pm.similar:
             flags.append("similar_name")
+    # COR-20: the suggestion may be about someone other than the sender. Both are warnings, so a reviewer looks
+    # before "Accept all suggestions without warnings" can take them; neither changes the sheet.
+    me = match_person("SENDER", msg.sender, roster)
+    sender = me.name if me.state == "resolved" else None
+    if not ov.get("person") and c["person_state"] == "resolved" and c["person"] != sender:
+        flags.append("not_sender")
+    if [r for r in named_in(msg.text, roster) if r not in (sender, c["person"])]:
+        flags.append("names_other_person")
 
     if ov.get("dates") is not None:
         dates = sorted(ov["dates"])
