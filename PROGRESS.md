@@ -1747,7 +1747,7 @@ Set D still does not exist.
 - **Model + rules:** 67 suggestions, 39 bulk-eligible. m48.1 (Marta → Maria Lopez) was held back only by `one_reader`.
 - **Model only:** 62 suggestions, 49 bulk-eligible. **m48.1 was bulk-eligible** (`similar_name` and `conditional`, both informational), so "Accept all suggestions without warnings" would accept it.
 - **The rules reader always assigns `SENDER`.** So two readers can agree on a wrong person only by crediting the sender. Example: m22, Grace "Sam and I could both do Saturday afternoon". Both readers give Grace her Saturday and "Sam" is dropped silently (set A held-out; the reference expects unresolved "Sam").
-- A "contains ?" warning would hit 6 messages, 5 of them genuine offers. Rejected.
+- A "contains ?" warning was rejected: 8 messages in the fictional demo week contain "?"; 6 of them produce a suggestion, and 5 of those 6 are genuine offers (the other 2 are plain questions with no availability). (Corrected 2026-10-25: an earlier note said "6 messages contain ?", counting only messages that produce a suggestion.)
 
 **Changed:**
 - `ledger/names.py`: `named_in`.

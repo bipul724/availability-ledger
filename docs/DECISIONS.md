@@ -405,6 +405,6 @@ Entries retain their original rationale and dated evidence. Later decisions can 
 - **Why:**
   - In Model only, the replay's m48 (Marta's offer filed under Maria) carried only informational flags and was taken by "Accept all suggestions without warnings". In Model + rules it was held back only by `one_reader`.
   - The rules reader always assigns the sender, so two readers can agree on a wrong person only by crediting the sender for someone else's words; `names_other_person` covers that case (for example "X and I can both do Saturday").
-- **Rejected:** a warning for any message containing "?". In the fictional demo week, 6 messages contain "?" and 5 are genuine offers.
+- **Rejected:** a warning for any message containing "?". 8 messages in the fictional demo week contain "?"; 6 of them produce a suggestion, and 5 of those 6 are genuine offers (the other 2 are plain questions with no availability).
 - **Post-hoc:** designed after seeing the demo week's m48 (a set A dev message) and m22 (a set A held-out message). Re-scored from cache: no sheet or slot-agreement change; some silent errors become visible and some correct units gain warnings (RESULTS.md, PROGRESS).
 - **Limits:** surnames, nicknames and pronouns are not detected; a first name that is also an ordinary word can fire falsely.
