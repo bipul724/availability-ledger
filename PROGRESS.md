@@ -1801,3 +1801,16 @@ The run's public job summary shows post-hoc scores (set C 1.0), so that table wa
 
 **Not captured:** a Render image. Headless capture of the sleeping free instance timed out, and a dashboard screenshot needs the owner's login.
 - **Post text to update alongside the Actions image (found by the second agent's review):** the "Built with" bullet still says "116 unit tests" and links Run #18. HEAD runs 128 (8 skipped), and the image shows [tests #29](https://github.com/bipul724/availability-ledger/actions/runs/40124840971).
+
+### REL-05: Render dashboard image (2026-10-25)
+The owner supplied a Render dashboard screenshot. It was cropped locally to `docs/demo/post/render-deploys.png` (1640×745): the left sidebar and workspace bar were removed, and the header plus the four newest deploys were kept.
+
+**Visible in the image:**
+- service `availability-ledger-replay`: Python 3, Free, Blueprint managed;
+- repository `bipul724/availability-ledger`, branch `main`, at `f52a6d2`, Live;
+- the replay URL and the free-instance spin-down notice;
+- 23 deploys, the top four Auto-Deploy, including `84d5fec` (COR-20).
+
+**Not visible:** email, environment values or billing. The Render service ID is visible; it is an identifier, not a credential.
+
+This confirms auto-deploy from `main` for every recent push, which the earlier `render.yaml` reading could only infer.
