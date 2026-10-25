@@ -1789,3 +1789,15 @@ Set D still does not exist.
 - **Fact:** result JSONs record `model` and `prompt_version` but no code commit. Set C's code version is recorded in RESULTS.md prose (`56e38bd` plus set registration) and reproduces from `9327e30`.
 - **Changed:** EVAL-11 now requires the first-score files to name the producing commit, and that commit must reproduce the frozen score.
 - The CI re-score compares against the current `evaluation/results/*.json`, never the hash-locked frozen files. So a later extractor can add a post-hoc number but cannot replace the frozen one.
+
+### REL-05: optional extra post images (2026-10-25)
+**The live post now has seven images:** one each in "What I Built", "Gemma missed Maria's cancellation" and "Built with" (Sentry), and four in "How I Built It". The Lazy Payoff, results, Render and GitHub Actions parts have none. The owner retitled the post "Availazy: Gemma 4 forgot to cancel Thursday. A keyword list didn't."
+
+**Added to `docs/demo/post/`:**
+- `chart-after-one-click.png`: the replay's People available chart after the run-sheet steps, with current COR-20 code (36 accepted in one click).
+- `github-actions-run.png`: a crop of the public [tests #29](https://github.com/bipul724/availability-ledger/actions/runs/40124840971) page showing three green jobs.
+
+The run's public job summary shows post-hoc scores (set C 1.0), so that table was deliberately left out of the image.
+
+**Not captured:** a Render image. Headless capture of the sleeping free instance timed out, and a dashboard screenshot needs the owner's login.
+- **Post text to update alongside the Actions image (found by the second agent's review):** the "Built with" bullet still says "116 unit tests" and links Run #18. HEAD runs 128 (8 skipped), and the image shows [tests #29](https://github.com/bipul724/availability-ledger/actions/runs/40124840971).
